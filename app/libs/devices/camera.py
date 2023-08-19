@@ -9,10 +9,7 @@ class Camera():
         At this point in time, this camera class only supports webcam
         feed (no depth camera).
         
-        OpenCV is required (and used for support reasons), 
-        however pygame.camera is used for testing
-        (directly display to game)
-        purposes. 
+        OpenCV is required.
     """
     
     def __init__(self):
