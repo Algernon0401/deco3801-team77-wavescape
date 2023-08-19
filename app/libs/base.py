@@ -6,6 +6,9 @@
 # Import pygame for window rendering
 import pygame 
 
+# Import camera
+from .devices.camera import Camera
+
 class Control:
     pass
     
@@ -24,6 +27,7 @@ class AppController:
         self.added_controls = [] # Next control list (controls added)
         self.removed_controls = [] # Next control list (controls removed)
         self.running = True 
+        self.camera = Camera()
     
     def get_screen_size(self):
         """

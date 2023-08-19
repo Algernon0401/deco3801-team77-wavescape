@@ -10,13 +10,13 @@ import pygame
 from ..base import *
 from ..devices.camera import *
 
+ASSET_CAMERA_INVALID_OVERLAY = 'assets/images/camera_invalid_overlay.png'
+ASSET_CAMERA_LOADING_OVERLAY = 'assets/images/camera_loading_overlay.png'
 
 class DDCamVisual(Control):
     """
         Reads the camera directly and displays it on screen. 
         (Test control)
-        
-        (Unimplemented at this point)
     """
     
     def __init__(self, controller: AppController):
@@ -30,7 +30,8 @@ class DDCamVisual(Control):
         self.x = 0
         self.y = 0
         (self.w, self.h) = controller.get_screen_size()
-        # self.camera = Camera()
+        self.invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
+        self.loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
     
     def update(self, controller: AppController):
         """
@@ -49,7 +50,17 @@ class DDCamVisual(Control):
                 controller -- the app controller this control runs from
                 screen -- the surface this control is drawn on.
         """
-        pygame.draw.rect(screen, pygame.Color(255,255,255), pygame.Rect(self.x, self.y, self.w, self.h))
+        # Check if camera is loading, and if so display loading image
+        if controller.camera.loading:
+            screen.blit(self.loading_camera_overlay, (5,5))
+        else:    
+            # Capture frame, and if none then display invalid camera image.
+            frame = controller.camera.capture_video_pygame()        
+            if frame is None:
+                screen.blit(self.invalid_camera_overlay, (5,5))
+            else:
+                screen.blit(pygame.transform.scale(frame, controller.get_screen_size()), (0,0), None)   
+        
         pass
     
     def event(self, controller: AppController, event: pygame.event.Event):

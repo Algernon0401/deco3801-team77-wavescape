@@ -25,7 +25,7 @@
             This function does something.
 
             Args: 
-                arg1: An argument that alters something
+                arg1 -- An argument that alters something
             
             Returns:
                 The result of doing something 

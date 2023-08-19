@@ -58,6 +58,9 @@ def app_init():
             
         # Update controller to clean state (no removed/added controls)
         controller.set_clean_state()
+        
+        # Clear screen
+        screen.fill(pygame.Color(0,0,0))    
             
         # Render all controls
         for control in controller.get_controls():
@@ -65,6 +68,9 @@ def app_init():
             
         # Update the screen
         pygame.display.flip()
+    
+    # Release resources
+    controller.camera.destroy()
     
     print("App Exiting...")
     
