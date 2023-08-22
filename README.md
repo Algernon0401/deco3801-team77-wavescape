@@ -14,10 +14,13 @@
 ## Folder Structure
     All project code and assets should belong in the "app" folder and all project related documents (i.e. supporting code documents, team documents) should belong in the "docs" folder.
 
+## VSCODE Configurations
+    A vscode configuration has been added for each member in the team (e.g. Samson) - this is visible within the run and debug window in vscode - ctrl+shift+d. This is so edits to launch.json will have minimal effect on team members, so that people can test their code and change their launch options easily       in vscode without having to run or modify other python scripts if they wish. 
+
 ## Style Guide
     All code written in python should adhere closely to the style guide found here: https://peps.python.org/pep-0008/   
 
-    The bare minimum should that code is properly commented/documented, so that team members. For example,
+    The bare minimum should that code is properly commented/documented, so that team members can understand the code a little. For example,
 
     ```
     def do_something(self, arg1: int) -> int:
