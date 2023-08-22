@@ -19,7 +19,6 @@ class Camera:
         which opens the camera for opencv and pygame use.
         """
         try:
-            # Create video capture from OpenCV (camera)
             self.loading = True
             self.valid = False
 
@@ -64,6 +63,8 @@ class Camera:
         if self.valid:
             frame = self.capture_video()
             if frame is not None:
+                # Convert to pygame image (current shape is (height,width))
+                #                         (required shape is (width,height))
                 return pygame.image.frombuffer(
                     frame.tobytes(), frame.shape[1::-1], "BGR"
                 )
@@ -76,4 +77,5 @@ class Camera:
         if self.valid:
             self.video.release()
 
+        self.valid = False
         self.valid = False
