@@ -1,0 +1,10 @@
+path: r"C:\vscode\DECO3801\deco3801-team77\test-spaces\nigel\data" # dataset root dir
+train: images/train # train images (relative to 'path')
+val: images/train # val images (relative to 'path')
+
+# Classes
+names:
+  0: Star
+  1: Gear
+  2: Right_Angle
+  3: Triangle
