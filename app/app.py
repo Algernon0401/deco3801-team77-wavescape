@@ -10,6 +10,7 @@ from libs.base import *
 
 # Import controls
 from libs.controls.ddcam import *
+from libs.controls.menu import *
 
 import pygame
 
@@ -34,7 +35,7 @@ def app_init():
 
     # Add initial controls
     controller.add_control(DDCamVisual(controller))
-
+    controller.add_control(Menu(controller))
     while controller.is_running():
         # Update camera objects.
         controller.update()
