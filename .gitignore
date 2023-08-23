@@ -1,2 +1,5 @@
 # Ignore pycache
 *.pyc
+.venv/
+*.pt
+*.joblib
