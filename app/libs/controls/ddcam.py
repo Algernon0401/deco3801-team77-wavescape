@@ -34,7 +34,7 @@ class DDCamVisual(Control):
         self.invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
         self.loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
         controller.set_cam_objects([CamObject("star", (160, 320, 64,64))])
-        self.font = pygame.font.Font('assets/fonts/arial.ttf', 10)
+        self.font = pygame.font.Font('assets/fonts/arial.ttf', 12)
     
     def update(self, controller: AppController):
         """

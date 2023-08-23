@@ -33,6 +33,12 @@ class AppController:
         self.camera = Camera()
         self.objects = []
 
+    def update(self):
+        """
+        Updates the app controller (updates camera)
+        """
+        self.camera.update(self)
+
     def set_cam_objects(self, object_list):
         """
         Updates the app's currently recognized objects.

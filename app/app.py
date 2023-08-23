@@ -36,6 +36,9 @@ def app_init():
     controller.add_control(DDCamVisual(controller))
 
     while controller.is_running():
+        # Update camera objects.
+        controller.update()
+
         # Update all controls
         for control in controller.get_controls():
             control.update(controller)

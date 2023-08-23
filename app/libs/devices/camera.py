@@ -2,6 +2,7 @@
 import cv2 as cv
 import pygame
 import threading
+from ..object import *
 
 
 class Camera:
@@ -69,6 +70,20 @@ class Camera:
                     frame.tobytes(), frame.shape[1::-1], "BGR"
                 )
         return None
+    
+    def update(self, controller):
+        """
+            Updates by detecting the objects from the frame, outputting
+            to the controller's object list.
+        """
+        objects = []
+        cvframe = self.capture_video()
+        
+        # Implement code here
+        # e.g. 
+        objects.append(CamObject("star", (64,64,128,128)))
+
+        controller.set_cam_objects(objects)
 
     def destroy(self):
         """
