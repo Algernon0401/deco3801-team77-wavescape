@@ -1,2 +1,3 @@
 # Ignore pycache
 *.pyc
+.venv/
