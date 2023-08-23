@@ -6,7 +6,8 @@ import torch
 
 
 yolov5s = torch.hub.load("ultralytics/yolov5", "yolov5s")
-yolov5l = torch.hub.load("ultralytics/yolov5", "yolov5s")
+yolov5l = torch.hub.load("ultralytics/yolov5", "yolov5l")
+
 
 cap = cv2.VideoCapture(0)
 
