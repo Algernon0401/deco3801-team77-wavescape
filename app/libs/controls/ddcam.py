@@ -9,6 +9,7 @@ import pygame
 # Import app controller, control base class and camera
 from ..base import *
 from ..devices.camera import *
+from ..object import *
 
 ASSET_CAMERA_INVALID_OVERLAY = 'assets/images/camera_invalid_overlay.png'
 ASSET_CAMERA_LOADING_OVERLAY = 'assets/images/camera_loading_overlay.png'
@@ -32,6 +33,8 @@ class DDCamVisual(Control):
         (self.w, self.h) = controller.get_screen_size()
         self.invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
         self.loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
+        controller.set_cam_objects([CamObject("star", (160, 320, 64,64))])
+        self.font = pygame.font.Font('assets/fonts/arial.ttf', 10)
     
     def update(self, controller: AppController):
         """
@@ -61,6 +64,19 @@ class DDCamVisual(Control):
             else:
                 screen.blit(pygame.transform.scale(frame, controller.get_screen_size()), (0,0), None)   
         
+        # Test every object location (draw location)
+        for object in controller.objects:
+            tag = object.tag
+            (bx,by,bw,bh) = object.bounds
+            r = pygame.Surface((bw,bh))
+            r.set_alpha(128)
+            r.fill((255,255,255))
+            screen.blit(r, (bx,by))
+            text = self.font.render(tag, True, pygame.Color(0, 128, 128))
+            text_rect = text.get_rect()
+            text_rect.center = (bx+bw/2,by+bh/2)
+            screen.blit(text, text_rect)
+
         pass
     
     def event(self, controller: AppController, event: pygame.event.Event):

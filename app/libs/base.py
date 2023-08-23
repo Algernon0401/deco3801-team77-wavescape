@@ -31,6 +31,19 @@ class AppController:
         self.removed_controls = []  # Next control list (controls removed)
         self.running = True
         self.camera = Camera()
+        self.objects = []
+
+    def set_cam_objects(self, object_list):
+        """
+        Updates the app's currently recognized objects.
+        """
+        self.objects = object_list
+
+    def get_cam_objects(self):
+        """
+        Gets the app's currently recognized objects.
+        """
+        return self.objects
 
     def get_screen_size(self):
         """
