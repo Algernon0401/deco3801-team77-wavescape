@@ -33,7 +33,6 @@ class DDCamVisual(Control):
         (self.w, self.h) = controller.get_screen_size()
         self.invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
         self.loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
-        controller.set_cam_objects([CamObject("star", (160, 320, 64,64))])
         self.font = pygame.font.Font('assets/fonts/arial.ttf', 12)
     
     def update(self, controller: AppController):
@@ -43,6 +42,7 @@ class DDCamVisual(Control):
             Arguments:
                 controller -- the app controller this control runs from
         """
+
         pass
     
     def render(self, controller: AppController, screen: pygame.Surface):
@@ -55,12 +55,12 @@ class DDCamVisual(Control):
         """
         # Check if camera is loading, and if so display loading image
         if controller.camera.loading:
-            screen.blit(self.loading_camera_overlay, (5,5))
+            screen.blit(self.loading_camera_overlay, (145,5))
         else:    
             # Capture frame, and if none then display invalid camera image.
             frame = controller.camera.capture_video_pygame()        
             if frame is None:
-                screen.blit(self.invalid_camera_overlay, (5,5))
+                screen.blit(self.invalid_camera_overlay, (145,5))
             else:
                 screen.blit(pygame.transform.scale(frame, controller.get_screen_size()), (0,0), None)   
         
