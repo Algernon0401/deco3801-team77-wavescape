@@ -70,18 +70,20 @@ class Camera:
                     frame.tobytes(), frame.shape[1::-1], "BGR"
                 )
         return None
-    
+
     def update(self, controller):
         """
-            Updates by detecting the objects from the frame, outputting
-            to the controller's object list.
+        Updates by detecting the objects from the frame, outputting
+        to the controller's object list.
         """
         objects = []
         cvframe = self.capture_video()
-        
+
+        screen_size = controller.get_screen_size()
+
         # Implement code here
-        # e.g. 
-        objects.append(CamObject("star", (64,64,128,128)))
+        # e.g.
+        objects.append(CamObject("star", (64, 64, 128, 128)))
 
         controller.set_cam_objects(objects)
 
