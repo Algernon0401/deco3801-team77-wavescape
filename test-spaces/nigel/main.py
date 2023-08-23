@@ -2,7 +2,6 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import joblib
-from mypackage import thing1
 
 
 yolov5s = r"yolov5s.joblib"
