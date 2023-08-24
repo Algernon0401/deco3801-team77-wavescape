@@ -8,7 +8,12 @@ import pygame
 
 # Import camera
 from .devices.camera import Camera
+from .object import CamObject
 
+# Create partial implementation of zone control
+
+MOUSE_LEFT = 1 # Left pygame mouse button
+MOUSE_RIGHT = 3 # Right pygame mouse button
 
 class Control:
     pass
@@ -16,7 +21,7 @@ class Control:
 
 class AppController:
     """
-    A controller for the pygame, which allows user-controls
+    A basic controller for the pygame, which allows user-controls
     to interfere, interact, or 'see' the state of the window
     (including controls currently existing)
     """
@@ -32,12 +37,42 @@ class AppController:
         self.running = True
         self.camera = Camera()
         self.objects = []
+        self.zones = [] # A list of zones (derived from controls)
+        self.hover_control = None
+        self.add_mouse_object = False
 
     def update(self):
         """
-        Updates the app controller (updates camera)
+        Updates the app controller (updates camera), and checks for mouse hovers
+        controls
         """
         self.camera.update(self)
+        
+        # Update currently (mouse) hovered control
+        self.hover_control = None
+        for control in self.controls:
+            if control.interactive and control.is_mouse_over():
+                self.hover_control = control
+                break
+            
+        # Add mouse object for testing
+        if self.add_mouse_object:
+            (mx,my) = pygame.mouse.get_pos()
+            self.objects.append(CamObject("mouse", (mx,my, 12, 20), 1))
+        
+    def create_zone(self, position):
+        """
+        Creates a new zone at the given position.
+        """
+        from .controls.zone import Zone
+        zone = Zone(self)
+        
+        # Set zone initial position
+        (zone.x, zone.y) = position
+        (w,h) = self.get_screen_size()
+        zone.bound((0,0,w,h))
+        
+        self.add_control(zone)
 
     def set_cam_objects(self, object_list):
         """
@@ -76,15 +111,23 @@ class AppController:
 
     def add_control(self, control: Control):
         """
-        Adds the control to the next controls list
+        Adds the control to the next controls list.
+        If it is a zone, then adds it to the zone list as well.
         """
         self.added_controls.append(control)
+        from .controls.zone import Zone
+        if control is Zone:
+            self.zones.append(control)
 
     def remove_control(self, control: Control):
         """
-        Adds the control to the removed controls list
+        Adds the control to the removed controls list.
+        If it is a zone, then remove it from the zone list as well.
         """
         self.removed_controls.append(control)
+        from .controls.zone import Zone
+        if control is Zone:
+            self.zones.remove(control)
 
     def set_clean_state(self):
         """
@@ -119,7 +162,41 @@ class Control:
         self.y = 0
         self.w = 0
         self.h = 0
+        self.interactive = False # Set to True if this control interacts in any way
         pass
+    
+    def is_mouse_over(self):
+        """
+        Returns true if the mouse is currently over this position
+        """
+        (mx, my) = pygame.mouse.get_pos()
+        
+        # Check if control can be hovered over
+        if self.w <= 0 or self.h <= 0:
+            return False
+        
+        # Check if mouse is within control bounds.
+        return mx >= self.x and my >= self.y and mx < self.x + self.w and my < self.y + self.h
+    
+    def bound(self, bounds):
+        """
+        Ensures the control is fully displayed within the bounds,
+        assuming that the control can fit inside the bounds.
+        """
+        (x,y,w,h) = bounds
+        
+        if self.x < x:
+            self.x = x
+            
+        if self.y < y:
+            self.y = y
+            
+        if self.x + self.w >= x + w:
+            self.x = x + w - self.w
+            
+        if self.y + self.h >= y + h:
+            self.y = y + h - self.h
+
 
     def update(self, controller: AppController):
         """

@@ -19,5 +19,5 @@ class CamObject:
         """ 
 
         self.tag = tag
-        self.bounds = bounds
+        (self.x, self.y, self.w, self.h) = bounds
         self.depth = depth

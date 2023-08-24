@@ -1,5 +1,5 @@
 """
-    ddcam.py
+    ddcam.py - directly display camera
     
     Contains a simple control for demonstration purposes, which
     involves displaying the current input of the camera.
@@ -47,7 +47,7 @@ class DDCamVisual(Control):
     
     def render(self, controller: AppController, screen: pygame.Surface):
         """
-            Updates the control on every loop iteration.
+            Renders the control on every loop iteration.
             
             Arguments:
                 controller -- the app controller this control runs from
@@ -67,14 +67,13 @@ class DDCamVisual(Control):
         # Test every object location (draw location)
         for object in controller.objects:
             tag = object.tag
-            (bx,by,bw,bh) = object.bounds
-            r = pygame.Surface((bw,bh))
+            r = pygame.Surface((object.w,object.h))
             r.set_alpha(128)
             r.fill((255,255,255))
-            screen.blit(r, (bx,by))
+            screen.blit(r, (object.x,object.y))
             text = self.font.render(tag, True, pygame.Color(0, 128, 128))
             text_rect = text.get_rect()
-            text_rect.center = (bx+bw/2,by+bh/2)
+            text_rect.center = (object.x+object.w/2,object.y+object.h/2)
             screen.blit(text, text_rect)
 
         pass

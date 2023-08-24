@@ -2,6 +2,8 @@
     app.py - initializes the window and controls the main logic of the app.  
 """
 
+import sys
+
 # Import camera class.
 from libs.devices.camera import *
 
@@ -11,6 +13,7 @@ from libs.base import *
 # Import controls
 from libs.controls.ddcam import *
 from libs.controls.menu import *
+from libs.controls.quickmenu_controller import *
 
 import pygame
 
@@ -19,6 +22,7 @@ def app_init():
     """
     Initializes the app
     """
+    
     print("App Initializing...")
 
     # Initialize the pygame module
@@ -32,12 +36,22 @@ def app_init():
 
     # Main loop (runs infinitely until window exits)
     controller = AppController(screen)
-
+    
+    # Read command line arguments
+    try:
+        for arg in sys.argv[1:]:
+            if arg == "-mo":
+                controller.add_mouse_object = True
+    except:
+        print("Invalid command-line arguments")
+        
     # Add initial controls
     controller.add_control(DDCamVisual(controller))
     controller.add_control(Menu(controller))
+    controller.add_control(QuickMenuController(controller))
+
     while controller.is_running():
-        # Update camera objects.
+        # Update camera objects and basic logic
         controller.update()
 
         # Update all controls
