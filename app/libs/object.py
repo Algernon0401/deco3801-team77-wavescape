@@ -1,3 +1,5 @@
+import math
+import pygame
 class CamObject:
     """
         Represents an object that is recognised from the camera.
@@ -21,3 +23,15 @@ class CamObject:
         self.tag = tag
         (self.x, self.y, self.w, self.h) = bounds
         self.depth = depth
+        self.attributes = {} # Attribute list for controls
+    
+    def within(self, bounds):
+        """
+            Returns True if object is contained within the bounds
+        """
+        (xf,yf,wf,hf) = bounds
+        (x,y,w,h) = (self.x, self.y, self.w, self.h)
+        # Calculate intersecting rectangle using pygame's clip
+        return x + w >= xf and y + h >= yf and x < xf + wf and y < yf + hf
+        
+        

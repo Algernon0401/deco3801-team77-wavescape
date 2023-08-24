@@ -9,6 +9,9 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
+            "args": [
+                "-mo"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },

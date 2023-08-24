@@ -40,7 +40,36 @@ class AppController:
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
-
+        self.object_attributes = {}
+    
+    def get_object_attributes(self, object):
+        """
+            Gets the attributes for a
+            specific object.
+        """
+        if not object.tag in self.object_attributes:
+            return {}
+        return  self.object_attributes[object.tag]
+    
+    def get_object_attribute(self, object, attribute_name):
+        """
+            Gets a single attribute for a specific
+            object 
+        """
+        attributes = self.get_object_attributes(object)
+        if attribute_name in attributes:
+            return attributes[attribute_name]
+        return None
+    
+    def set_object_attribute(self, object, attribute_name, attribute_value):
+        """
+        Sets the given attribute on the object.
+        """
+        if not object.tag in self.object_attributes:
+            self.object_attributes[object.tag] = {}
+        
+        self.object_attributes[object.tag][attribute_name] = attribute_value
+    
     def update(self):
         """
         Updates the app controller (updates camera), and checks for mouse hovers
@@ -85,6 +114,19 @@ class AppController:
         Gets the app's currently recognized objects.
         """
         return self.objects
+    
+    def get_cam_objects_in_bounds(self, bounds):
+        """
+        Gets the app's currently recognized objects within
+        the specified bounds
+        """
+        object_list = []
+        for object in self.objects:
+            if object.within(bounds):
+                print("A")
+                object_list.append(object)
+                
+        return object_list
 
     def get_screen_size(self):
         """
@@ -164,6 +206,12 @@ class Control:
         self.h = 0
         self.interactive = False # Set to True if this control interacts in any way
         pass
+    
+    def get_bounds(self):
+        """
+        Returns the location and size of the control as a tuple
+        """
+        return (self.x, self.y, self.w, self.h)
     
     def is_mouse_over(self):
         """
