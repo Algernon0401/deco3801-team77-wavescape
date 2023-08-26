@@ -1,11 +1,24 @@
 import math
 import pygame
+from enum import Enum
+
+class Shape(Enum):
+    """
+        Represents the possible shapes of an object.
+    """
+    TRIANGLE = "triangle"
+    SQUARE = "square"
+    CIRCLE = "circle"
+    STAR = "star"
+    RECTANGLE = "rectangle"
+    ARROW = "arrow"
+
 class CamObject:
     """
         Represents an object that is recognised from the camera.
     """
 
-    def __init__(self, tag, bounds, depth=0):
+    def __init__(self, tag:Shape, bounds, depth=0):
         """
             Constructs a camera recognised object from the given
             tag and bounds.
