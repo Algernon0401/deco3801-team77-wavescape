@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import joblib
 import torch
 
 
@@ -22,3 +21,5 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
+
+!cd yolov5 && python train.py --batch 16 --epochs 3 --data config.yaml --weights yolov5s.pt --workers 2
