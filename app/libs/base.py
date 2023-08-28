@@ -18,6 +18,8 @@ MOUSE_RIGHT = 3 # Right pygame mouse button
 class Control:
     pass
 
+class Controller:
+    pass
 
 class AppController:
     """
@@ -32,6 +34,7 @@ class AppController:
         """
         self.screen = screen
         self.controls = []  # Control list
+        self.controllers = [] # Controller list (for app logic)
         self.added_controls = []  # Next control list (controls added)
         self.removed_controls = []  # Next control list (controls removed)
         self.running = True
@@ -40,6 +43,7 @@ class AppController:
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
+        self.add_test_zone = False
         self.object_attributes = {}
     
     def get_object_attributes(self, object):
@@ -89,6 +93,17 @@ class AppController:
             (mx,my) = pygame.mouse.get_pos()
             self.objects.append(CamObject("mouse", (mx,my, 12, 20), 1))
         
+        # Add test zone object for testing (using square object)
+        if self.add_test_zone:
+            self.objects.append(CamObject("square", (64,64, 64, 64)))
+            self.objects.append(CamObject("square", (394,64, 64, 64)))
+            self.objects.append(CamObject("square", (64,364, 64, 64)))
+            self.objects.append(CamObject("square", (394,364, 64, 64)))
+        
+        # Update logic controllers
+        for controller in self.controllers:
+            controller.update(self)
+        
     def create_zone(self, position):
         """
         Creates a new zone at the given position.
@@ -102,6 +117,7 @@ class AppController:
         zone.bound((0,0,w,h))
         
         self.add_control(zone)
+        return zone
 
     def set_cam_objects(self, object_list):
         """
@@ -150,6 +166,12 @@ class AppController:
         contain old controls.
         """
         return self.controls
+    
+    def get_controllers(self):
+        """
+        Gets the list containing all logic controllers
+        """
+        return self.controllers
 
     def add_control(self, control: Control):
         """
@@ -170,6 +192,15 @@ class AppController:
         from .controls.zone import Zone
         if control is Zone:
             self.zones.remove(control)
+            
+    def add_controller(self, controller: Controller):
+        """
+        Adds a controller to the list of controllers.
+        
+        NOTE: the controller cannot be removed, and is supposed
+        to remove in effect for the lifetime of the app.
+        """
+        self.controllers.append(controller)
 
     def set_clean_state(self):
         """
@@ -244,6 +275,14 @@ class Control:
             
         if self.y + self.h >= y + h:
             self.y = y + h - self.h
+            
+    def within(self, bounds):
+        """
+            Returns True if the rectangle is contained within the control
+        """
+        (xf,yf,wf,hf) = bounds
+        (x,y,w,h) = (self.x, self.y, self.w, self.h)
+        return x + w >= xf and y + h >= yf and x < xf + wf and y < yf + hf
 
 
     def update(self, controller: AppController):
@@ -271,6 +310,40 @@ class Control:
 
         Arguments:
             controller -- the app controller this control runs from
+            event -- the pygame event that happened
+        """
+        pass
+    
+class Controller:
+    """
+    This represents a controller (excluding AppController) for the logic
+    of a particular function of the app.
+    """
+
+    def __init__(self, controller: AppController):
+        """
+        Initializes the controller
+
+        Arguments:
+            controller -- the app controller this controller runs from
+        """
+        pass
+    
+    def update(self, controller: AppController):
+        """
+        Updates the controller on every loop iteration.
+
+        Arguments:
+            controller -- the app controller this controller runs from
+        """
+        pass
+    
+    def event(self, controller: AppController, event: pygame.event.Event):
+        """
+        Receives an event from the pygame interface.
+
+        Arguments:
+            controller -- the app controller this controller runs from
             event -- the pygame event that happened
         """
         pass
