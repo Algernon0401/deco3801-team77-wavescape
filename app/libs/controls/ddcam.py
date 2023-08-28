@@ -13,6 +13,8 @@ from ..object import *
 
 ASSET_CAMERA_INVALID_OVERLAY = 'assets/images/camera_invalid_overlay.png'
 ASSET_CAMERA_LOADING_OVERLAY = 'assets/images/camera_loading_overlay.png'
+ASSET_MODEL_INVALID_OVERLAY = 'assets/images/model_invalid_overlay.png'
+ASSET_MODEL_LOADING_OVERLAY = 'assets/images/model_loading_overlay.png'
 
 class DDCamVisual(Control):
     """
@@ -33,7 +35,10 @@ class DDCamVisual(Control):
         (self.w, self.h) = controller.get_screen_size()
         self.invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
         self.loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
-        self.font = pygame.font.Font('assets/fonts/arial.ttf', 12)
+        self.invalid_model_overlay = pygame.image.load(ASSET_MODEL_INVALID_OVERLAY)
+        self.loading_model_overlay = pygame.image.load(ASSET_MODEL_LOADING_OVERLAY)
+        
+        self.font = pygame.font.Font('assets/fonts/arial.ttf', 16)
     
     def update(self, controller: AppController):
         """
@@ -53,17 +58,25 @@ class DDCamVisual(Control):
                 controller -- the app controller this control runs from
                 screen -- the surface this control is drawn on.
         """
+        
+        
         # Check if camera is loading, and if so display loading image
         if controller.camera.loading:
-            screen.blit(self.loading_camera_overlay, (145,5))
+            screen.blit(self.loading_camera_overlay, (5,5))
         else:    
             # Capture frame, and if none then display invalid camera image.
             frame = controller.camera.capture_video_pygame()        
             if frame is None:
-                screen.blit(self.invalid_camera_overlay, (145,5))
+                screen.blit(self.invalid_camera_overlay, (5,5))
             else:
                 screen.blit(pygame.transform.scale(frame, controller.get_screen_size()), (0,0), None)   
         
+        # Check if model is loading, and if so display loading image.
+        if controller.camera.model_loading:
+            screen.blit(self.loading_model_overlay, (5,25))
+        elif controller.camera.model is None:
+            screen.blit(self.invalid_model_overlay, (5,25))
+            
         # Test every object location (draw location)
         for object in controller.objects:
             tag = object.tag

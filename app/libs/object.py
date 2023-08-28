@@ -16,8 +16,7 @@ class CamObject:
 
             The tag should be the recognised object name (e.g. star)
 
-            The depth can be left out at this point in time, but will
-            be necessary.
+            The depth can be left out at this point in time.
         """ 
 
         self.tag = tag
@@ -31,7 +30,6 @@ class CamObject:
         """
         (xf,yf,wf,hf) = bounds
         (x,y,w,h) = (self.x, self.y, self.w, self.h)
-        # Calculate intersecting rectangle using pygame's clip
         return x + w >= xf and y + h >= yf and x < xf + wf and y < yf + hf
         
         
