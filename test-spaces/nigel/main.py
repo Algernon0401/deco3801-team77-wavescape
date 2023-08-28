@@ -3,12 +3,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-
-yolov5s = torch.hub.load("ultralytics/yolov5", "yolov5s")
-# yolov5l = torch.hub.load("ultralytics/yolov5", "yolov5l")
-
-
 cap = cv2.VideoCapture(0)
+
+trained_model = torch.hub.load(
+    "ultralytics/yolov5",
+    "custom",
+    path=r"yolov5_fork\runs\train\exp5\weights\best.pt",
+    force_reload=True,
+)
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -21,28 +23,3 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
-
-# !cd yolov5 && python train.py --batch 16 --epochs 3 --data config.yaml --weights yolov5s.pt --workers 2
-
-trained_model = torch.hub.load(
-    "ultralytics/yolov5",
-    "custom",
-    path=r"\yolov5_fork\runs\train\exp2\weights\last.pt",
-    force_reload=True
-)
-
-import os
-img = os.path.join('data', 'images', 'train', 'earbuds12.jpg')
-results = trained_model(img)
-
-%matplotlib inline
-plt.imshow(np.squeeze(results.render()))
-plt.show()
-
-
-def find(name, path):
-    for root, dirs, files in os.walk(path):
-        if name in files:
-            return os.path.join(root, name)
-        
-find("yolov5s.pt",r"C:\vscode")
