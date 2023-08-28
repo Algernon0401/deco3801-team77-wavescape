@@ -8,12 +8,10 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
-# base_model = torch.hub.load("ultralytics/yolov5", "yolov5s")
-
 trained_model = torch.hub.load(
     "ultralytics/yolov5",
     "custom",
-    path="yolov5_fork/runs/train/exp4/weights/best.pt",
+    path="yolov5_fork/runs/train/exp4/weights/best.pt",  # exp4 holds latest training sequence.
     force_reload=True,
 )
 
