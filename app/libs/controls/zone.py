@@ -40,6 +40,9 @@ class Zone(Control):
         super().__init__(controller)
         self.w = 128
         self.h = 128 # Standard size
+        # Allow for center definitions (zone stabilisation)
+        self.center_x = 0
+        self.center_y = 0
         self.interactive = True
         self.audio_system = Sound()
         self.object_attributes = {}

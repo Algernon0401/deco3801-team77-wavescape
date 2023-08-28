@@ -13,6 +13,9 @@ from libs.base import *
 # Import controls
 from libs.controls.ddcam import *
 
+# Import logic controllers
+from libs.controllers.zone_controller import * 
+
 import pygame
 
 
@@ -40,11 +43,16 @@ def app_init():
         for arg in sys.argv[1:]:
             if arg == "-mo":
                 controller.add_mouse_object = True
+            if arg == "-tz":
+                controller.add_test_zone = True
     except:
         print("Invalid command-line arguments")
         
     # Add initial controls
     controller.add_control(DDCamVisual(controller))
+    
+    # Add logic controllers
+    controller.add_controller(ZoneController(controller))
 
     while controller.is_running():
         # Update camera objects and basic logic
@@ -54,6 +62,10 @@ def app_init():
         for control in controller.get_controls():
             control.update(controller)
 
+        # Update all logic controls
+        for lc in controller.get_controllers():
+            lc.update(controller)
+            
         # Get all events from pygame, and exit if QUIT event exists.
         # Pass all events to controls.
         for event in pygame.event.get():
@@ -64,8 +76,13 @@ def app_init():
                 controller.exit()
                 break
             else:
+                # Update display controls
                 for control in controller.get_controls():
                     control.event(controller, event)
+                # Update logic controllers
+                for lc in controller.get_controllers():
+                    lc.event(controller, event)
+        
         # Update control list
         for control in controller.added_controls:
             controller.controls.append(control)
