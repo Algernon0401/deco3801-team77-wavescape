@@ -27,7 +27,7 @@ cv2.destroyAllWindows()
 trained_model = torch.hub.load(
     "ultralytics/yolov5",
     "custom",
-    path=r"\yolov5\runs\train\exp2\weights\last.pt",
+    path=r"\yolov5_fork\runs\train\exp2\weights\last.pt",
     force_reload=True
 )
 
@@ -45,4 +45,4 @@ def find(name, path):
         if name in files:
             return os.path.join(root, name)
         
-find("last.pt",r"C:\vscode")
+find("yolov5s.pt",r"C:\vscode")
