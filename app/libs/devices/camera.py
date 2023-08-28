@@ -1,6 +1,8 @@
-# Import OpenCV
+# Import OpenCV, Pygame, Numpy and Pytorch
 import cv2 as cv
 import pygame
+import numpy as np
+import torch
 import threading
 from ..object import *
 
@@ -76,14 +78,18 @@ class Camera:
         Updates by detecting the objects from the frame, outputting
         to the controller's object list.
         """
+        # Check to make sure camera is initialized.
+        if self.valid:
+            return
+        
         objects = []
         cvframe = self.capture_video()
 
-        screen_size = controller.get_screen_size()
+        # Check to make sure feed is valid
+        if cvframe is None:
+            return
 
-        # Implement code here
-        # e.g.
-        objects.append(CamObject("star", (64, 64, 128, 128)))
+        (screenX, screenY) = controller.get_screen_size()
 
         controller.set_cam_objects(objects)
 
