@@ -1,4 +1,8 @@
 import subprocess
+import os
+
+# Change the working directory to yolov5_fork
+os.chdir("yolov5_fork")
 
 command = [
     "python",
@@ -6,7 +10,7 @@ command = [
     "--batch",
     "16",
     "--epochs",
-    "5",
+    "500",  # stop operations once desired results achieved
     "--data",
     "config.yaml",
     "--weights",
@@ -14,9 +18,6 @@ command = [
     "--workers",
     "2",
 ]
-
-# Change the working directory to yolov5_fork
-subprocess.run(["cd", "yolov5_fork"], shell=True)
 
 # Run the actual command
 subprocess.run(command)

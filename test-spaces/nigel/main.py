@@ -8,14 +8,16 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
-cap = cv2.VideoCapture(0)
+# base_model = torch.hub.load("ultralytics/yolov5", "yolov5s")
 
 trained_model = torch.hub.load(
     "ultralytics/yolov5",
     "custom",
-    path=r"yolov5_fork\runs\train\exp5\weights\best.pt",
+    path="yolov5_fork/runs/train/exp4/weights/best.pt",
     force_reload=True,
 )
+
+cap = cv2.VideoCapture(0)
 
 while cap.isOpened():
     ret, frame = cap.read()
