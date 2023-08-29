@@ -19,5 +19,7 @@ command = [
     "2",
 ]
 
+resume_command = ["python", "train.py", "--resume"]
+
 # Run the actual command
-subprocess.run(command)
+subprocess.run(resume_command)
