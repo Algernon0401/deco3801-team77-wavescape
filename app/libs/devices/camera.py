@@ -195,9 +195,9 @@ class Camera:
 
     def destroy(self):
         """
-        Releases the video capture reference.
+        Releases the video capture reference and YOLO model
         """
         if self.valid:
             self.video.release()
-
+        self.model = None
         self.valid = False
