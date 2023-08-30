@@ -139,7 +139,6 @@ class AppController:
         object_list = []
         for object in self.objects:
             if object.within(bounds):
-                print("A")
                 object_list.append(object)
                 
         return object_list
