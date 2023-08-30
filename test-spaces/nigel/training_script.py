@@ -15,15 +15,15 @@ command = [
     "--batch",
     "8",
     "--epochs",
-    "150",
+    "100",
     "--data",
     "config.yaml",
     "--weights",
-    "yolov5m.pt",
+    "yolov5n.pt",
 ]
 
 # resume training if previously stopped. continues from latest file update
 resume_command = ["python", "train.py", "--resume"]
 
 # Run the actual command
-subprocess.run(command)
+subprocess.run(resume_command)
