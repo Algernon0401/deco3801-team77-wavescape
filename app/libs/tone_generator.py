@@ -15,7 +15,7 @@ class ToneGenerator:
         pass
 
     @staticmethod
-    def pos_to_wave(ctr_pos, obj_pos, shape:Tag, duration) -> Wave:
+    def pos_to_wave(ctr_pos, obj_pos, tag:Tag, duration) -> Wave:
         """Generate a wave based on the position of a shape"""
         cx, cy = ctr_pos    # position of the center of zone
         ox, oy = obj_pos    # position of the object
@@ -24,7 +24,7 @@ class ToneGenerator:
         radian = np.arccos((cx-ox)/amplitude)           # radian = arccos(x), r = 1
         frequency = radian / MAX_RADIAN * MAX_FREQUENCY # bijecting radian to frequency evenly
 
-        match shape:
+        match tag:
             case Tag.TRIANGLE:
                 return Triangle(amplitude, frequency, duration)
             case Tag.SQUARE:
@@ -36,13 +36,13 @@ class ToneGenerator:
             case Tag.ARROW:
                 return Pulse(amplitude, frequency, duration)
             case _:
-                raise Exception("Tag Undefined")
+                raise Exception(f"Wave Undefined with tag: {tag}")
     
 def main():
     """for testing"""
     print("Test start")
     sound = Sound(22050, 8)
-    wave = ToneGenerator.pos_to_wave((0,0),(1,1),Tag.SQUARE,10)
+    wave = ToneGenerator.pos_to_wave((0,0),(1,1),Tag.PHONE,10)
     sound.play(wave)
     print("Played")
 
