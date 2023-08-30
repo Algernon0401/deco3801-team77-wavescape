@@ -18,11 +18,13 @@ ASSET_MODEL_LOADING_OVERLAY = 'assets/images/model_loading_overlay.png'
 
 class DDCamVisual(Control):
     """
-        Reads the camera directly and displays it on screen. 
+        Reads the camera directly.
+        If display_feed is set to true, then the camera feed
+        is displayed to the window.
         (Test control)
     """
     
-    def __init__(self, controller: AppController):
+    def __init__(self, controller: AppController, display_feed=False):
         """
             Initializes the control
             
@@ -37,7 +39,7 @@ class DDCamVisual(Control):
         self.loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
         self.invalid_model_overlay = pygame.image.load(ASSET_MODEL_INVALID_OVERLAY)
         self.loading_model_overlay = pygame.image.load(ASSET_MODEL_LOADING_OVERLAY)
-        
+        self.display_feed = display_feed
         self.font = pygame.font.Font('assets/fonts/arial.ttf', 16)
     
     def update(self, controller: AppController):
@@ -59,23 +61,28 @@ class DDCamVisual(Control):
                 screen -- the surface this control is drawn on.
         """
         
-        
+        overlay_y = 5
         # Check if camera is loading, and if so display loading image
         if controller.camera.loading:
-            screen.blit(self.loading_camera_overlay, (5,5))
+            screen.blit(self.loading_camera_overlay, (5,overlay_y))
+            overlay_y += 20
         else:    
             # Capture frame, and if none then display invalid camera image.
             frame = controller.camera.capture_video_pygame()        
             if frame is None:
-                screen.blit(self.invalid_camera_overlay, (5,5))
+                screen.blit(self.invalid_camera_overlay, (5,overlay_y))
+                overlay_y += 20
             else:
-                screen.blit(pygame.transform.scale(frame, controller.get_screen_size()), (0,0), None)   
+                if self.display_feed:
+                    screen.blit(pygame.transform.scale(frame, controller.get_screen_size()), (0,0), None)   
         
         # Check if model is loading, and if so display loading image.
         if controller.camera.model_loading:
-            screen.blit(self.loading_model_overlay, (5,25))
+            screen.blit(self.loading_model_overlay, (5,overlay_y))
+            overlay_y += 20
         elif controller.camera.model is None:
-            screen.blit(self.invalid_model_overlay, (5,25))
+            screen.blit(self.invalid_model_overlay, (5,overlay_y))
+            overlay_y += 20
             
         # Test every object location (draw location)
         for object in controller.objects:

@@ -8,7 +8,7 @@ import os
 from ..object import *
 import time
 
-ASSET_TRAINED_MODEL = "/assets/model.pt"
+ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 
 class Camera:
     """
@@ -70,7 +70,8 @@ class Camera:
             else:
                 self.model = torch.hub.load(
                     "ultralytics/yolov5",
-                    "yolov5s"
+                    "yolov5s",
+                    force_reload=True
                 )
             
             print("YOLOv5 Model Initialised.")
@@ -81,7 +82,7 @@ class Camera:
                     # Update model results
                     self.model_results = self.model(self.capture_video())
                 time.sleep(0.05) # Ensure this does not clog up machine
-        except:
+        except Exception as e:
             print("Error with YOLOv5 Model.")
             self.model = None
             self.model_loading = False
@@ -89,7 +90,7 @@ class Camera:
     def open_camera(self):
         try:
             print("Camera initializing...")
-            self.video = cv.VideoCapture(0)
+            self.video = cv.VideoCapture(1)
             # Ensure video camera is opened.
             self.valid = self.video.isOpened()
             print("Camera initialized.")
@@ -194,9 +195,9 @@ class Camera:
 
     def destroy(self):
         """
-        Releases the video capture reference.
+        Releases the video capture reference and YOLO model
         """
         if self.valid:
             self.video.release()
-
+        self.model = None
         self.valid = False

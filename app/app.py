@@ -12,6 +12,7 @@ from libs.base import *
 
 # Import controls
 from libs.controls.ddcam import *
+from libs.controls.border import *
 
 # Import logic controllers
 from libs.controllers.zone_controller import * 
@@ -49,8 +50,9 @@ def app_init():
         print("Invalid command-line arguments")
         
     # Add initial controls
-    controller.add_control(DDCamVisual(controller))
     
+    controller.add_control(DDCamVisual(controller))
+    controller.add_control(AppBorder(controller))
     # Add logic controllers
     controller.add_controller(ZoneController(controller))
 
