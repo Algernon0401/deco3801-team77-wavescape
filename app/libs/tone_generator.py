@@ -3,7 +3,7 @@
 import math
 import numpy as np
 from sound import *
-from object import Shape
+from object import Tag
 
 MIN_FREQUENCY = 0
 MAX_FREQUENCY = 20000
@@ -15,7 +15,7 @@ class ToneGenerator:
         pass
 
     @staticmethod
-    def pos_to_wave(ctr_pos, obj_pos, shape:Shape, duration) -> Wave:
+    def pos_to_wave(ctr_pos, obj_pos, shape:Tag, duration) -> Wave:
         """Generate a wave based on the position of a shape"""
         cx, cy = ctr_pos    # position of the center of zone
         ox, oy = obj_pos    # position of the object
@@ -25,24 +25,24 @@ class ToneGenerator:
         frequency = radian / MAX_RADIAN * MAX_FREQUENCY # bijecting radian to frequency evenly
 
         match shape:
-            case Shape.TRIANGLE:
+            case Tag.TRIANGLE:
                 return Triangle(amplitude, frequency, duration)
-            case Shape.SQUARE:
+            case Tag.SQUARE:
                 return Square(amplitude, frequency, duration)
-            case Shape.CIRCLE:
+            case Tag.CIRCLE:
                 return Sine(amplitude, frequency, duration)
-            case Shape.STAR:
+            case Tag.STAR:
                 return Sawtooth(amplitude, frequency, duration)
-            case Shape.ARROW:
+            case Tag.ARROW:
                 return Pulse(amplitude, frequency, duration)
             case _:
-                raise Exception("Shape Undefined")
+                raise Exception("Tag Undefined")
     
 def main():
     """for testing"""
     print("Test start")
     sound = Sound(22050, 8)
-    wave = ToneGenerator.pos_to_wave((0,0),(1,1),Shape.SQUARE,10)
+    wave = ToneGenerator.pos_to_wave((0,0),(1,1),Tag.SQUARE,10)
     sound.play(wave)
     print("Played")
 
