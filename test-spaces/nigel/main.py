@@ -11,7 +11,7 @@ os.chdir(dname)
 trained_model = torch.hub.load(
     "ultralytics/yolov5",
     "custom",
-    path="yolov5_fork/runs/train/exp4/weights/best.pt",  # exp4 holds latest training sequence.
+    path="yolov5_fork/runs/train/exp18/weights/last.pt",  # exp4 holds latest training sequence.
     force_reload=True,
 )
 
@@ -28,3 +28,13 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
+
+# ----to do list----
+# remove coins... done
+# removee card?
+# add more gear, star, angle, triangle
+# add more variety of wallet
+# run longer
+# more variety of earbuds
+# more watches
+# add more individual keys?
