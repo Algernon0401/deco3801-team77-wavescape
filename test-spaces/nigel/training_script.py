@@ -1,31 +1,39 @@
 import subprocess
 import os
 
-# import comet_ml
-
-# export comet_ml.COMET_API_KEY="upZUpr8CUHd8eKdCb5eoPXjdp"  # 2. paste API key
-
 # Change the working directory to yolov5_fork
 os.chdir("yolov5_fork")
 
 # can exit training by trashing terminal
-command = [
+train_command = [
     "python",
     "train.py",
     "--img",
     "640",
     "--batch",
-    "8",
+    "4",
     "--epochs",
-    "300",
+    "500",
     "--data",
     "config.yaml",
     "--weights",
-    "yolov5s.pt",
+    "yolov5s.pt",  # or path/to/last.pt
 ]
 
 # resume training if previously stopped. continues from latest file update
 resume_command = ["python", "train.py", "--resume"]
 
+continue_command = ["python", "train.py", "--weights", ""]
+
+test_command = [
+    "python",
+    "val.py",
+    "--weights",
+    r"runs\train\exp\weights\best.pt",
+    "--data",
+    "config.yaml",
+]
+
+
 # Run the actual command
-subprocess.run(command)
+subprocess.run(test_command)
