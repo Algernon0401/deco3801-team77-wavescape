@@ -2,3 +2,8 @@
 *.png
 *.pt
 *.txt
+*.JPG
+*.cache
+*.npy
+*.pt
+*.JPEG

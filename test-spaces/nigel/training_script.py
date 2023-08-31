@@ -12,18 +12,20 @@ os.chdir("yolov5_fork")
 command = [
     "python",
     "train.py",
+    "--img",
+    "640",
     "--batch",
     "8",
     "--epochs",
-    "100",
+    "300",
     "--data",
     "config.yaml",
     "--weights",
-    "yolov5n.pt",
+    "yolov5s.pt",
 ]
 
 # resume training if previously stopped. continues from latest file update
 resume_command = ["python", "train.py", "--resume"]
 
 # Run the actual command
-subprocess.run(resume_command)
+subprocess.run(command)
