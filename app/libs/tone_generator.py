@@ -4,9 +4,11 @@ import math
 import numpy as np
 from sound import *
 from object import Tag
+import json
 
-MIN_FREQUENCY = 0
-MAX_FREQUENCY = 20000
+frequency_map = json.load(open("assets/frequency_map.json"))
+MIN_FREQUENCY = frequency_map["C0"]
+MAX_FREQUENCY = frequency_map["B8"]
 MAX_RADIAN = 2
 
 class ToneGenerator:
@@ -24,6 +26,7 @@ class ToneGenerator:
         radian = np.arccos((cx-ox)/amplitude)           # radian = arccos(x), r = 1
         frequency = radian / MAX_RADIAN * MAX_FREQUENCY # bijecting radian to frequency evenly
 
+        print(f"Amplitude: {amplitude}, Frequncy: {frequency}")
         match tag:
             case Tag.TRIANGLE:
                 return Triangle(amplitude, frequency, duration)
@@ -42,7 +45,7 @@ def main():
     """for testing"""
     print("Test start")
     sound = Sound(22050, 8)
-    wave = ToneGenerator.pos_to_wave((0,0),(1,1),Tag.PHONE,10)
+    wave = ToneGenerator.pos_to_wave((0,0),(1000,10000),Tag.SQUARE,1000)
     sound.play(wave)
     print("Played")
 
