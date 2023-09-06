@@ -25,15 +25,5 @@ resume_command = ["python", "train.py", "--resume"]
 
 continue_command = ["python", "train.py", "--weights", ""]
 
-test_command = [
-    "python",
-    "val.py",
-    "--weights",
-    r"runs\train\exp\weights\best.pt",
-    "--data",
-    "config.yaml",
-]
-
-
 # Run the actual command
-subprocess.run(test_command)
+subprocess.run(train_command)

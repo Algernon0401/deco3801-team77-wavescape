@@ -7,3 +7,7 @@
 *.npy
 *.pt
 *.JPEG
+*.yaml
+*.csv
+*.tfevents.*
+*events.out*
