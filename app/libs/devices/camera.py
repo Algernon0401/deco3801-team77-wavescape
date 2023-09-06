@@ -10,6 +10,8 @@ import time
 from ultralytics import YOLO
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
+MODEL_CONFIDENCE_THRESHOLD = 0.5
+CAMERA_NO = 0
 
 
 class Camera:
@@ -73,7 +75,9 @@ class Camera:
             while self.model is not None:
                 if self.valid:
                     # Update model results
-                    self.model_results = self.model(self.capture_video())
+                    self.model_results = self.model(
+                        self.capture_video(), verbose=False
+                    )[0]
                 time.sleep(0.05)  # Ensure this does not clog up machine
         except Exception as e:
             print("Error with YOLOv5 Model.")
@@ -83,7 +87,7 @@ class Camera:
     def open_camera(self):
         try:
             print("Camera initializing...")
-            self.video = cv.VideoCapture(1)
+            self.video = cv.VideoCapture(CAMERA_NO)
             # Ensure video camera is opened.
             self.valid = self.video.isOpened()
             print("Camera initialized.")
@@ -153,21 +157,23 @@ class Camera:
 
         # Convert Object Detection results from model
         if self.model_results is not None:
-            # Convert to pandas for result extraction
-            p = self.model_results.pandas().xyxy
-            n = len(p)
+            # loop over the detections
+            for data in self.model_results.boxes.data.tolist():
+                # extract the confidence (i.e., probability) associated with the detection
+                confidence = data[4]
 
-            for i in range(n):
-                obj = p[i]
-                # Unpack object values
-                if len(obj.xmin.values) == 0:
-                    # Ignore invalid object
+                # filter out weak detections by ensuring the
+                # confidence is greater than the minimum confidence
+                if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
                     continue
-                screen_xmin = obj.xmin.values[0]
-                screen_xmax = obj.xmax.values[0]
-                screen_ymin = obj.ymin.values[0]
-                screen_ymax = obj.ymax.values[0]
-                tag = obj.name.values[0]
+
+                # if the confidence is greater than the minimum confidence,
+                # draw the bounding box on the frame
+                screen_xmin = int(data[0])
+                screen_xmax = int(data[2])
+                screen_ymin = int(data[1])
+                screen_ymax = int(data[3])
+                tag = self.model_results.names[int(data[5])]
 
                 # Adjust for scale
                 screen_xmin *= scale_x
