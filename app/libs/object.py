@@ -24,6 +24,10 @@ class Tag(Enum):
     RECTANGLE = "rectangle"
     ARROW = "arrow"
 
+ALL_TAGS = [
+    e.value for e in Tag
+]
+
 class CamObject:
     """
         Represents an object that is recognised from the camera.
