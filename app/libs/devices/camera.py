@@ -7,15 +7,17 @@ import threading
 import os
 from ..object import *
 import time
+from ultralytics import YOLO
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
+
 
 class Camera:
     """
     This class represents the camera device that we will be using.
     At this point in time, this camera class only supports webcam
     feed (no depth camera).
-    
+
     This class also handles object detection and recognition.
 
     OpenCV is required, and Torch is required for object recognition.
@@ -47,41 +49,32 @@ class Camera:
         Loads the default trained model if it exists.
         """
         self.load_yolo_model(ASSET_TRAINED_MODEL)
-        
+
     def load_yolo_model(self, path):
         """
         Loads the YOLOv5 trained model into runtime.
-        
+
         If self.has_model is set to False, then the
         path is ignored and YOLOv5s is loaded.
-        
+
         Arguments:
             path -- the path that contains the trained model.
         """
         try:
-            print("YOLOv5 Model Initialising...")
+            print("YOLOv8 Model Initialising...")
             if self.has_model:
-                self.model = torch.hub.load(
-                    "ultralytics/yolov5",
-                    "custom",
-                    path=path,
-                    force_reload=True
-                )
+                self.model = YOLO(ASSET_TRAINED_MODEL)
             else:
-                self.model = torch.hub.load(
-                    "ultralytics/yolov5",
-                    "yolov5s",
-                    force_reload=True
-                )
-            
-            print("YOLOv5 Model Initialised.")
+                self.model = YOLO("yolov8n.pt")
+
+            print("YOLOv8 Model Initialised.")
             self.model_loading = False
             # Repeatedly get object detection results in this thread
             while self.model is not None:
                 if self.valid:
                     # Update model results
                     self.model_results = self.model(self.capture_video())
-                time.sleep(0.05) # Ensure this does not clog up machine
+                time.sleep(0.05)  # Ensure this does not clog up machine
         except Exception as e:
             print("Error with YOLOv5 Model.")
             self.model = None
@@ -134,25 +127,24 @@ class Camera:
         to the controller's object list.
         """
         # Check to make sure camera and model is initialized.
-        
+
         if not self.valid or self.model is None:
             # Set objects to empty list
             controller.set_cam_objects([])
             return
-        
+
         objects = []
-        
+
         cvframe = self.capture_video()
-        
-        
+
         # Get width and height of cvframe
         camera_x = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
         camera_y = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
-        
+
         # Get scale of camera to screen
         (screen_x, screen_y) = controller.get_screen_size()
         (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
-        
+
         # Check to make sure feed is valid
         if cvframe is None:
             # Set objects to empty list
@@ -164,7 +156,7 @@ class Camera:
             # Convert to pandas for result extraction
             p = self.model_results.pandas().xyxy
             n = len(p)
-           
+
             for i in range(n):
                 obj = p[i]
                 # Unpack object values
@@ -176,20 +168,25 @@ class Camera:
                 screen_ymin = obj.ymin.values[0]
                 screen_ymax = obj.ymax.values[0]
                 tag = obj.name.values[0]
-                
+
                 # Adjust for scale
                 screen_xmin *= scale_x
                 screen_xmax *= scale_x
                 screen_ymin *= scale_y
                 screen_ymax *= scale_y
-                
+
                 # Create Camera Object
-                objects.append(CamObject(
-                    tag,
-                    (screen_xmin, screen_ymin, 
-                     screen_xmax - screen_xmin,
-                     screen_ymax - screen_ymin)
-                ))
+                objects.append(
+                    CamObject(
+                        tag,
+                        (
+                            screen_xmin,
+                            screen_ymin,
+                            screen_xmax - screen_xmin,
+                            screen_ymax - screen_ymin,
+                        ),
+                    )
+                )
 
         controller.set_cam_objects(objects)
 
