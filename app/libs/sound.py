@@ -181,6 +181,7 @@ class Sound:
         # self.bit_rate = math.log2(wave.amplitude + 1) + 1
 
         for s in range(num_samples):
+            # print(f"Iteration: {s}/{num_samples} ({float('%.2g' % (s/num_samples*100))}%)", end="\r", flush=True)
             # time in seconds
             t = float(s) / self.sample_rate
 
@@ -191,7 +192,6 @@ class Sound:
                 buffer[s][self.LEFT] = output # left
             elif self.speaker == 'r':
                 buffer[s][self.RIGHT] = output # right
-            
             else:
                 buffer[s][0] = output # left
                 buffer[s][1] = output # right
