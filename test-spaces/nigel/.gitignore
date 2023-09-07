@@ -11,3 +11,4 @@
 *.csv
 *.tfevents.*
 *events.out*
+*.sh
