@@ -1,0 +1,17 @@
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\bin\Release\net6.0-windows\AppLauncher.exe
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\bin\Release\net6.0-windows\AppLauncher.deps.json
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\bin\Release\net6.0-windows\AppLauncher.runtimeconfig.json
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\bin\Release\net6.0-windows\AppLauncher.dll
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\bin\Release\net6.0-windows\AppLauncher.pdb
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.csproj.AssemblyReference.cache
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.LoaderForm.resources
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.csproj.GenerateResource.cache
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.AssemblyInfoInputs.cache
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.AssemblyInfo.cs
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.csproj.CoreCompileInputs.cache
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.dll
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\refint\AppLauncher.dll
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.pdb
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\AppLauncher.genruntimeconfig.cache
+C:\Users\samst\OneDrive\Documents\UQ\LAST SEMESTER\DECO3801\Project\deco3801-team77\launcher\DECO3801.AppLauncher\AppLauncher\obj\Release\net6.0-windows\ref\AppLauncher.dll

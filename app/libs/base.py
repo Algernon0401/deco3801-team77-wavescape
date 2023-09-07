@@ -45,6 +45,7 @@ class AppController:
         self.add_mouse_object = False
         self.add_test_zone = False
         self.object_attributes = {}
+        self.persistent_objects = [] # Testing objects
     
     def get_object_attributes(self, object):
         """
@@ -80,7 +81,11 @@ class AppController:
         controls
         """
         self.camera.update(self)
-        
+
+        # Add persistent objects for testing 
+        for persistent_object in self.persistent_objects:
+            self.objects.append(persistent_object)
+
         # Update currently (mouse) hovered control
         self.hover_control = None
         for control in self.controls:
@@ -182,6 +187,23 @@ class AppController:
         if control is Zone:
             self.zones.append(control)
 
+    def add_persistent_object(self, tag, pos, size):
+        """
+        Adds a persistent object to the controller.
+        """
+        (x,y) = pos
+        (w,h) = size
+        self.persistent_objects.append(CamObject(
+            tag,
+            (x,y,w,h)
+        ))
+
+    def remove_persistent_object(self):
+        """
+        Removes the last persistent object.
+        """
+        if len(self.persistent_objects) > 0:
+            self.persistent_objects = self.persistent_objects[0:len(self.persistent_objects)-1]
     def remove_control(self, control: Control):
         """
         Adds the control to the removed controls list.

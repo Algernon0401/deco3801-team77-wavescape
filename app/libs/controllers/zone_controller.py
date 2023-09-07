@@ -5,6 +5,7 @@
     removing zones.
 """
 from ..base import *
+from ..object import *
 
 class ZoneController(Controller):
     """
@@ -24,7 +25,7 @@ class ZoneController(Controller):
         """
         self.zones = []
         # Set object that defines zone as square
-        self.zone_border_object = 'square'
+        self.zone_border_object = Tag.ARROW.value
         pass
     
     def update(self, controller: AppController):
