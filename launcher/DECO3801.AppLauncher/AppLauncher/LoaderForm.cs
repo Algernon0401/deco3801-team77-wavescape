@@ -132,7 +132,7 @@ namespace AppLauncher
                     _LoadingMessage = "Installing Python 3.11.5 (x64)";
                     Process pythonInstaller = Process.Start(
                         "tmp/python-3.11.5-amd64.exe",
-                        "InstallAllUsers=1 SimpleInstall=1 PrependPath=1 SimpleInstallDescription=\"Installing python...\""
+                        "InstallAllUsers=1 SimpleInstall=1 PrependPath=1 SimpleInstallDescription=\"Install Python.\""
                         );
 
                     pythonInstaller.WaitForExit();
