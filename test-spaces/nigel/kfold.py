@@ -11,7 +11,7 @@ from sklearn.model_selection import KFold
 
 
 dataset_path = Path(
-    r"datasets\full"
+    r"datasets\dataset"
 )  # replace with 'path/to/dataset' for your custom data
 labels = sorted(dataset_path.rglob("*labels/*.txt"))  # all data in 'labels'
 
@@ -63,9 +63,7 @@ for n, (train_indices, val_indices) in enumerate(kfolds, start=1):
     fold_lbl_distrb.loc[f"split_{n}"] = ratio
 
 
-save_path = Path(
-    dataset_path / f"{datetime.date.today().isoformat()}_{ksplit}-Fold_Cross-val"
-)
+save_path = Path(dataset_path / f"dataset_{ksplit}_Fold_Cross_val")
 save_path.mkdir(parents=True, exist_ok=True)
 
 images = sorted(
@@ -107,3 +105,6 @@ for image, label in zip(images, labels):
         # Might throw a SamefileError if file already exists
         shutil.copy(image, img_to_path / image.name)
         shutil.copy(label, lbl_to_path / label.name)
+
+folds_df.to_csv(save_path / "kfold_datasplit.csv")
+fold_lbl_distrb.to_csv(save_path / "kfold_label_distribution.csv")

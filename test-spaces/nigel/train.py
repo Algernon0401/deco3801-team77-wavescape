@@ -13,9 +13,6 @@ if __name__ == "__main__":
         epochs=500,
         device=0,
         project="y8",
-        name="nano2",
+        name="nano",
         exist_ok=True,
     )
-
-    # model = YOLO(r"y8\large\weights\best.pt")
-    # results = model.train(resume=True)
