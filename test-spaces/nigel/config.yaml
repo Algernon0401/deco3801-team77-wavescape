@@ -1,6 +1,6 @@
 path: ../datasets # dataset root dir
-train: dataset/images # train images (relative to 'path')
-val: dataset/valid # val images (relative to 'path')
+train: dataset/dataset_5_Fold_Cross_val/split_4/train # train images (relative to 'path')
+val: dataset/dataset_5_Fold_Cross_val/split_4/val  # val images (relative to 'path')
 
 # Classes
 nc : 10 # number of classes

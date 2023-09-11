@@ -1,25 +1,17 @@
 from ultralytics import YOLO
 import os
+import multiprocessing as mp
 
 if __name__ == "__main__":
+    mp.set_start_method("spawn")
     # Use the model
-    split_1_yaml = os.path.abspath(
-        r"datasets/dataset/dataset_5_Fold_Cross_val/split_1/split_1_dataset.yaml"
-    )
-    split_2_yaml = os.path.abspath(
-        r"datasets/dataset/dataset_5_Fold_Cross_val/split_2/split_2_dataset.yaml"
-    )
-    split_3_yaml = os.path.abspath(
-        r"datasets/dataset/dataset_5_Fold_Cross_val/split_3/split_3_dataset.yaml"
-    )
-    split_4_yaml = os.path.abspath(
-        r"datasets/dataset/dataset_5_Fold_Cross_val/split_4/split_4_dataset.yaml"
-    )
-    split_5_yaml = os.path.abspath(
-        r"datasets/dataset/dataset_5_Fold_Cross_val/split_5/split_5_dataset.yaml"
-    )
+    split_1_yaml = os.path.abspath(r"split_1/split_1_dataset.yaml")
+    split_2_yaml = os.path.abspath(r"split_2/split_2_dataset.yaml")
+    split_3_yaml = os.path.abspath(r"split_3/split_3_dataset.yaml")
+    split_4_yaml = os.path.abspath(r"split_4/split_4_dataset.yaml")
+    split_5_yaml = os.path.abspath(r"split_5/split_5_dataset.yaml")
 
-    ksplit = range(5)
+    ksplit = 5
     ds_yamls = [split_1_yaml, split_2_yaml, split_3_yaml, split_4_yaml, split_5_yaml]
 
     results = {}

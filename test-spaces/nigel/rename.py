@@ -6,7 +6,7 @@ def rename_jpg_files_with_count(directory):
         filename for filename in os.listdir(directory) if filename.startswith("WIN")
     ]
 
-    count = 89
+    count = 1
 
     for jpg_file in jpg_files:
         old_path = os.path.join(directory, jpg_file)
