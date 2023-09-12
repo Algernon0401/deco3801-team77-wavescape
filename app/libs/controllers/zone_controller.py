@@ -24,8 +24,6 @@ class ZoneController(Controller):
             controller -- the app controller this controller runs from
         """
         self.zones = []
-        # Set object that defines zone as square
-        self.zone_border_object = Tag.ARROW.value
         pass
     
     def update(self, controller: AppController):
@@ -42,7 +40,7 @@ class ZoneController(Controller):
             return obj.y
         
         # Create X sorted list
-        xsort = [x for x in controller.objects if x.tag == self.zone_border_object]
+        xsort = [x for x in controller.objects if x.tag == controller.zone_border_object]
         xsort.sort(key=get_x)
         
         # Create Y sorted list

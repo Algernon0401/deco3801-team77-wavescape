@@ -24,6 +24,39 @@ zone_border_corner_tr = pygame.transform.rotate(zone_border_corner_tl, -90)
 zone_border_corner_br = pygame.transform.rotate(zone_border_corner_tr, -90)
 zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
 
+class ObjectNode:
+    """
+        A node representing a object placed in the zone.
+        
+        Object distances between each other can be calculated via object.distance(x,y)
+    """
+    def __init__(self, object, center, connectedNodes):
+        """
+            Initialise a node with the given connections.
+        """
+        self.object = object
+        self.center = center
+        self.connections = connectedNodes
+        
+    def destroy_children_in_list(self, list):
+        """
+        Destroys all objects used in this node/subtree in list.
+        """
+        if self.object in list:
+            list.remove(self.object)
+            
+        for connection in self.connections:
+            connection.destroy_children_in_list(list)
+            
+    def render(self, controller, screen):
+        """
+        Renders the given tree/graph animations and elements onto the screen
+        """
+        for connection in self.connections:
+            pygame.draw.line(screen, pygame.Color(255,255,255), self.center, connection.center)
+            
+            connection.render(controller, screen)
+        
 class Zone(Control):
     """
         Represents a zone, which can be modified using particular
@@ -46,6 +79,7 @@ class Zone(Control):
         self.interactive = True
         self.audio_system = Sound()
         self.object_attributes = {}
+        self.graph = None
         
     def get_object_attributes(self, object):
         """
@@ -75,6 +109,53 @@ class Zone(Control):
         
         self.object_attributes[object.tag][attribute_name] = attribute_value
     
+    def create_connectivity_tree(self, object, objects, center, base_center):
+        """
+            Creates a new connectivity tree from the given list of objects inside
+            the zone.
+        """
+        
+        uncreated_objects = objects.copy()
+        connections = [] # Connections for this node
+        
+        while len(uncreated_objects) > 0:
+            
+            if object is None:
+                pass
+            min_dist_obj = None
+            min_dist = 99999
+            
+            # Start by selecting object with smallest distance to current center
+            # Avoid base_center as much as possible (if object is not None)
+            for i in range(len(uncreated_objects)):
+                test_obj = uncreated_objects[i]
+                dist = test_obj.distance(center)
+                
+                if dist < min_dist:
+                    if object is not None:
+                        # Test whether we should avoid creating a subtree from this object
+                        # Currently not implemented, so objects will connect a single tree from
+                        # closest to closest.
+                        pass
+                    min_dist = dist
+                    min_dist_obj = test_obj
+
+            if min_dist_obj is None:
+                break
+            
+            if object is None:
+                pass
+            
+            # We must form a new connectivity tree/subtree with this object.                
+            uncreated_objects.remove(min_dist_obj)
+            subtree = self.create_connectivity_tree(min_dist_obj, uncreated_objects, 
+                                                     min_dist_obj.get_center(), base_center)
+            subtree.destroy_children_in_list(uncreated_objects) # Remove created objects from list
+            
+            connections.append(subtree)
+            
+        return ObjectNode(object, center, connections) 
+        
     
     def update(self, controller: AppController):
         """
@@ -83,14 +164,33 @@ class Zone(Control):
             Arguments:
                 controller -- the app controller this control runs from
         """
-        
+        center = self.get_center()
+        (self.center_x, self.center_y) = center
         objects = controller.get_cam_objects_in_bounds(self.get_bounds())
+        
+        # Remove corner objects (of type)
+        
+        actual_objects = []
+        
+        for object in objects:
+            # Check to see if it is a zone-border object
+            if object.tag == controller.zone_border_object:
+                continue
+            actual_objects.append(object)
+        
+        objects = actual_objects
+        
+        
+        # Object connectivity graph via distance.
+        graph = self.create_connectivity_tree(None, objects, center, center)
+        self.graph = graph
+        
         
         # Test function with miles' sound function
         # Y silent duration (0, 1)
         # X frequency (500 - 5000)
         
-        
+        return
         
         for object in objects:
             can_play = True
@@ -165,6 +265,10 @@ class Zone(Control):
         screen.blit(pygame.transform.scale(zone_border_t, (self.w - corner_width * 2,  
                                                            border_width)),
                     (self.x + corner_width, self.y + self.h - border_width))
+        
+        # Draw animations between objects
+        if self.graph is not None:
+            self.graph.render(controller, screen)
         
     
     def event(self, controller: AppController, event: pygame.event.Event):

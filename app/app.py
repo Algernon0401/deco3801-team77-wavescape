@@ -45,7 +45,10 @@ def app_init():
             if arg == "-mo":
                 controller.add_mouse_object = True
             if arg == "-tz":
-                controller.add_test_zone = True
+                controller.add_persistent_object(controller.zone_border_object, (190,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (390,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (390,390), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (190,390), (24,24))
     except:
         print("Invalid command-line arguments")
         
