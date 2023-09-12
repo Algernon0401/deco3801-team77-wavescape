@@ -11,7 +11,7 @@ from sklearn.model_selection import KFold
 
 
 dataset_path = Path(
-    r"datasets\train"
+    r"datasets2\train"
 )  # replace with 'path/to/dataset' for your custom data
 labels = sorted(dataset_path.rglob("*labels/*.txt"))  # all data in 'labels'
 
