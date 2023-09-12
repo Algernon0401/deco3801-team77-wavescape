@@ -8,7 +8,7 @@ import pygame
 
 # Import camera
 from .devices.camera import Camera
-from .object import CamObject
+from .object import *
 
 # Create partial implementation of zone control
 
@@ -43,9 +43,9 @@ class AppController:
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
-        self.add_test_zone = False
         self.object_attributes = {}
         self.persistent_objects = [] # Testing objects
+        self.zone_border_object = Tag.ARROW.value
     
     def get_object_attributes(self, object):
         """
@@ -97,14 +97,7 @@ class AppController:
         if self.add_mouse_object:
             (mx,my) = pygame.mouse.get_pos()
             self.objects.append(CamObject("mouse", (mx,my, 12, 20), 1))
-        
-        # Add test zone object for testing (using square object)
-        if self.add_test_zone:
-            self.objects.append(CamObject("square", (64,64, 64, 64)))
-            self.objects.append(CamObject("square", (394,64, 64, 64)))
-            self.objects.append(CamObject("square", (64,364, 64, 64)))
-            self.objects.append(CamObject("square", (394,364, 64, 64)))
-        
+            
         # Update logic controllers
         for controller in self.controllers:
             controller.update(self)
@@ -258,6 +251,12 @@ class Control:
         self.h = 0
         self.interactive = False # Set to True if this control interacts in any way
         pass
+    
+    def get_center(self):
+        """
+        Returns the center of the control
+        """
+        return (self.x+self.w/2, self.y+self.h/2)
     
     def get_bounds(self):
         """

@@ -118,7 +118,7 @@ class DDCamVisual(Control):
                 # Place persistent object
                 (mx,my) = pygame.mouse.get_pos()
                 tag = self.test_create_type
-                controller.add_persistent_object(tag, (mx,my), (64,64))
+                controller.add_persistent_object(tag, (mx,my), (24,24))
             elif event.button == MOUSE_RIGHT:
                 index = ALL_TAGS.index(self.test_create_type)
                 index = index + 1
