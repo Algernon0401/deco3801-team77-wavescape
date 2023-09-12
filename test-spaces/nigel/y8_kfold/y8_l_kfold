@@ -1,0 +1,61 @@
+{0: ultralytics.utils.metrics.DetMetrics object with attributes:
+
+ap_class_index: array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+box: ultralytics.utils.metrics.Metric object
+confusion_matrix: <ultralytics.utils.metrics.ConfusionMatrix object at 0x7f9be4631f90>
+fitness: 0.6236745502777064
+keys: ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)']
+maps: array([    0.61227,     0.43715,     0.73709,     0.75617,     0.58837,     0.28596,     0.72165,     0.70082,     0.52569])
+names: {0: 'angle', 1: 'cylinder', 2: 'gear', 3: 'oval', 4: 'rectangle', 5: 'spiky', 6: 'square', 7: 'star', 8: 'triangle'}
+plot: False
+results_dict: {'metrics/precision(B)': 0.9305511092122836, 'metrics/recall(B)': 0.7602137140769374, 'metrics/mAP50(B)': 0.8715824310799278, 'metrics/mAP50-95(B)': 0.5961292301885706, 'fitness': 0.6236745502777064}
+save_dir: PosixPath('y8_xl_kfold/0 fold')
+speed: {'preprocess': 0.11021662981082231, 'inference': 4.389548913026467, 'loss': 0.000861974862905649, 'postprocess': 0.6547157581035907}, 1: ultralytics.utils.metrics.DetMetrics object with attributes:
+
+ap_class_index: array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+box: ultralytics.utils.metrics.Metric object
+confusion_matrix: <ultralytics.utils.metrics.ConfusionMatrix object at 0x7f9c3ad47390>
+fitness: 0.5952647326365949
+keys: ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)']
+maps: array([    0.67021,     0.49116,     0.66357,     0.67919,     0.52017,     0.23951,     0.71533,     0.63321,      0.5038])
+names: {0: 'angle', 1: 'cylinder', 2: 'gear', 3: 'oval', 4: 'rectangle', 5: 'spiky', 6: 'square', 7: 'star', 8: 'triangle'}
+plot: False
+results_dict: {'metrics/precision(B)': 0.8966055633472142, 'metrics/recall(B)': 0.752444989597117, 'metrics/mAP50(B)': 0.836500570597326, 'metrics/mAP50-95(B)': 0.568460750640958, 'fitness': 0.5952647326365949}
+save_dir: PosixPath('y8_xl_kfold/1 fold')
+speed: {'preprocess': 0.11039391542092349, 'inference': 4.392813413571089, 'loss': 0.0008742014567057291, 'postprocess': 0.6571305103791066}, 2: ultralytics.utils.metrics.DetMetrics object with attributes:
+
+ap_class_index: array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+box: ultralytics.utils.metrics.Metric object
+confusion_matrix: <ultralytics.utils.metrics.ConfusionMatrix object at 0x7f9c32f103d0>
+fitness: 0.6808208321361836
+keys: ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)']
+maps: array([    0.66342,     0.56772,     0.78426,     0.70316,     0.59524,      0.5234,     0.77548,     0.69859,     0.58419])
+names: {0: 'angle', 1: 'cylinder', 2: 'gear', 3: 'oval', 4: 'rectangle', 5: 'spiky', 6: 'square', 7: 'star', 8: 'triangle'}
+plot: False
+results_dict: {'metrics/precision(B)': 0.9066490460257164, 'metrics/recall(B)': 0.8324475908192579, 'metrics/mAP50(B)': 0.9127557086227003, 'metrics/mAP50-95(B)': 0.6550502903043485, 'fitness': 0.6808208321361836}
+save_dir: PosixPath('y8_xl_kfold/2 fold')
+speed: {'preprocess': 0.10947177284642269, 'inference': 4.432728416041324, 'loss': 0.0009160292776007401, 'postprocess': 0.6454806578786749}, 3: ultralytics.utils.metrics.DetMetrics object with attributes:
+
+ap_class_index: array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+box: ultralytics.utils.metrics.Metric object
+confusion_matrix: <ultralytics.utils.metrics.ConfusionMatrix object at 0x7f9c333e5b90>
+fitness: 0.5629946432203913
+keys: ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)']
+maps: array([    0.63523,     0.43129,     0.69855,     0.69959,     0.34085,     0.19886,      0.6353,     0.63727,     0.55668])
+names: {0: 'angle', 1: 'cylinder', 2: 'gear', 3: 'oval', 4: 'rectangle', 5: 'spiky', 6: 'square', 7: 'star', 8: 'triangle'}
+plot: False
+results_dict: {'metrics/precision(B)': 0.9078379372933786, 'metrics/recall(B)': 0.6855812725665437, 'metrics/mAP50(B)': 0.7963223281314376, 'metrics/mAP50-95(B)': 0.5370693448969417, 'fitness': 0.5629946432203913}
+save_dir: PosixPath('y8_xl_kfold/3 fold')
+speed: {'preprocess': 0.1146479656821803, 'inference': 4.438387720208419, 'loss': 0.0008972067581979852, 'postprocess': 0.7243532883493524}, 4: ultralytics.utils.metrics.DetMetrics object with attributes:
+
+ap_class_index: array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+box: ultralytics.utils.metrics.Metric object
+confusion_matrix: <ultralytics.utils.metrics.ConfusionMatrix object at 0x7f9be479e010>
+fitness: 0.6025110703502159
+keys: ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)']
+maps: array([     0.5569,     0.46673,      0.7512,     0.62272,     0.44069,     0.38512,     0.69853,     0.67238,     0.56434])
+names: {0: 'angle', 1: 'cylinder', 2: 'gear', 3: 'oval', 4: 'rectangle', 5: 'spiky', 6: 'square', 7: 'star', 8: 'triangle'}
+plot: False
+results_dict: {'metrics/precision(B)': 0.874082413737445, 'metrics/recall(B)': 0.7835621113470705, 'metrics/mAP50(B)': 0.8664991747997628, 'metrics/mAP50-95(B)': 0.5731790587447106, 'fitness': 0.6025110703502159}
+save_dir: PosixPath('y8_xl_kfold/4 fold')
+speed: {'preprocess': 0.11018075441059313, 'inference': 4.4932553642674495, 'loss': 0.0008846584119294819, 'postprocess': 0.6504309804815994}}
