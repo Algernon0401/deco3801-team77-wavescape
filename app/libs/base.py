@@ -34,6 +34,7 @@ class AppController:
         """
         self.screen = screen
         self.controls = []  # Control list
+        self.static_controls = [] # Static control list
         self.controllers = [] # Controller list (for app logic)
         self.added_controls = []  # Next control list (controls added)
         self.removed_controls = []  # Next control list (controls removed)
@@ -46,6 +47,12 @@ class AppController:
         self.object_attributes = {}
         self.persistent_objects = [] # Testing objects
         self.zone_border_object = Tag.ARROW.value
+        
+    def setup_calibration(self):
+        """
+        Setups the app to calibrate the camera
+        """
+        pass
     
     def get_object_attributes(self, object):
         """
@@ -163,6 +170,13 @@ class AppController:
         contain old controls.
         """
         return self.controls
+
+    def get_static_controls(self):
+        """
+        Gets the list containing all static controls
+        currently active on the window.
+        """
+        return self.static_controls
     
     def get_controllers(self):
         """
@@ -179,6 +193,13 @@ class AppController:
         from .controls.zone import Zone
         if control is Zone:
             self.zones.append(control)
+
+    def add_static_control(self, control: Control):
+        """
+        Adds the control to the static controls list.
+        These controls will never be removed (system controls)
+        """
+        self.static_controls.append(control)
 
     def add_persistent_object(self, tag, pos, size):
         """
@@ -197,6 +218,7 @@ class AppController:
         """
         if len(self.persistent_objects) > 0:
             self.persistent_objects = self.persistent_objects[0:len(self.persistent_objects)-1]
+
     def remove_control(self, control: Control):
         """
         Adds the control to the removed controls list.
@@ -230,6 +252,15 @@ class AppController:
         will exit.
         """
         self.running = False
+
+    def is_mouse_over(self, bounds):
+        """
+        Returns true if the mouse is over a certain bounds
+        """
+        (mx,my) = pygame.mouse.get_pos()
+        (bx,by,bw,bh) = bounds
+
+        return mx >= bx and my >= by and mx < bx + bw and my < by + bh
 
 
 class Control:
