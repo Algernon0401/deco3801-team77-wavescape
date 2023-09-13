@@ -181,5 +181,17 @@ class Menu(Control):
                 # Activate whatever control the mouse is over
                 if controller.is_mouse_over((self.x, self.y, self.w, self.h)):
                     self.toggle()
+                else:
+                     # Check all menu items for clicked button
+                    menu_y = self.y + self.h + self.menu_offset
+                    button_height = asset_menu_popup_item_mouse.get_height()
+                    for button in self.items:
+                        if controller.is_mouse_over((self.x, menu_y, self.w, button_height)):
+                            button.function()
+                            break
+                
+                        menu_y += button_height
+
+                
             self.mouse_down = False
         pass
