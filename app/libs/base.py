@@ -53,6 +53,12 @@ class AppController:
         Setups the app to calibrate the camera
         """
         pass
+
+    def swap_camera(self):
+        """
+        Swaps the current camera with another camera.
+        """
+        self.camera.init_next_camera()
     
     def get_object_attributes(self, object):
         """
