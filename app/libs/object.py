@@ -53,11 +53,12 @@ class CamObject:
     
     def within(self, bounds):
         """
-            Returns True if object is contained within the bounds
+            Returns True if object's center is contained within the bounds.
         """
         (xf,yf,wf,hf) = bounds
         (x,y,w,h) = (self.x, self.y, self.w, self.h)
-        return x + w >= xf and y + h >= yf and x < xf + wf and y < yf + hf
+        (cx,cy) = (x+w/2, y+h/2)
+        return cx >= xf and cy >= yf and cx < xf + wf and cy < yf + hf
     
     def get_center(self):
         """

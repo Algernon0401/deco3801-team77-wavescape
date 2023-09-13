@@ -193,18 +193,19 @@ nano_results = [
 
 
 all_results = [large_results, medium_results, small_results, nano_results]
+names = ["large", "medium", "small", "nano"]
 
 
 def average_result(attribute):
     total = 0
 
-    for size_result in all_results:
+    for i, size_result in enumerate(all_results):
         for result in size_result:
             total = total + result[f"{attribute}"]
 
         average = total / len(size_result)
         total = 0
-        print(f"Average '{attribute}' score for : ", average)
+        print(f"Average '{attribute}' score for {names[i]}: ", average)
 
 
 average_result("metrics/precision")
