@@ -1,7 +1,6 @@
 import math
 import pygame
 from enum import Enum
-
 class Tag(Enum):
     """
         Represents the possible types/shapes of an object.
@@ -23,6 +22,10 @@ class Tag(Enum):
     STAR = "star"
     RECTANGLE = "rectangle"
     ARROW = "arrow"
+
+ALL_TAGS = [
+    e.value for e in Tag
+]
 
 class CamObject:
     """
@@ -50,10 +53,25 @@ class CamObject:
     
     def within(self, bounds):
         """
-            Returns True if object is contained within the bounds
+            Returns True if object's center is contained within the bounds.
         """
         (xf,yf,wf,hf) = bounds
         (x,y,w,h) = (self.x, self.y, self.w, self.h)
-        return x + w >= xf and y + h >= yf and x < xf + wf and y < yf + hf
-        
+        (cx,cy) = (x+w/2, y+h/2)
+        return cx >= xf and cy >= yf and cx < xf + wf and cy < yf + hf
+    
+    def get_center(self):
+        """
+        Returns the center of the control
+        """
+        return (self.x+self.w/2, self.y+self.h/2)
+    
+    def distance(self, center):
+        """
+            Calculates the distance between the center of this object and another point (x, y)
+        """    
+        (x,y) = center
+        center_x = self.x + self.w/2
+        center_y = self.y + self.h/2
+        return math.sqrt(math.pow(x - center_x, 2) + math.pow(y - center_y, 2))
         

@@ -40,6 +40,7 @@ class DDCamVisual(Control):
         self.invalid_model_overlay = pygame.image.load(ASSET_MODEL_INVALID_OVERLAY)
         self.loading_model_overlay = pygame.image.load(ASSET_MODEL_LOADING_OVERLAY)
         self.display_feed = display_feed
+        self.test_create_type = Tag.TRIANGLE.value
         self.font = pygame.font.Font('assets/fonts/arial.ttf', 16)
     
     def update(self, controller: AppController):
@@ -96,6 +97,12 @@ class DDCamVisual(Control):
             text_rect.center = (object.x+object.w/2,object.y+object.h/2)
             screen.blit(text, text_rect)
 
+        # Display current object to add
+        text = self.font.render(self.test_create_type, True, pygame.Color(255, 255, 255))
+        text_rect = text.get_rect()
+        (sx,sy) = controller.get_screen_size()
+        text_rect.center = (sx/2, sy-30)
+        screen.blit(text, text_rect)
         pass
     
     def event(self, controller: AppController, event: pygame.event.Event):
@@ -106,4 +113,20 @@ class DDCamVisual(Control):
                 controller -- the app controller this control runs from
                 event -- the pygame event that happened
         """
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == MOUSE_LEFT:
+                # Place persistent object
+                (mx,my) = pygame.mouse.get_pos()
+                tag = self.test_create_type
+                controller.add_persistent_object(tag, (mx,my), (24,24))
+            elif event.button == MOUSE_RIGHT:
+                index = ALL_TAGS.index(self.test_create_type)
+                index = index + 1
+                if index >= len(ALL_TAGS):
+                    index = 0
+                self.test_create_type = ALL_TAGS[index]
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_z:
+                # Undo last object
+                controller.remove_persistent_object()
         pass

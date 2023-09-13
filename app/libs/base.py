@@ -8,7 +8,7 @@ import pygame
 
 # Import camera
 from .devices.camera import Camera
-from .object import CamObject
+from .object import *
 
 # Create partial implementation of zone control
 
@@ -34,6 +34,7 @@ class AppController:
         """
         self.screen = screen
         self.controls = []  # Control list
+        self.static_controls = [] # Static control list
         self.controllers = [] # Controller list (for app logic)
         self.added_controls = []  # Next control list (controls added)
         self.removed_controls = []  # Next control list (controls removed)
@@ -43,8 +44,15 @@ class AppController:
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
-        self.add_test_zone = False
         self.object_attributes = {}
+        self.persistent_objects = [] # Testing objects
+        self.zone_border_object = Tag.ARROW.value
+        
+    def setup_calibration(self):
+        """
+        Setups the app to calibrate the camera
+        """
+        pass
     
     def get_object_attributes(self, object):
         """
@@ -80,7 +88,11 @@ class AppController:
         controls
         """
         self.camera.update(self)
-        
+
+        # Add persistent objects for testing 
+        for persistent_object in self.persistent_objects:
+            self.objects.append(persistent_object)
+
         # Update currently (mouse) hovered control
         self.hover_control = None
         for control in self.controls:
@@ -92,14 +104,7 @@ class AppController:
         if self.add_mouse_object:
             (mx,my) = pygame.mouse.get_pos()
             self.objects.append(CamObject("mouse", (mx,my, 12, 20), 1))
-        
-        # Add test zone object for testing (using square object)
-        if self.add_test_zone:
-            self.objects.append(CamObject("square", (64,64, 64, 64)))
-            self.objects.append(CamObject("square", (394,64, 64, 64)))
-            self.objects.append(CamObject("square", (64,364, 64, 64)))
-            self.objects.append(CamObject("square", (394,364, 64, 64)))
-        
+            
         # Update logic controllers
         for controller in self.controllers:
             controller.update(self)
@@ -165,6 +170,13 @@ class AppController:
         contain old controls.
         """
         return self.controls
+
+    def get_static_controls(self):
+        """
+        Gets the list containing all static controls
+        currently active on the window.
+        """
+        return self.static_controls
     
     def get_controllers(self):
         """
@@ -181,6 +193,31 @@ class AppController:
         from .controls.zone import Zone
         if control is Zone:
             self.zones.append(control)
+
+    def add_static_control(self, control: Control):
+        """
+        Adds the control to the static controls list.
+        These controls will never be removed (system controls)
+        """
+        self.static_controls.append(control)
+
+    def add_persistent_object(self, tag, pos, size):
+        """
+        Adds a persistent object to the controller.
+        """
+        (x,y) = pos
+        (w,h) = size
+        self.persistent_objects.append(CamObject(
+            tag,
+            (x,y,w,h)
+        ))
+
+    def remove_persistent_object(self):
+        """
+        Removes the last persistent object.
+        """
+        if len(self.persistent_objects) > 0:
+            self.persistent_objects = self.persistent_objects[0:len(self.persistent_objects)-1]
 
     def remove_control(self, control: Control):
         """
@@ -216,6 +253,15 @@ class AppController:
         """
         self.running = False
 
+    def is_mouse_over(self, bounds):
+        """
+        Returns true if the mouse is over a certain bounds
+        """
+        (mx,my) = pygame.mouse.get_pos()
+        (bx,by,bw,bh) = bounds
+
+        return mx >= bx and my >= by and mx < bx + bw and my < by + bh
+
 
 class Control:
     """
@@ -236,6 +282,12 @@ class Control:
         self.h = 0
         self.interactive = False # Set to True if this control interacts in any way
         pass
+    
+    def get_center(self):
+        """
+        Returns the center of the control
+        """
+        return (self.x+self.w/2, self.y+self.h/2)
     
     def get_bounds(self):
         """

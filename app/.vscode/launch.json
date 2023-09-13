@@ -9,9 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": [
-                "-mo",
-            ],
+            "args": ["-mo", "-tz"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -28,6 +26,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
+            "args": ["-mo", "-tz"],
             "console": "integratedTerminal",
             "justMyCode": true
         },

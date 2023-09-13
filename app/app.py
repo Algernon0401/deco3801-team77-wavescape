@@ -13,6 +13,7 @@ from libs.base import *
 # Import controls
 from libs.controls.ddcam import *
 from libs.controls.border import *
+from libs.controls.menu import *
 
 # Import logic controllers
 from libs.controllers.zone_controller import * 
@@ -45,14 +46,22 @@ def app_init():
             if arg == "-mo":
                 controller.add_mouse_object = True
             if arg == "-tz":
-                controller.add_test_zone = True
+                controller.add_persistent_object(controller.zone_border_object, (190,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (390,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (390,390), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (190,390), (24,24))
     except:
         print("Invalid command-line arguments")
         
-    # Add initial controls
+    # Add initial controls (displayed first)
     
     controller.add_control(DDCamVisual(controller))
-    controller.add_control(AppBorder(controller))
+
+    # Add static system controls (displayed last)
+
+    controller.add_static_control(AppBorder(controller))
+    controller.add_static_control(Menu(controller))
+
     # Add logic controllers
     controller.add_controller(ZoneController(controller))
 
@@ -62,6 +71,10 @@ def app_init():
 
         # Update all controls
         for control in controller.get_controls():
+            control.update(controller)
+
+        # Update all static (overlay) controls
+        for control in controller.get_static_controls():
             control.update(controller)
 
         # Update all logic controls
@@ -81,6 +94,11 @@ def app_init():
                 # Update display controls
                 for control in controller.get_controls():
                     control.event(controller, event)
+
+                # Update static (system) controls
+                for control in controller.get_static_controls():
+                    control.event(controller, event)
+
                 # Update logic controllers
                 for lc in controller.get_controllers():
                     lc.event(controller, event)
@@ -100,6 +118,10 @@ def app_init():
 
         # Render all controls
         for control in controller.get_controls():
+            control.render(controller, controller.screen)
+
+        # Render all overlaying controls (all controls that must be on top of everything else)
+        for control in controller.get_static_controls():
             control.render(controller, controller.screen)
 
         # Update the screen
