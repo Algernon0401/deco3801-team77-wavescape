@@ -22,6 +22,7 @@ ASSET_MENU_POPUP_CONTAINER = 'assets/images/menu/container.png'
 
 ASSET_MENU_BUTTON_QUIT = 'assets/images/menu/button_quit.png'
 ASSET_MENU_BUTTON_CALIBRATE = 'assets/images/menu/button_calibrate.png'
+ASSET_MENU_BUTTON_SWAP_CAMERA = 'assets/images/menu/button_swap_camera.png'
 
 asset_menu_bar = pygame.image.load(ASSET_MENU_BAR)
 asset_menu_bar_hover = pygame.image.load(ASSET_MENU_BAR_STATE_HOVER)
@@ -33,6 +34,7 @@ asset_menu_popup_item_mouse = pygame.image.load(ASSET_MENU_POPUP_ITEM_MOUSE)
 
 asset_menu_button_quit = pygame.image.load(ASSET_MENU_BUTTON_QUIT)
 asset_menu_button_calibrate = pygame.image.load(ASSET_MENU_BUTTON_CALIBRATE)
+asset_menu_button_swap_camera = pygame.image.load(ASSET_MENU_BUTTON_SWAP_CAMERA)
 
 class MenuItem:
         """
@@ -71,6 +73,7 @@ class Menu(Control):
         self.menu_offset = 0 # Offset from bottom
         # Initialise menu options
         self.items = [
+            MenuItem(asset_menu_button_swap_camera, controller.swap_camera),
             MenuItem(asset_menu_button_calibrate, controller.setup_calibration),
             MenuItem(asset_menu_button_quit, controller.exit)
         ]

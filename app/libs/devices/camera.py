@@ -11,8 +11,6 @@ from ultralytics import YOLO
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 MODEL_CONFIDENCE_THRESHOLD = 0.5
-CAMERA_NO = 0
-
 
 class Camera:
     """
@@ -37,6 +35,7 @@ class Camera:
             self.model = None
             self.model_loading = True
             self.model_results = None
+            self.camera_no = 0
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             # Create thread for opening camera and YOLO object detection
             threading.Thread(target=self.open_camera, args=[]).start()
@@ -87,7 +86,7 @@ class Camera:
     def open_camera(self):
         try:
             print("Camera initializing...")
-            self.video = cv.VideoCapture(CAMERA_NO)
+            self.video = cv.VideoCapture(self.camera_no)
             # Ensure video camera is opened.
             self.valid = self.video.isOpened()
             print("Camera initialized.")
@@ -96,6 +95,43 @@ class Camera:
             print("Error initializing camera")
             self.valid = False
             self.loading = False
+
+    def init_next_camera(self):
+        """
+        Creates a new thread to swap the next camera
+        """
+        self.valid = False
+        self.loading = True
+        self.video.release()
+        self.video = None
+        threading.Thread(target=self.next_camera, args=[]).start()
+        
+
+    def next_camera(self):
+        """
+        Initialises a new video feed from the next camera if possible, else
+        resets to the first camera.
+        """
+        try:
+            self.loading = True
+            while self.valid:
+                pass # Wait until main thread catches up
+            self.camera_no += 1
+            self.video = cv.VideoCapture(self.camera_no)
+
+            # Ensure video camera is opened.
+            self.valid = self.video.isOpened()
+            self.loading = False
+            if not self.valid:
+                # Open initial camera
+                self.open_camera()
+        except:
+            print("Error swapping camera")
+            self.camera_no = 0 # Reset to first camera
+            self.loading = False
+            self.valid = False
+            # Open initial camera
+            self.open_camera()
 
     def capture_video(self):
         """
