@@ -9,7 +9,7 @@ class Tag(Enum):
 
     # type
     PHONE = "phone"
-    WOLLET = "wollet"
+    WALLET = "wallet"
     EARBUDS = "earbuds"
     WATCH = "watch"
     KEYS = "keys"

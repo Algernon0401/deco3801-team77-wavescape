@@ -6,10 +6,11 @@ from sound import *
 from object import Tag
 import json
 
-frequency_map = json.load(open("assets/frequency_map.json"))
-MIN_FREQUENCY = frequency_map["C0"]
-MAX_FREQUENCY = frequency_map["B8"]
-MAX_RADIAN = 2
+frequency_list = list(json.load(open("assets/frequency_list.json")))
+elc_list = list(json.load(open("assets/elc_list.json")))
+NUM_NODES = len(frequency_list)     # based on piano
+MAX_RADIAN = 2 * math.pi
+VOLUME_SCALER = 0.02                # think it as the volume knob
 
 class ToneGenerator:
     """A generator of sound"""
@@ -19,12 +20,19 @@ class ToneGenerator:
     @staticmethod
     def pos_to_wave(ctr_pos, obj_pos, tag:Tag, duration) -> Wave:
         """Generate a wave based on the position of a shape"""
-        cx, cy = ctr_pos    # position of the center of zone
-        ox, oy = obj_pos    # position of the object
+        cx, cy = ctr_pos    # position of the [c]enter of zone
+        ox, oy = obj_pos    # position of the [o]bject
         
-        amplitude = math.sqrt((cx-ox)**2+(cy-oy)**2)    # amplitude = distance
-        radian = np.arccos((cx-ox)/amplitude)           # radian = arccos(x), r = 1
-        frequency = radian / MAX_RADIAN * MAX_FREQUENCY # bijecting radian to frequency evenly
+        distance = math.sqrt((cx-ox)**2+(cy-oy)**2)     # Euclidean distance
+        radian = np.arccos((cx-ox)/distance)            # radian = arccos(x), r = 1
+        idx = None
+        print("Radian:", radian)
+        for i in range(NUM_NODES):
+            if radian < (i+1)*MAX_RADIAN/NUM_NODES:
+                idx = i
+                break
+        frequency = frequency_list[idx]                         # bijecting radian to each discrete frequency 
+        amplitude = distance * elc_list[idx] * VOLUME_SCALER    # amplitude = distance * elc
 
         print(f"Amplitude: {amplitude}, Frequncy: {frequency}")
         match tag:
@@ -45,7 +53,7 @@ def main():
     """for testing"""
     print("Test start")
     sound = Sound(22050, 8)
-    wave = ToneGenerator.pos_to_wave((0,0),(1000,10000),Tag.SQUARE,1000)
+    wave = ToneGenerator.pos_to_wave((0,0),(12000,1000),Tag.SQUARE,1000)
     sound.play(wave)
     print("Played")
 
