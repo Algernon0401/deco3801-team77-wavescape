@@ -6,6 +6,7 @@
 """
 import pygame
 from datetime import *
+from random import randint
 
 # Import app controller, control base class, camera and sound class
 from ..base import Control
@@ -184,12 +185,38 @@ class Zone(Control):
         # Object connectivity graph via distance.
         graph = self.create_connectivity_tree(None, objects, center, center)
         self.graph = graph
-        
+
+
+        for object in objects:
+            state = self.get_object_attribute(object, "ripple_state")
+            direction = self.get_object_attribute(object, "ripple_direction")
+            if self.get_object_attribute(object, "ripple_count") is None:
+                self.set_object_attribute(object, "ripple_count", randint(1, 10))
+            if self.get_object_attribute(object, "ripple_colour") is None:
+                self.set_object_attribute(object, "ripple_colour", pygame.Color(randint(1, 255), randint(1, 255), randint(1, 255), 100))
+            if state is None:
+                state = 0
+            
+            if direction is None:
+                direction = -1
+            
+            if state >= 30:
+                direction = -1
+            if state == 0:
+                direction = 1
+            state = state + (0.5 * direction)
+
+            self.set_object_attribute(object, "ripple_state", state)
+            self.set_object_attribute(object, "ripple_direction", direction)
+
+
+
         
         # Test function with miles' sound function
         # Y silent duration (0, 1)
         # X frequency (500 - 5000)
         
+
         return
         
         for object in objects:
@@ -262,7 +289,7 @@ class Zone(Control):
                                                            border_width)),
                     (self.x + corner_width, self.y))
         
-        screen.blit(pygame.transform.scale(zone_border_t, (self.w - corner_width * 2,  
+        screen.blit(pygame.transform.scale(zone_border_t, (self.w - corner_width * 2,
                                                            border_width)),
                     (self.x + corner_width, self.y + self.h - border_width))
         
@@ -270,7 +297,29 @@ class Zone(Control):
         if self.graph is not None:
             self.graph.render(controller, screen)
         
-    
+        for object in controller.get_cam_objects_in_bounds(self.get_bounds()):
+            if object is None:
+                continue
+            self.generate_ripples(screen, object)
+
+    def generate_ripples(self, screen: pygame.Surface, obj: CamObject):
+        """
+            Generates a ripple effect on the given object.
+        """
+        state = self.get_object_attribute(obj, "ripple_state")
+        ripple_count = self.get_object_attribute(obj, "ripple_count")
+        colour = self.get_object_attribute(obj, "ripple_colour")
+        if state is None:
+            return
+        
+        for i in range(ripple_count):
+            adj_state = state + (i * 5)
+            rect = pygame.Rect(obj.get_center(), (0, 0)).inflate((adj_state * 2, adj_state * 2))
+            surf = pygame.Surface(rect.size, pygame.SRCALPHA)
+            pygame.draw.circle(surf, colour, (adj_state, adj_state), adj_state)
+            screen.blit(surf, rect)
+        
+
     def event(self, controller: AppController, event: pygame.event.Event):
         """
             Receives an event from the pygame interface.
