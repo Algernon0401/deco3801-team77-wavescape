@@ -47,7 +47,6 @@ class AppController:
         self.object_attributes = {}
         self.persistent_objects = [] # Testing objects
         self.zone_border_object = Tag.ARROW.value
-        self.last_camera_update = 1
         
     def setup_calibration(self):
         """
@@ -96,17 +95,14 @@ class AppController:
         """
         self.camera.update(self)
 
-        # Update testing objects (but ensure only added to new set of objects)
-        if self.camera.current_update != self.last_camera_update:
-            self.last_camera_update = self.camera.current_update
-            # Add persistent objects for testing 
-            for persistent_object in self.persistent_objects:
-                self.objects.append(persistent_object)
+        # Add persistent objects for testing 
+        for persistent_object in self.persistent_objects:
+            self.objects.append(persistent_object)
 
-            # Add mouse object for testing
-            if self.add_mouse_object:
-                (mx,my) = pygame.mouse.get_pos()
-                self.objects.append(CamObject("mouse", (mx,my, 12, 20), 1))
+        # Add mouse object for testing
+        if self.add_mouse_object:
+            (mx,my) = pygame.mouse.get_pos()
+            self.objects.append(CamObject("mouse", (mx,my, 12, 20), 1))
                 
         # Update currently (mouse) hovered control
         self.hover_control = None

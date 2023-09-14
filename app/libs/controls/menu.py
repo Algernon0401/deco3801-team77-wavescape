@@ -160,7 +160,7 @@ class Menu(Control):
                 menu_y += button_height
 
         # Determine bar state and draw bar respectively
-        bar_state = self.select_state(controller, (self.x, self.y, self.w, self.h), 
+        bar_state = self.select_state(controller, (self.x, self.y, self.w, self.h+1), 
                                       asset_menu_bar, asset_menu_bar_hover, asset_menu_bar_mouse)
 
         screen.blit(bar_state, (self.x, self.y))
@@ -181,7 +181,7 @@ class Menu(Control):
         elif event.type == pygame.MOUSEBUTTONUP:
             if self.mouse_down:
                 # Activate whatever control the mouse is over
-                if controller.is_mouse_over((self.x, self.y, self.w, self.h)):
+                if controller.is_mouse_over((self.x, self.y, self.w, self.h+1)):
                     self.toggle()
                 else:
                      # Check all menu items for clicked button

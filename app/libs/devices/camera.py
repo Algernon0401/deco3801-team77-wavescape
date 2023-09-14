@@ -38,6 +38,7 @@ class Camera:
             self.model_loading = True
             self.refresh_ready = False
             self.model_results = None
+            self.object_results = None
             self.camera_no = 0
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             self.last_time_updated = datetime.datetime.now()
@@ -45,6 +46,8 @@ class Camera:
             # Create thread for opening camera and YOLO object detection
             threading.Thread(target=self.open_camera, args=[]).start()
             threading.Thread(target=self.load_default_model, args=[]).start()
+            # Create thread for object conversion
+            threading.Thread(target=self.object_conversion, args=[]).start()
         except:
             print("Error creating thread (camera thread/yolo thread)")
             self.valid = False
@@ -82,7 +85,6 @@ class Camera:
                     self.model_results = self.model(
                         self.capture_video(), verbose=False
                     )[0]
-                    self.refresh_ready = True
                 time.sleep(0.05)  # Ensure this does not clog up machine
         except Exception as e:
             print("Error with YOLOv5 Model.")
@@ -166,6 +168,28 @@ class Camera:
                     frame.tobytes(), frame.shape[1::-1], "BGR"
                 )
         return None
+    
+    def object_conversion(self):
+        """
+        Continuously converts model results into usable camera objects.
+        (to be run in another thread - see __init__)
+        """
+        
+        while True:
+            time.sleep(0.1) # Only update 50ms or so to prevent computer lag
+            
+            if not self.valid or self.model is None:
+                # Set objects to empty list
+                self.object_results = []
+                continue # Continue to next iteration
+                
+            objects = []
+            
+            # NOTE Sam to Nigel - copy your code here (update objects) 
+            
+            self.object_results = objects
+            self.refresh_ready = True
+        
 
     def update(self, controller):
         """
@@ -177,16 +201,22 @@ class Camera:
         if not self.refresh_ready or time_passed < CAMERA_UPDATE_DELAY: # Only update every 100ms
             # Ensure that we do not continuously lag the python app
             # when the video feed has not updated.
+            if self.object_results is not None:
+                controller.set_cam_objects(self.object_results.copy())
             return
         
         self.last_time_updated = datetime.datetime.now()
         self.refresh_ready = False
         self.current_update = 1 - self.current_update
+                  
+        # Update camera objects to given results from conversion thread.
+        if self.object_results is not None:
+            controller.set_cam_objects(self.object_results.copy())
         
-        if not self.valid or self.model is None:
-            # Set objects to empty list
-            controller.set_cam_objects([])
-            return
+        # NOTE from Sam to Nigel -- I'm not too sure of your changes to this class, so
+        # I'm going to leave you to change self.object_results to the correct value (objects).
+        # Please move code from update to object_conversion which is run in another thread
+        # for optimization.
 
         objects = []
 
@@ -245,7 +275,11 @@ class Camera:
                     )
                 )
 
-        controller.set_cam_objects(objects)
+        self.object_results = objects
+        
+        
+
+        
 
     def destroy(self):
         """

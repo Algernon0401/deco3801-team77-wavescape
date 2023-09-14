@@ -186,7 +186,17 @@ class Zone(Control):
         graph = self.create_connectivity_tree(None, objects, center, center)
         self.graph = graph
 
-
+        # NOTE from Sam to Luke:
+        # in game development, there are often lag between one frame to the next.
+        # To account for this, time passed is used so that animation is not slowed
+        # down with program. With python, it is especially noticeable when it slows
+        # down (as by no means python is a fast language due to being dynamically
+        # interpreted)
+        # 
+        # time_passed = datetime.datetime.now() - self.last_time_passed
+        # ...do logic...
+        # self.last_time_passed = datetime.datetime.now()
+        
         for object in objects:
             state = self.get_object_attribute(object, "ripple_state")
             direction = self.get_object_attribute(object, "ripple_direction")
