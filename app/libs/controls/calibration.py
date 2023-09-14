@@ -92,6 +92,13 @@ class Calibration(Control):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSE_LEFT:
                 # Move onto next step
+                self.current_step += 1
+                
+                # Check if we are finished calibration
+                if self.current_step >= 3:
+                    # Finish calibration
+                    controller.finish_calibration()
+                    
                 pass
 
         pass

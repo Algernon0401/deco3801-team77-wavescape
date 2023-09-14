@@ -41,6 +41,7 @@ class AppController:
         self.added_controls = []  # Next control list (controls added)
         self.removed_controls = []  # Next control list (controls removed)
         self.running = True
+        self.calibrating = False
         self.camera = Camera()
         
         self.objects = []
@@ -62,14 +63,29 @@ class AppController:
         # Import calibration control
         from libs.controls.calibration import Calibration
         
-        # Remove all controls
-        for control in self.controls:
-            self.remove_control(control)
+        # 'stash' controls so that they can be reinstated later
+        self.stashed_controls = self.controls
+        self.controls = []
             
         # Add new instance of calibration control
         self.add_control(Calibration(self))
+        self.calibrating = True
         
         pass
+    
+    def finish_calibration(self):
+        """
+        Finishes the calibration by reinstating the controls
+        that were previously displayed on screen
+        """
+        self.reinstate_controls()
+        self.calibrating = False
+        
+    def reinstate_controls(self):
+        """
+        Reinstates the previous controls that were 'stashed'
+        """
+        self.controls = self.stashed_controls
     
     def setup_main_control(self):
         """

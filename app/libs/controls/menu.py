@@ -71,6 +71,8 @@ class Menu(Control):
         self.mouse_down = False 
         self.expanded = False
         self.menu_offset = 0 # Offset from bottom
+        self.w = asset_menu_bar.get_width()
+        self.h = asset_menu_bar.get_height()
         # Initialise menu options
         self.items = [
             MenuItem(asset_menu_button_swap_camera, controller.swap_camera),
@@ -88,14 +90,15 @@ class Menu(Control):
         """
 
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
-        (self.w, self.h) = controller.get_screen_size()
-        self.x = self.w - 20 - asset_menu_bar.get_width()
-        self.y = self.h - asset_menu_bar.get_height()
+        (screen_w, screen_h) = controller.get_screen_size()
+        self.x = screen_w - self.w
+        self.y = screen_h - self.h
         
+        menu_x = screen_w - asset_menu_popup_container.get_width()
         menu_height = asset_menu_popup_container.get_height()
         # Expand and collapse popup
         if self.expanded:
-            min_offset = -menu_height - self.h
+            min_offset = -menu_height
             if self.menu_offset > min_offset:
                 self.menu_offset -= time_passed * 1000
                 self.menu_offset += time_passed * self.menu_offset
@@ -140,22 +143,25 @@ class Menu(Control):
                 controller -- the app controller this control runs from
                 screen -- the surface this control is drawn on.
         """
-
+        (screen_w, screen_h) = controller.get_screen_size()
+        
         # Draw main container for overlay if somewhat expanded
         if self.menu_offset < 0:
+            menu_x = screen_w - asset_menu_popup_container.get_width()
             menu_height = asset_menu_popup_container.get_height()
             menu_y = self.y + self.h + self.menu_offset
-            screen.blit(asset_menu_popup_container, (self.x, menu_y))
+            screen.blit(asset_menu_popup_container, (menu_x, menu_y))
             button_height = asset_menu_popup_item_mouse.get_height()
+            button_width = asset_menu_popup_item_mouse.get_width()
             # Draw all menu items
             for button in self.items:
                 bg_state = self.select_state(controller, 
-                                             (self.x, menu_y, self.w, button_height), None,
+                                             (menu_x, menu_y, button_width, button_height), None,
                                              asset_menu_popup_item_hover, asset_menu_popup_item_mouse)
                 if bg_state is not None:
-                    screen.blit(bg_state, (self.x, menu_y))
+                    screen.blit(bg_state, (menu_x, menu_y))
 
-                screen.blit(button.descriptor, (self.x, menu_y))    
+                screen.blit(button.descriptor, (menu_x, menu_y))    
                 
                 menu_y += button_height
 
@@ -176,6 +182,14 @@ class Menu(Control):
                 controller -- the app controller this control runs from
                 event -- the pygame event that happened
         """
+        
+        # Check to make sure the app isn't calibrating (deny access to menu)
+        if controller.calibrating:
+            return
+        
+        (screen_w, screen_h) = controller.get_screen_size()
+        
+        # Activate corresponding mouse event 
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_down = event.button == MOUSE_LEFT
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -184,11 +198,14 @@ class Menu(Control):
                 if controller.is_mouse_over((self.x, self.y, self.w, self.h+1)):
                     self.toggle()
                 else:
-                     # Check all menu items for clicked button
+                    # Check all menu items for clicked button
+                    menu_x = screen_w - asset_menu_popup_container.get_width()
                     menu_y = self.y + self.h + self.menu_offset
+                    button_width = asset_menu_popup_item_mouse.get_width()
                     button_height = asset_menu_popup_item_mouse.get_height()
                     for button in self.items:
-                        if controller.is_mouse_over((self.x, menu_y, self.w, button_height)):
+                        if controller.is_mouse_over((menu_x, menu_y, button_width, button_height)):
+                            self.expanded = False # Hide menu
                             button.function()
                             break
                 
