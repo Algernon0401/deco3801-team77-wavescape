@@ -45,29 +45,32 @@ namespace AppLauncher
         {
             // Check python key that exists in HKEY_CURRENT_USER\Software\Python\PythonCore
             // or in KEY_CURRENT_USER\Software\Python\PythonCore
-            RegistryKey core = Registry.LocalMachine.OpenSubKey(@"Software\Python\PythonCore");
-            if (core == null) core = Registry.CurrentUser.OpenSubKey(@"Software\Python\PythonCore");
-            if (core == null) return null;
-
-            // Get python versions and sort by name (2 < 3)
-            List<string> subkeys = core.GetSubKeyNames().ToList();
-            subkeys.Sort();
-
-            if (subkeys.Count > 0)
+            try
             {
-                // Get install path, which has a key of executable path
-                RegistryKey installPath = core.OpenSubKey($"{subkeys.Last()}\\InstallPath");
-                if(installPath != null)
+                RegistryKey core = Registry.LocalMachine.OpenSubKey(@"Software\Python\PythonCore");
+                if (core == null) core = Registry.CurrentUser.OpenSubKey(@"Software\Python\PythonCore");
+                if (core == null) return "python"; // Default to python PATH
+
+                // Get python versions and sort by name (2 < 3)
+                List<string> subkeys = core.GetSubKeyNames().ToList();
+                subkeys.Sort();
+
+                if (subkeys.Count > 0)
                 {
-                    string path = installPath.GetValue("ExecutablePath") as string;
-                    core.Close();
-                    installPath.Close();
-                    return path;
+                    // Get install path, which has a key of executable path
+                    RegistryKey installPath = core.OpenSubKey($"{subkeys.Last()}\\InstallPath");
+                    if (installPath != null)
+                    {
+                        string path = installPath.GetValue("ExecutablePath") as string;
+                        core.Close();
+                        installPath.Close();
+                        return path;
+                    }
                 }
+                core.Close();
             }
-            core.Close();
-            
-            return null;
+            catch (Exception exc) { try { File.WriteAllText("python.error", "Could not find python registry path"); } catch { } }
+            return "python"; // Default to python PATH
         }
 
         /// <summary>
