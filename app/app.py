@@ -11,9 +11,9 @@ from libs.devices.camera import *
 from libs.base import *
 
 # Import controls
-from libs.controls.ddcam import *
 from libs.controls.border import *
 from libs.controls.menu import *
+from libs.controls.status import *
 
 # Import logic controllers
 from libs.controllers.zone_controller import * 
@@ -54,13 +54,15 @@ def app_init():
         print("Invalid command-line arguments")
         
     # Add initial controls (displayed first)
-    
-    controller.add_control(DDCamVisual(controller))
+    # In this app, only the main control should be added.
+    # Zone are later configured, and re-added if necessary.
+    controller.setup_main_control()
 
     # Add static system controls (displayed last)
 
     controller.add_static_control(AppBorder(controller))
     controller.add_static_control(Menu(controller))
+    controller.add_static_control(Status(controller))
 
     # Add logic controllers
     controller.add_controller(ZoneController(controller))

@@ -193,9 +193,9 @@ class Zone(Control):
         # down (as by no means python is a fast language due to being dynamically
         # interpreted)
         # 
-        # time_passed = datetime.datetime.now() - self.last_time_passed
+        # time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
         # ...do logic...
-        # self.last_time_passed = datetime.datetime.now()
+        # self.last_time_updated = datetime.datetime.now()
         
         for object in objects:
             state = self.get_object_attribute(object, "ripple_state")

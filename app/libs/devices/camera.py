@@ -32,6 +32,7 @@ class Camera:
         and loads the given YOLOv5 model.
         """
         try:
+            self.active = True
             self.loading = True
             self.valid = False
             self.model = None
@@ -40,6 +41,10 @@ class Camera:
             self.model_results = None
             self.object_results = None
             self.camera_no = 0
+            self.offset_x = 0 # To be calibrated
+            self.offset_y = 0 # To be calibrated
+            self.scale_x = 1 # To be calibrated
+            self.scale_y = 1 # To be calibrated
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             self.last_time_updated = datetime.datetime.now()
             self.current_update = 0 # Alternates between 0 and 1
@@ -175,7 +180,7 @@ class Camera:
         (to be run in another thread - see __init__)
         """
         
-        while True:
+        while self.active:
             time.sleep(0.1) # Only update 50ms or so to prevent computer lag
             
             if not self.valid or self.model is None:
@@ -187,7 +192,8 @@ class Camera:
             
             # NOTE Sam to Nigel - copy your code here (update objects) 
             
-            self.object_results = objects
+            # Uncomment below line when implemented.
+            #self.object_results = objects
             self.refresh_ready = True
         
 
@@ -285,7 +291,9 @@ class Camera:
         """
         Releases the video capture reference and YOLO model
         """
+        self.active = False
         if self.valid:
             self.video.release()
         self.model = None
         self.valid = False
+        

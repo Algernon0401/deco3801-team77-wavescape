@@ -8,6 +8,8 @@ import pygame
 
 # Import camera
 from .devices.camera import Camera
+
+# Import camera object
 from .object import *
 
 # Create partial implementation of zone control
@@ -40,6 +42,7 @@ class AppController:
         self.removed_controls = []  # Next control list (controls removed)
         self.running = True
         self.camera = Camera()
+        
         self.objects = []
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
@@ -48,11 +51,43 @@ class AppController:
         self.persistent_objects = [] # Testing objects
         self.zone_border_object = Tag.ARROW.value
         
+        
     def setup_calibration(self):
         """
-        Setups the app to calibrate the camera
+        Setups the app to calibrate the camera.
+        
+        It achieves this by removing all standard controls, and 
+        then adding the calibration control.
         """
+        # Import calibration control
+        from libs.controls.calibration import Calibration
+        
+        # Remove all controls
+        for control in self.controls:
+            self.remove_control(control)
+            
+        # Add new instance of calibration control
+        self.add_control(Calibration(self))
+        
         pass
+    
+    def setup_main_control(self):
+        """
+        Reinstates or adds a new instance of the main control.
+        
+        If any zones exist, then they are re-added afterwards.
+        """
+        # Import main control
+        from libs.controls.ddcam import DDCamVisual
+
+        # Add main control
+        self.add_control(DDCamVisual(self))
+        
+        # Re-add zones
+        for zone in self.zones:
+            self.add_control(zone, False)
+        
+        
 
     def swap_camera(self):
         """
@@ -192,10 +227,11 @@ class AppController:
         """
         return self.controllers
 
-    def add_control(self, control: Control):
+    def add_control(self, control: Control, check_zone=True):
         """
         Adds the control to the next controls list.
-        If it is a zone, then adds it to the zone list as well.
+        If it is a zone, then adds it to the zone list as well unless
+        if check_zone is false.
         """
         self.added_controls.append(control)
         from .controls.zone import Zone

@@ -11,7 +11,14 @@ from ..base import *
 from ..devices.camera import *
 from ..object import *
 
-class DDCamVisual(Control):
+ASSET_CALIBRATION_STEP_ONE = 'assets/images/calibration.s1.png'
+ASSET_CALIBRATION_STEP_TWO = 'assets/images/calibration.s2.png'
+asset_calibration_step_one = pygame.image.load(ASSET_CALIBRATION_STEP_ONE)
+asset_calibration_step_two = pygame.image.load(ASSET_CALIBRATION_STEP_TWO)
+
+DISPLAY_OFFSET_FROM_BOTTOM = 300
+
+class Calibration(Control):
     """
         Reads the camera directly.
         If display_feed is set to true, then the camera feed
@@ -30,9 +37,9 @@ class DDCamVisual(Control):
         self.x = 0
         self.y = 0
         (self.w, self.h) = controller.get_screen_size()
-        self.display_feed = display_feed
-        self.test_create_type = Tag.TRIANGLE.value
-        self.font = pygame.font.Font('assets/fonts/arial.ttf', 16)
+        self.current_step = 1
+        self.step_tip_offset = 0
+        self.last_time_updated = datetime.datetime.now()
     
     def update(self, controller: AppController):
         """
@@ -41,7 +48,16 @@ class DDCamVisual(Control):
             Arguments:
                 controller -- the app controller this control runs from
         """
-
+        
+        time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
+        
+        # (Animated) Move tip from bottom to slight offset 
+        if self.step_tip_offset < DISPLAY_OFFSET_FROM_BOTTOM:
+            self.step_tip_offset += ((DISPLAY_OFFSET_FROM_BOTTOM-self.step_tip_offset + 1) * time_passed)
+            if self.step_tip_offset > DISPLAY_OFFSET_FROM_BOTTOM:
+                self.step_tip_offset = DISPLAY_OFFSET_FROM_BOTTOM
+                
+        self.last_time_updated = datetime.datetime.now()
         pass
     
     def render(self, controller: AppController, screen: pygame.Surface):
@@ -51,26 +67,18 @@ class DDCamVisual(Control):
             Arguments:
                 controller -- the app controller this control runs from
                 screen -- the surface this control is drawn on.
-        """ 
+        """
         
-        # Test every object location (draw location)
-        for object in controller.objects:
-            tag = object.tag
-            r = pygame.Surface((object.w,object.h))
-            r.set_alpha(128)
-            r.fill((255,255,255))
-            screen.blit(r, (object.x,object.y))
-            text = self.font.render(tag, True, pygame.Color(0, 128, 128))
-            text_rect = text.get_rect()
-            text_rect.center = (object.x+object.w/2,object.y+object.h/2)
-            screen.blit(text, text_rect)
-
-        # Display current object to add
-        text = self.font.render(self.test_create_type, True, pygame.Color(255, 255, 255))
-        text_rect = text.get_rect()
-        (sx,sy) = controller.get_screen_size()
-        text_rect.center = (sx/2, sy-30)
-        screen.blit(text, text_rect)
+        (screen_w,screen_h) = controller.get_screen_size()
+        
+        # Ensure step images are placed in center of screen.
+        placement_x = screen_w / 2 - asset_calibration_step_one.get_width() / 2 
+        
+        # Display corresponding calibration step
+        if self.current_step == 1:
+            screen.blit(asset_calibration_step_one, (placement_x, screen_h-self.step_tip_offset))
+        elif self.current_step == 2:
+            screen.blit(asset_calibration_step_two, (placement_x, screen_h-self.step_tip_offset))
         pass
     
     def event(self, controller: AppController, event: pygame.event.Event):
@@ -83,18 +91,7 @@ class DDCamVisual(Control):
         """
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSE_LEFT:
-                # Place persistent object
-                (mx,my) = pygame.mouse.get_pos()
-                tag = self.test_create_type
-                controller.add_persistent_object(tag, (mx,my), (24,24))
-            elif event.button == MOUSE_RIGHT:
-                index = ALL_TAGS.index(self.test_create_type)
-                index = index + 1
-                if index >= len(ALL_TAGS):
-                    index = 0
-                self.test_create_type = ALL_TAGS[index]
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_z:
-                # Undo last object
-                controller.remove_persistent_object()
+                # Move onto next step
+                pass
+
         pass
