@@ -20,6 +20,7 @@ ASSET_MENU_POPUP_ITEM_HOVER = 'assets/images/menu/item.hover.png'
 ASSET_MENU_POPUP_ITEM_MOUSE = 'assets/images/menu/item.mouse.png'
 ASSET_MENU_POPUP_CONTAINER = 'assets/images/menu/container.png'
 
+ASSET_MENU_BUTTON_HIDE = 'assets/images/menu/button_hide.png'
 ASSET_MENU_BUTTON_QUIT = 'assets/images/menu/button_quit.png'
 ASSET_MENU_BUTTON_CALIBRATE = 'assets/images/menu/button_calibrate.png'
 ASSET_MENU_BUTTON_SWAP_CAMERA = 'assets/images/menu/button_swap_camera.png'
@@ -32,6 +33,7 @@ asset_menu_popup_container = pygame.image.load(ASSET_MENU_POPUP_CONTAINER)
 asset_menu_popup_item_hover = pygame.image.load(ASSET_MENU_POPUP_ITEM_HOVER)
 asset_menu_popup_item_mouse = pygame.image.load(ASSET_MENU_POPUP_ITEM_MOUSE)
 
+asset_menu_button_hide = pygame.image.load(ASSET_MENU_BUTTON_HIDE)
 asset_menu_button_quit = pygame.image.load(ASSET_MENU_BUTTON_QUIT)
 asset_menu_button_calibrate = pygame.image.load(ASSET_MENU_BUTTON_CALIBRATE)
 asset_menu_button_swap_camera = pygame.image.load(ASSET_MENU_BUTTON_SWAP_CAMERA)
@@ -77,7 +79,8 @@ class Menu(Control):
         self.items = [
             MenuItem(asset_menu_button_swap_camera, controller.swap_camera),
             MenuItem(asset_menu_button_calibrate, controller.setup_calibration),
-            MenuItem(asset_menu_button_quit, controller.exit)
+            MenuItem(asset_menu_button_quit, controller.exit),
+            MenuItem(asset_menu_button_hide, lambda: None)
         ]
         self.last_time_updated = datetime.datetime.now()
 

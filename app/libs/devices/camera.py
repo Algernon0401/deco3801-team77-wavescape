@@ -115,7 +115,9 @@ class Camera:
         """
         self.valid = False
         self.loading = True
-        self.video.release()
+        self.object_results = None
+        if self.video is not None:
+            self.video.release()
         self.video = None
         threading.Thread(target=self.next_camera, args=[]).start()
         
