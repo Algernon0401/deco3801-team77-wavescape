@@ -1,4 +1,5 @@
 # Import OpenCV, Pygame, Numpy and Pytorch
+import datetime
 import cv2 as cv
 import pygame
 import numpy as np
@@ -11,6 +12,7 @@ from ultralytics import YOLO
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 MODEL_CONFIDENCE_THRESHOLD = 0.5
+CAMERA_UPDATE_DELAY = 0.1 # Number of seconds until camera is allowed to update again.
 
 class Camera:
     """
@@ -34,9 +36,12 @@ class Camera:
             self.valid = False
             self.model = None
             self.model_loading = True
+            self.refresh_ready = False
             self.model_results = None
             self.camera_no = 0
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
+            self.last_time_updated = datetime.datetime.now()
+            self.current_update = 0 # Alternates between 0 and 1
             # Create thread for opening camera and YOLO object detection
             threading.Thread(target=self.open_camera, args=[]).start()
             threading.Thread(target=self.load_default_model, args=[]).start()
@@ -77,6 +82,7 @@ class Camera:
                     self.model_results = self.model(
                         self.capture_video(), verbose=False
                     )[0]
+                    self.refresh_ready = True
                 time.sleep(0.05)  # Ensure this does not clog up machine
         except Exception as e:
             print("Error with YOLOv5 Model.")
@@ -167,7 +173,16 @@ class Camera:
         to the controller's object list.
         """
         # Check to make sure camera and model is initialized.
-
+        time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
+        if not self.refresh_ready or time_passed < CAMERA_UPDATE_DELAY: # Only update every 100ms
+            # Ensure that we do not continuously lag the python app
+            # when the video feed has not updated.
+            return
+        
+        self.last_time_updated = datetime.datetime.now()
+        self.refresh_ready = False
+        self.current_update = 1 - self.current_update
+        
         if not self.valid or self.model is None:
             # Set objects to empty list
             controller.set_cam_objects([])

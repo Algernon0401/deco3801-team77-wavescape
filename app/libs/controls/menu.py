@@ -77,7 +77,7 @@ class Menu(Control):
             MenuItem(asset_menu_button_calibrate, controller.setup_calibration),
             MenuItem(asset_menu_button_quit, controller.exit)
         ]
-        self.last_time_updated = datetime.now()
+        self.last_time_updated = datetime.datetime.now()
 
     def update(self, controller: AppController):
         """
@@ -87,8 +87,7 @@ class Menu(Control):
                 controller -- the app controller this control runs from
         """
 
-        time_passed = (datetime.now() - self.last_time_updated).total_seconds()
-
+        time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
         (self.w, self.h) = controller.get_screen_size()
         self.x = self.w - 20 - asset_menu_bar.get_width()
         self.y = self.h - asset_menu_bar.get_height()
@@ -109,7 +108,7 @@ class Menu(Control):
                 if self.menu_offset > 0:
                     self.menu_offset = 0
         
-        self.last_time_updated = datetime.now()
+        self.last_time_updated = datetime.datetime.now()
         pass
 
     def toggle(self):
