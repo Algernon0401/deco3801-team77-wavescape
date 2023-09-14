@@ -71,6 +71,10 @@ class Calibration(Control):
         
         (screen_w,screen_h) = controller.get_screen_size()
         
+        # Display camera feed to screen (full-screen with calibration)
+        if not controller.camera.loading:
+            controller.camera.display_to_screen(controller, screen)
+        
         # Ensure step images are placed in center of screen.
         placement_x = screen_w / 2 - asset_calibration_step_one.get_width() / 2 
         
@@ -98,7 +102,19 @@ class Calibration(Control):
                 if self.current_step >= 3:
                     # Finish calibration
                     controller.finish_calibration()
-                    
-                pass
-
+        elif event.type == pygame.MOUSEWHEEL:
+            if self.current_step == 1:
+                # Top-bottom calibration
+                controller.camera.scale_y += event.y / 100
+                if controller.camera.scale_y < 0.05:
+                    controller.camera.scale_y = 0.05
+                if controller.camera.scale_y > 2:
+                    controller.camera.scale_y = 2
+            elif self.current_step == 2:
+                # Left-right calibration
+                controller.camera.scale_x += event.y / 100
+                if controller.camera.scale_x < 0.05:
+                    controller.camera.scale_x = 0.05
+                if controller.camera.scale_x > 2:
+                    controller.camera.scale_y = 2
         pass

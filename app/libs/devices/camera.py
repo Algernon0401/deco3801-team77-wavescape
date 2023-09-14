@@ -174,6 +174,24 @@ class Camera:
                 )
         return None
     
+    def display_to_screen(self, controller, screen: pygame.Surface):
+        """
+        Displays the camera to the screen (full-screen), with the given
+        calibration settings.
+        """
+        
+        frame = self.capture_video_pygame()
+        (screen_w, screen_h) = controller.get_screen_size() 
+        if frame is not None:
+            # Find camera dimensions and offset
+            camera_w = screen_w * self.scale_x
+            camera_h = screen_h * self.scale_y
+            
+            camera_x = screen_w / 2 - (camera_w * (1-self.offset_x) / 2)
+            camera_y = screen_h / 2 - (camera_h * (1-self.offset_y) / 2)
+
+            screen.blit(pygame.transform.scale(frame, (camera_w, camera_h)), (camera_x, camera_y))
+
     def object_conversion(self):
         """
         Continuously converts model results into usable camera objects.
