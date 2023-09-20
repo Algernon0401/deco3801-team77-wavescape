@@ -115,6 +115,7 @@ def app_init():
             controller.controls.append(control)
 
         for control in controller.removed_controls:
+            control.destroy()
             controller.controls.remove(control)
 
         # Update controller to clean state (no removed/added controls)
@@ -124,6 +125,7 @@ def app_init():
         controller.single_update = True
 
     # Release resources
+    controller.destroy_all_controls()
     controller.camera.destroy()
 
     print("App Exiting...")

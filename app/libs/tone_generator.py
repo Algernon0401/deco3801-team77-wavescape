@@ -10,7 +10,7 @@ frequency_list = list(json.load(open("assets/frequency_list.json")))
 elc_list = list(json.load(open("assets/elc_list.json")))
 NUM_NODES = len(frequency_list)     # based on piano
 MAX_RADIAN = 2 * math.pi
-VOLUME_SCALAR = 0.095                # think it as the volume knob
+VOLUME_SCALAR = 0.15                # think it as the volume knob
 SHARP_VOLUME_SCALAR = 0.25                # for sharp sounds
 
 class ToneGenerator:
@@ -28,6 +28,7 @@ class ToneGenerator:
         radian = np.arccos((cx-ox)/distance)            # radian = arccos(x), r = 1
         idx = None
         print("Radian:", radian)
+        # fix the frequency to nearest note
         for i in range(NUM_NODES):
             if radian < (i+1)*MAX_RADIAN/NUM_NODES:
                 idx = i

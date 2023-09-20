@@ -148,8 +148,8 @@ class Sound:
         self.RIGHT = 1
 
         # init pygame
-        pygame.init()
         pygame.mixer.pre_init(self.sample_rate, self.bit_rate)
+        pygame.init()
 
     def chorus(self, waves: list):
         """Takes a list of wave objects and plays their corresponding sounds.
@@ -165,8 +165,8 @@ class Sound:
         for thread in threads:
             thread.start()
 
-        for thread in threads:
-            thread.join()
+        # for thread in threads:
+        #     thread.join()
 
     def play(self, wave: Wave):
         """Takes a wave object and plays its corresponding sound.
