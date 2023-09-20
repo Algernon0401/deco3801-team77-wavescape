@@ -243,61 +243,64 @@ class Camera:
             # Convert Object Detection results from model
             if self.model_results is not None:
                 # loop over the detections
-                track_ids = self.model_results.boxes.id.int().cpu().tolist()
-                for data, track_id in zip(self.model_results.boxes.data.tolist(), track_ids):
-                    # extract the confidence (i.e., probability) associated with the detection
-                    confidence = data[4]
+                try:
+                    track_ids = self.model_results.boxes.id.int().cpu().tolist()
+                    for data, track_id in zip(self.model_results.boxes.data.tolist(), track_ids):
+                        # extract the confidence (i.e., probability) associated with the detection
+                        confidence = data[4]
 
-                    # filter out weak detections by ensuring the
-                    # confidence is greater than the minimum confidence
-                    if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
-                        continue
+                        # filter out weak detections by ensuring the
+                        # confidence is greater than the minimum confidence
+                        if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
+                            continue
 
-                    # if the confidence is greater than the minimum confidence,
-                    # draw the bounding box on the frame
-                    screen_xmin = int(data[0])
-                    screen_xmax = int(data[2])
-                    screen_ymin = int(data[1])
-                    screen_ymax = int(data[3])
-                    tag = self.model_results.names[int(data[5])]
+                        # if the confidence is greater than the minimum confidence,
+                        # draw the bounding box on the frame
+                        screen_xmin = int(data[0])
+                        screen_xmax = int(data[2])
+                        screen_ymin = int(data[1])
+                        screen_ymax = int(data[3])
+                        tag = self.model_results.names[int(data[5])]
 
-                    # Adjust for scale
-                    screen_xmin *= scale_x
-                    screen_xmax *= scale_x
-                    screen_ymin *= scale_y
-                    screen_ymax *= scale_y
+                        # Adjust for scale
+                        screen_xmin *= scale_x
+                        screen_xmax *= scale_x
+                        screen_ymin *= scale_y
+                        screen_ymax *= scale_y
 
-                    # Create Camera Object
-                    old_object_found = False
-                    if track_id in all_track_ids:
-                            # Keep old object with new object
-                            obj = registered_results[track_id]
-                            obj.x = screen_xmin
-                            old_object_found = True
-                            obj.y = screen_ymin
-                            obj.w = screen_xmax - screen_xmin
-                            obj.h = screen_ymax - screen_ymin
-                            obj.date_last_included = datetime.datetime.now()
-                            objects.append(obj)
-                            break
+                        # Create Camera Object
+                        old_object_found = False
+                        if track_id in all_track_ids:
+                                # Keep old object with new object
+                                obj = registered_results[track_id]
+                                obj.x = screen_xmin
+                                old_object_found = True
+                                obj.y = screen_ymin
+                                obj.w = screen_xmax - screen_xmin
+                                obj.h = screen_ymax - screen_ymin
+                                obj.date_last_included = datetime.datetime.now()
+                                objects.append(obj)
+                                break
 
-                    if not old_object_found:
-                        # Create new object with track_id
-                        new_object = CamObject(
-                                tag,
-                                (
-                                    screen_xmin,
-                                    screen_ymin,
-                                    screen_xmax - screen_xmin,
-                                    screen_ymax - screen_ymin,
-                                ),
-                                track_id
-                            )
-                        
-                        registered_results[track_id] = new_object
-                        all_track_ids.append(track_id)
-                        
-                        objects.append(new_object)
+                        if not old_object_found:
+                            # Create new object with track_id
+                            new_object = CamObject(
+                                    tag,
+                                    (
+                                        screen_xmin,
+                                        screen_ymin,
+                                        screen_xmax - screen_xmin,
+                                        screen_ymax - screen_ymin,
+                                    ),
+                                    track_id
+                                )
+                            
+                            registered_results[track_id] = new_object
+                            all_track_ids.append(track_id)
+                            
+                            objects.append(new_object)
+                except:
+                    print("Error;303 camera.py")
 
             self.object_results = objects
             self.refresh_ready = True

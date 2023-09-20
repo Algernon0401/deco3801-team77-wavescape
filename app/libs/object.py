@@ -52,15 +52,13 @@ class CamObject:
         self.date_created = datetime.datetime.now()
         self.date_last_included = datetime.datetime.now()
     
-    def get_object_attributes(self, object):
+    def get_object_attributes(self):
         """
             Gets the object-based attributes
         """
-        if not object.tag in self.object_attributes:
-            return {}
-        return self.attributes[object.tag]
+        return self.attributes
     
-    def get_object_attribute(self, object, attribute_name):
+    def get_object_attribute(self, attribute_name):
         """
             Gets a single object-based attribute
         """
@@ -68,14 +66,12 @@ class CamObject:
             return self.attributes[attribute_name]
         return None
     
-    def set_object_attribute(self, object, attribute_name, attribute_value):
+    def set_object_attribute(self, attribute_name, attribute_value):
         """
         Sets the given attribute on the object.
         """
-        if not object.tag in self.attributes:
-            self.attributes[object.tag] = {}
         
-        self.attributes[object.tag][attribute_name] = attribute_value
+        self.attributes[attribute_name] = attribute_value
 
     def within(self, bounds):
         """
