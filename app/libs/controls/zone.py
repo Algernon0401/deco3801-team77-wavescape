@@ -7,6 +7,7 @@
 import pygame
 from datetime import *
 from random import randint
+from mpmath import cot
 import threading
 import math
 
@@ -93,8 +94,22 @@ class ObjectNode:
         Renders the given tree/graph animations and elements onto the screen
         """
         for connection in self.connections:
+            # At moment, visualisation produce the wave line of the object connected to.
             type_from = self.sound_type()
             type_to = connection.sound_type()
+            # Get colours from ripples
+            color_from = pygame.Color(255, 255, 255, 100)
+            if self.object is not None:
+                color_from = self.object.get_object_attribute("ripple_colour") 
+                if color_from is None:
+                    color_from = pygame.Color(255, 255, 255, 100)
+                    
+            color_to = color_from
+            if connection.object is not None:
+                color_to = connection.object.get_object_attribute("ripple_colour") 
+                if color_to is None:
+                    color_to = pygame.Color(255, 255, 255, 100)
+                    
             (cx1, cy1) = self.center
             (cx2, cy2) = connection.center
             
@@ -106,40 +121,118 @@ class ObjectNode:
             slope_rot = math.atan2(cy2 - cy1, cx2 - cx1)
 
             # Create point list
-            points = [self.center]
+            points = [(self.center, color_from)]
 
-            type_from = TYPE_SINE #debug
             time = 0
             
-            if self.object is not None:
-                time = self.object.get_time_since_creation()
+            if connection.object is not None:
+                time = connection.object.get_time_since_creation()
 
             cycles = freq / 500
             dist_per_cycle = dist / cycles
             time_per_cycle = freq / 5000
-            if type_from == TYPE_SINE:
-                
+            point_color = color_from
+            type_to = TYPE_TRIANGLE
+            if type_to == TYPE_SINE:
                 for d in range(dist):
                     # create point that is not translated from start.
                     px = d 
                     perc = 1 - abs(dist / 2 - d) / (dist / 2)
-                    # approximately upscaled by 500 (i.e. 500 = 1 cycle)
-                    
-                    py = math.sin(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle) * amp_dist * perc
+                    factor = math.sin(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle)
+                    py = factor * amp_dist * perc
+                    point_color = color_from.lerp(color_to, d / dist)
                     # rotate point around origin (sx, sy)
                     points.append(
-                        (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
-                         cy1 + px * math.sin(slope_rot) - py * math.cos(slope_rot))
+                        (
+                            (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
+                            cy1 + py * math.cos(slope_rot) + px * math.sin(slope_rot)),
+                            point_color
+                        )
                     )
+            elif type_to == TYPE_SQUARE:
+                for d in range(dist):
+                    # create point that is not translated from start.
+                    px = d 
+                    perc = 1 - abs(dist / 2 - d) / (dist / 2)
+                    factor = math.sin(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle)
+                    if factor < 0:
+                        factor = -1
+                    else:
+                        factor = 1
+                    py = factor * amp_dist * perc
+                    point_color = color_from.lerp(color_to, d / dist)
+                    # rotate point around origin (sx, sy)
+                    points.append(
+                        (
+                            (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
+                            cy1 + py * math.cos(slope_rot) + px * math.sin(slope_rot)),
+                            point_color
+                        )
+                    )         
+            elif type_to == TYPE_PULSE:
+                duty_cycle = 0.125
+                for d in range(dist):
+                    # create point that is not translated from start.
+                    px = d 
+                    perc = 1 - abs(dist / 2 - d) / (dist / 2)
+                    factor = math.sin(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle)
+                    if factor > (2 * duty_cycle - 1):
+                        factor = -1
+                    else:
+                        factor = 1
+                    py = factor * amp_dist * perc
+                    point_color = color_from.lerp(color_to, d / dist)
+                    # rotate point around origin (sx, sy)
+                    points.append(
+                        (
+                            (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
+                            cy1 + py * math.cos(slope_rot) + px * math.sin(slope_rot)),
+                            point_color
+                        )
+                    )        
+            elif type_to == TYPE_TRIANGLE:
+                duty_cycle = 0.125
+                for d in range(dist):
+                    # create point that is not translated from start.
+                    px = d 
+                    perc = 1 - abs(dist / 2 - d) / (dist / 2)
+                    factor = math.sinh(math.sin(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle))
+                    py = factor * amp_dist * perc
+                    point_color = color_from.lerp(color_to, d / dist)
+                    # rotate point around origin (sx, sy)
+                    points.append(
+                        (
+                            (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
+                            cy1 + py * math.cos(slope_rot) + px * math.sin(slope_rot)),
+                            point_color
+                        )
+                    )    
+            elif type_to == TYPE_SAWTOOTH:
+                duty_cycle = 0.125
+                for d in range(dist):
+                    # create point that is not translated from start.
+                    px = d 
+                    perc = 1 - abs(dist / 2 - d) / (dist / 2)
+                    factor = math.tanh(cot(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle))
+                    py = factor * amp_dist * perc
+                    point_color = color_from.lerp(color_to, d / dist)
+                    # rotate point around origin (sx, sy)
+                    points.append(
+                        (
+                            (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
+                            cy1 + py * math.cos(slope_rot) + px * math.sin(slope_rot)),
+                            point_color
+                        )
+                    )       
             
-
-            points.append(connection.center)
+            points.append((connection.center, color_to))
 
             lpx = cx1
             lpy = cy1
             for i in range(1, len(points)):
-                (px,py) = points[i]
-                pygame.draw.line(screen, pygame.Color(255,255,255), (lpx, lpy), (px, py))
+                (center, color) = points[i]
+                (px,py) = center
+                pygame.draw.line(screen, color, (lpx, lpy), (px, py))
                 lpx = px
                 lpy = py
             
