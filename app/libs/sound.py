@@ -165,6 +165,9 @@ class Sound:
         for thread in threads:
             thread.start()
 
+        for thread in threads:
+            thread.join()
+
     def play(self, wave: Wave):
         """Takes a wave object and plays its corresponding sound.
 
@@ -199,4 +202,25 @@ class Sound:
         sound = pygame.sndarray.make_sound(buffer)
         one_sec = 1000 # Milliseconds
         sound.play(loops = 1, maxtime=int(wave.duration * one_sec))
-        
+        time.sleep(wave.duration)
+
+# s = Sound()
+
+# waves = []
+# freqs = [440, 480, 880]
+
+# base_f = 75
+# major_ratios = [4, 5, 6]
+# minor_ratios = [10, 12, 15]
+# dimin_ratios = [160, 192, 231]
+
+# seventh_ratios = [20, 25, 30, 36]
+# maj_seventh_ratios = [10, 12, 15, 18]
+# min_seventh_ratios = [8, 10, 12, 15]
+
+# for r in min_seventh_ratios:
+#     w = Sine(4000, r*base_f, 1)
+#     waves.append(w)
+#     s.play(w)
+
+# s.chorus(waves)

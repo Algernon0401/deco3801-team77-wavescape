@@ -7,6 +7,7 @@
 import pygame
 from datetime import *
 from random import randint
+import threading
 
 # Import app controller, control base class, camera and sound class
 from ..base import Control
@@ -14,6 +15,7 @@ from ..base import AppController
 from ..devices.camera import *
 from ..object import *
 from ..sound import *
+from ..tone_generator import ToneGenerator
 
 ASSET_ZONE_BORDER = 'assets/images/zone_border_l.png'
 ASSET_ZONE_BORDER_CORNER = 'assets/images/zone_border_c.png'
@@ -79,6 +81,7 @@ class Zone(Control):
         self.center_y = 0
         self.interactive = True
         self.audio_system = Sound()
+        self.tone_gen = ToneGenerator()
         self.object_attributes = {}
         self.graph = None
         
@@ -218,45 +221,73 @@ class Zone(Control):
             self.set_object_attribute(object, "ripple_state", state)
             self.set_object_attribute(object, "ripple_direction", direction)
 
-
-
         
         # Test function with miles' sound function
         # Y silent duration (0, 1)
         # X frequency (500 - 5000)
+
+        sound_thread = threading.Thread(target=self.play_sounds, args=(objects,))
+        sound_thread.start()
+        # self.play_sounds(objects)
         
 
         return
         
-        for object in objects:
+    def play_sounds(self, objects):
+        # Play sound for each object
+        waves = []
+        # print(len(objects))
+        # print([o.get_center() for o in objects])
+        for obj in objects:
+            # print(obj.get_center())
+            # print((self.center_x, self.center_y))
             can_play = True
             
-            # Calculate x offset
-            xoff = (object.x - self.x) / self.w
-            if xoff < 0:
-                xoff = 0
-            if xoff > 1:
-                xoff = 1
-            
-            # Calculate y offset    
-            yoff = (object.y - self.y) / self.h
-            if yoff < 0:
-                yoff = 0
-            if yoff > 1:
-                yoff = 1
-                
             # Check whether we must play the sound
-            last_played = self.get_object_attribute(object, "last_played")
+            last_played = self.get_object_attribute(obj, "last_played")
             if last_played is not None:
                 can_play = False
-                if datetime.now() > last_played + timedelta(seconds=yoff):
+                if datetime.datetime.now() > last_played + timedelta(seconds=1):
                     can_play = True
+
+            if can_play:
+                # print(obj.get_center())
+                # Create a wave object based on object type and relative position
+                obj_wave = self.tone_gen.pos_to_wave((self.center_x, self.center_y),
+                                                      obj.get_center(), obj.tag, 1)
+                if obj_wave is not None:
+                    waves.append(obj_wave)
+                self.set_object_attribute(obj, "last_played", datetime.datetime.now())
+        
+        if len(waves) > 0:
+            print(f"Playing {len(waves)} waves...")
+            for wave in waves:
+                print(f"Wave: F:({wave.frequency})")
+            self.audio_system.chorus(waves)
+
+        # for object in objects:
+            
+            # # Calculate x offset
+            # xoff = (object.x - self.x) / self.w
+            # if xoff < 0:
+            #     xoff = 0
+            # if xoff > 1:
+            #     xoff = 1
+            
+            # # Calculate y offset    
+            # yoff = (object.y - self.y) / self.h
+            # if yoff < 0:
+            #     yoff = 0
+            # if yoff > 1:
+            #     yoff = 1
+                
+            
                     
                     
             # Play the sound (currently test sound)
-            if can_play:
-                self.audio_system.play(Sine(750, 5000 - xoff*4500, yoff))
-                self.set_object_attribute(object, "last_played", datetime.now())
+            # if can_play:
+            #     self.audio_system.play(Sine(750, 5000 - xoff*4500, yoff))
+            #     self.set_object_attribute(object, "last_played", datetime.now())
                     
             
         pass
