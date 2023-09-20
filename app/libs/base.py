@@ -290,6 +290,14 @@ class AppController:
         from .controls.zone import Zone
         if control is Zone:
             self.zones.remove(control)
+
+    def destroy_all_controls(self):
+        """
+        Destroys all resources used by controls and removes them all
+        """
+        for control in self.controls:
+            control.destroy()
+        self.controls = []
             
     def add_controller(self, controller: Controller):
         """
@@ -424,6 +432,12 @@ class Control:
         Arguments:
             controller -- the app controller this control runs from
             event -- the pygame event that happened
+        """
+        pass
+
+    def destroy(self):
+        """
+        Destroys all resources associated with the control.
         """
         pass
     

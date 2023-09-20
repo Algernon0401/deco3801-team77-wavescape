@@ -371,10 +371,16 @@ class Zone(Control):
 
     def event(self, controller: AppController, event: pygame.event.Event):
         """
-            Receives an event from the pygame interface.
+        Receives an event from the pygame interface.
             
-            Arguments:
-                controller -- the app controller this control runs from
-                event -- the pygame event that happened
+        Arguments:
+            controller -- the app controller this control runs from
+            event -- the pygame event that happened
         """
         pass
+
+    def destroy(self):
+        """
+        Destroys all resources of a zone
+        """
+        self.sounds_active = False # Dispose of extra threads
