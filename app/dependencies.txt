@@ -1,5 +1,5 @@
 OpenCV: -U opencv-python==4.8.0.76
-Pygame: -U pygame==2.5.1
+Pygame: -U pygame-ce
 Ultralytics: ultralytics
 Ultralytics: -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt
 Numpy: numpy
