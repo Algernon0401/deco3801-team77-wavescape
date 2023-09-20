@@ -197,12 +197,11 @@ class Camera:
                 (camera_x, camera_y),
             )
 
-    def object_conversion(self):
+    def object_conversion(self, controller):
         """
         Continuously converts model results into usable camera objects.
         (to be run in another thread - see __init__)
         """
-
         while self.active:
             time.sleep(0.1)  # Only update 50ms or so to prevent computer lag
 
@@ -212,8 +211,61 @@ class Camera:
                 continue  # Continue to next iteration
 
             objects = []
-
             # NOTE Sam to Nigel - copy your code here (update objects)
+            cvframe = self.capture_video()
+            # Get width and height of cvframe
+            camera_x = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
+            camera_y = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
+
+            # Get scale of camera to screen
+            (screen_x, screen_y) = controller.get_screen_size()
+            (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
+
+            # Check to make sure feed is valid
+            if cvframe is None:
+                # Set objects to empty list
+                controller.set_cam_objects([])
+                return
+
+            if self.model_results is not None:
+                # loop over the detections
+                for data in self.model_results.boxes.data.tolist():
+                    # extract the confidence (i.e., probability) associated with the detection
+                    confidence = data[4]
+
+                    # filter out weak detections by ensuring the
+                    # confidence is greater than the minimum confidence
+                    if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
+                        continue
+
+                    # if the confidence is greater than the minimum confidence,
+                    # draw the bounding box on the frame
+                    screen_xmin = int(data[0])
+                    screen_xmax = int(data[2])
+                    screen_ymin = int(data[1])
+                    screen_ymax = int(data[3])
+                    tag = self.model_results.names[int(data[5])]
+
+                    # Adjust for scale
+                    screen_xmin *= scale_x
+                    screen_xmax *= scale_x
+                    screen_ymin *= scale_y
+                    screen_ymax *= scale_y
+
+                    # Create Camera Object
+                    objects.append(
+                        CamObject(
+                            tag,
+                            (
+                                screen_xmin,
+                                screen_ymin,
+                                screen_xmax - screen_xmin,
+                                screen_ymax - screen_ymin,
+                            ),
+                        )
+                    )
+
+                self.object_results = objects
 
             # Uncomment below line when implemented.
             # self.object_results = objects
@@ -242,70 +294,6 @@ class Camera:
         # Update camera objects to given results from conversion thread.
         if self.object_results is not None:
             controller.set_cam_objects(self.object_results.copy())
-
-        # NOTE from Sam to Nigel -- I'm not too sure of your changes to this class, so
-        # I'm going to leave you to change self.object_results to the correct value (objects).
-        # Please move code from update to object_conversion which is run in another thread
-        # for optimization.
-
-        objects = []
-
-        cvframe = self.capture_video()
-
-        # Get width and height of cvframe
-        camera_x = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
-        camera_y = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
-
-        # Get scale of camera to screen
-        (screen_x, screen_y) = controller.get_screen_size()
-        (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
-
-        # Check to make sure feed is valid
-        if cvframe is None:
-            # Set objects to empty list
-            controller.set_cam_objects([])
-            return
-
-        # Convert Object Detection results from model
-        if self.model_results is not None:
-            # loop over the detections
-            for data in self.model_results.boxes.data.tolist():
-                # extract the confidence (i.e., probability) associated with the detection
-                confidence = data[4]
-
-                # filter out weak detections by ensuring the
-                # confidence is greater than the minimum confidence
-                if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
-                    continue
-
-                # if the confidence is greater than the minimum confidence,
-                # draw the bounding box on the frame
-                screen_xmin = int(data[0])
-                screen_xmax = int(data[2])
-                screen_ymin = int(data[1])
-                screen_ymax = int(data[3])
-                tag = self.model_results.names[int(data[5])]
-
-                # Adjust for scale
-                screen_xmin *= scale_x
-                screen_xmax *= scale_x
-                screen_ymin *= scale_y
-                screen_ymax *= scale_y
-
-                # Create Camera Object
-                objects.append(
-                    CamObject(
-                        tag,
-                        (
-                            screen_xmin,
-                            screen_ymin,
-                            screen_xmax - screen_xmin,
-                            screen_ymax - screen_ymin,
-                        ),
-                    )
-                )
-
-        self.object_results = objects
 
     def destroy(self):
         """
