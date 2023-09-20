@@ -132,7 +132,7 @@ class ObjectNode:
             dist_per_cycle = dist / cycles
             time_per_cycle = freq / 5000
             point_color = color_from
-            type_to = TYPE_TRIANGLE
+            
             if type_to == TYPE_SINE:
                 for d in range(dist):
                     # create point that is not translated from start.
