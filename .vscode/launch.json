@@ -9,10 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app/app.py",
-            "args": [
-                "-mo",
-                "-tz"
-            ],
+            "args": ["-mo", "-tz"],
             "cwd": "app",
             "console": "integratedTerminal",
             "justMyCode": true
@@ -30,11 +27,9 @@
             "name": "Luke",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/app.py",
-            "args": [
-                "-mo",
-                "-tz"
-            ],
+            "program": "${workspaceFolder}/app/app.py",
+            "args": ["-mo", "-tz"],
+            "cwd": "app",
             "console": "integratedTerminal",
             "justMyCode": true
         },
