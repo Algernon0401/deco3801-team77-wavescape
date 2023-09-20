@@ -8,8 +8,12 @@
             "name": "Sam",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/app.py",
-            "args": ["-mo", "-tz"],
+            "program": "${workspaceFolder}/app/app.py",
+            "args": [
+                "-mo",
+                "-tz"
+            ],
+            "cwd": "app",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -17,7 +21,8 @@
             "name": "Nigel",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/app.py",
+            "program": "${workspaceFolder}/app/app.py",
+            "cwd": "app",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -26,7 +31,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": ["-mo", "-tz"],
+            "args": [
+                "-mo",
+                "-tz"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -35,9 +43,6 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": [
-                "-tz"
-            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -54,7 +59,6 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": ["-tz"],
             "console": "integratedTerminal",
             "justMyCode": true
         }

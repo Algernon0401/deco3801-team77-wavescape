@@ -7,6 +7,8 @@ import sys
 # Import camera class.
 from libs.devices.camera import *
 
+from threading import *
+
 # Import control base and app controller
 from libs.base import *
 
@@ -67,6 +69,9 @@ def app_init():
     # Add logic controllers
     controller.add_controller(ZoneController(controller))
 
+    # Create render thread
+    threading.Thread(target=app_render, args=[controller]).start()
+
     while controller.is_running():
         # Update camera objects and basic logic
         controller.update()
@@ -115,6 +120,24 @@ def app_init():
         # Update controller to clean state (no removed/added controls)
         controller.set_clean_state()
 
+        # Single update (to allow rendering)
+        controller.single_update = True
+
+    # Release resources
+    controller.camera.destroy()
+
+    print("App Exiting...")
+
+def app_render(controller: AppController):
+    """
+    Continuously renders the app.
+    """
+    screen = controller.screen
+    while controller.is_running():
+        if not controller.single_update:
+            time.sleep(0.06)
+            continue
+
         # Clear screen
         screen.fill(pygame.Color(0, 0, 0))
 
@@ -128,11 +151,8 @@ def app_init():
 
         # Update the screen
         pygame.display.flip()
+    print("Render thread exiting...")
 
-    # Release resources
-    controller.camera.destroy()
-
-    print("App Exiting...")
 
 
 if __name__ == "__main__":

@@ -3,3 +3,4 @@ Pygame: -U pygame==2.5.1
 Ultralytics: ultralytics
 Ultralytics: -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt
 Numpy: numpy
+Pyserial: pyserial

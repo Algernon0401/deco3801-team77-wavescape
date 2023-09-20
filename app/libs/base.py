@@ -43,6 +43,7 @@ class AppController:
         self.running = True
         self.calibrating = False
         self.camera = Camera()
+        self.single_update = False
         
         self.objects = []
         self.zones = [] # A list of zones (derived from controls)
