@@ -8,6 +8,8 @@ import time
 import pygame
 import numpy as np
 import threading
+from numba import jit, cuda 
+import functools
 
 class Wave:
     """Base class representing a sound wave."""
@@ -15,6 +17,9 @@ class Wave:
         self.amplitude = amplitude
         self.frequency = frequency
         self.duration = duration
+        self.buffer = None # cache the buffer
+        # self.buffer = Sound.generate_buffer(Sine(100, 100, 0.5))
+        # self.tsound = pygame.sndarray.make_sound(self.buffer)
 
     def generate(self, time):
         """Generates the amplitude of the wave at given time step. Template function only.
@@ -174,6 +179,18 @@ class Sound:
         Args:
             wave (Wave): a wave object
         """
+        if wave.buffer is None:
+           wave.buffer = self.generate_buffer(wave)
+
+        pygame_sound = pygame.sndarray.make_sound(wave.buffer)
+        one_sec = 1000 # Milliseconds
+        pygame_sound.play(loops = 1, maxtime=int(wave.duration * one_sec))
+        time.sleep(wave.duration)
+
+    # @jit(target_backend='CPU')
+    @functools.cache
+    def generate_buffer(self, wave: Wave):
+        print("Generated buffer")
         num_samples = int(round(wave.duration * self.sample_rate))
 
         # setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above
@@ -198,11 +215,8 @@ class Sound:
             else:
                 buffer[s][0] = output # left
                 buffer[s][1] = output # right
-                
-        sound = pygame.sndarray.make_sound(buffer)
-        one_sec = 1000 # Milliseconds
-        sound.play(loops = 1, maxtime=int(wave.duration * one_sec))
-        time.sleep(wave.duration)
+        
+        return buffer
 
 # s = Sound()
 
