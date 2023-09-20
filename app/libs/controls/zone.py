@@ -8,6 +8,7 @@ import pygame
 from datetime import *
 from random import randint
 import threading
+import math
 
 # Import app controller, control base class, camera and sound class
 from ..base import Control
@@ -200,26 +201,10 @@ class Zone(Control):
         # self.last_time_updated = datetime.datetime.now()
         
         for object in objects:
-            state = self.get_object_attribute(object, "ripple_state")
-            direction = self.get_object_attribute(object, "ripple_direction")
-            if self.get_object_attribute(object, "ripple_count") is None:
-                self.set_object_attribute(object, "ripple_count", randint(1, 10))
-            if self.get_object_attribute(object, "ripple_colour") is None:
-                self.set_object_attribute(object, "ripple_colour", pygame.Color(randint(1, 255), randint(1, 255), randint(1, 255), 100))
-            if state is None:
-                state = 0
-            
-            if direction is None:
-                direction = -1
-            
-            if state >= 30:
-                direction = -1
-            if state == 0:
-                direction = 1
-            state = state + (0.5 * direction)
-
-            self.set_object_attribute(object, "ripple_state", state)
-            self.set_object_attribute(object, "ripple_direction", direction)
+            if object.get_object_attribute("ripple_count") is None:
+                object.set_object_attribute("ripple_count", randint(1, 5))
+            if object.get_object_attribute("ripple_colour") is None:
+                object.set_object_attribute("ripple_colour", pygame.Color(randint(1, 255), randint(1, 255), randint(1, 255), 100))
 
         
         # Test function with miles' sound function
@@ -346,14 +331,17 @@ class Zone(Control):
         """
             Generates a ripple effect on the given object.
         """
-        state = self.get_object_attribute(obj, "ripple_state")
-        ripple_count = self.get_object_attribute(obj, "ripple_count")
-        colour = self.get_object_attribute(obj, "ripple_colour")
-        if state is None:
-            return
+        state = (math.sin(obj.get_time_since_creation()*5) + 1) * 30
+        ripple_count = obj.get_object_attribute("ripple_count")
+        if ripple_count is None:
+            ripple_count = 3
+        colour = obj.get_object_attribute("ripple_colour") 
+        if colour is None:
+            colour = pygame.Color(255, 255, 255, 100)
         
         for i in range(ripple_count):
-            adj_state = state + (i * 5)
+            colour.a = (100 - (i * 20)) # Update alpha
+            adj_state = state + (i * 10)
             rect = pygame.Rect(obj.get_center(), (0, 0)).inflate((adj_state * 2, adj_state * 2))
             surf = pygame.Surface(rect.size, pygame.SRCALPHA)
             pygame.draw.circle(surf, colour, (adj_state, adj_state), adj_state)
