@@ -170,9 +170,9 @@ class Zone(Control):
         self.object_attributes = {}
         self.graph = None
         self.current_objects = []
+        self.sounds_active = True
         sound_thread = threading.Thread(target=self.handle_sound)
         sound_thread.start()
-        self.sounds_active = True
         
     def get_object_attributes(self, object):
         """
@@ -294,15 +294,6 @@ class Zone(Control):
             if object.get_object_attribute("ripple_colour") is None:
                 object.set_object_attribute("ripple_colour", pygame.Color(randint(1, 255), randint(1, 255), randint(1, 255), 100))
 
-        
-        # Test function with miles' sound function
-        # Y silent duration (0, 1)
-        # X frequency (500 - 5000)
-
-        
-        # self.play_sounds(objects)
-        
-
         return
         
     def play_sounds(self, objects):
@@ -319,17 +310,22 @@ class Zone(Control):
             last_played = obj.get_object_attribute("last_played")
             if last_played is not None:
                 can_play = False
-                if datetime.datetime.now() > last_played + timedelta(seconds=0.99):
+                if datetime.datetime.now() > last_played + timedelta(seconds=1):
                     can_play = True
 
             if can_play:
                 # print(obj.get_center())
-                # Create a wave object based on object type and relative position
-                obj_wave = self.tone_gen.pos_to_wave((self.center_x, self.center_y),
-                                                      obj.get_center(), obj.tag, 1)
+                # Check whether the object already has a wave
+                obj_wave = obj.get_object_attribute("wave")
+                if obj_wave is None:
+                    # Create a wave object based on object type and relative position
+                    obj_wave = self.tone_gen.pos_to_wave((self.center_x, self.center_y),
+                                                        obj.get_center(), obj.tag, 1)
                 if obj_wave is not None:
                     waves.append(obj_wave)
+
                 obj.set_object_attribute("last_played", datetime.datetime.now())
+                obj.set_object_attribute("wave", obj_wave)
         
         if len(waves) > 0:
             print(f"Playing {len(waves)} waves...")
@@ -337,32 +333,6 @@ class Zone(Control):
                 print(f"Wave: F:({wave.frequency})")
             self.audio_system.chorus(waves)
 
-        # for object in objects:
-            
-            # # Calculate x offset
-            # xoff = (object.x - self.x) / self.w
-            # if xoff < 0:
-            #     xoff = 0
-            # if xoff > 1:
-            #     xoff = 1
-            
-            # # Calculate y offset    
-            # yoff = (object.y - self.y) / self.h
-            # if yoff < 0:
-            #     yoff = 0
-            # if yoff > 1:
-            #     yoff = 1
-                
-            
-                    
-                    
-            # Play the sound (currently test sound)
-            # if can_play:
-            #     self.audio_system.play(Sine(750, 5000 - xoff*4500, yoff))
-            #     self.set_object_attribute(object, "last_played", datetime.now())
-                    
-            
-        pass
 
     def handle_sound(self):
         while self.sounds_active:

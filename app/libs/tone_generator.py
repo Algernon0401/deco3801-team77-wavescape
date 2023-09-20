@@ -26,9 +26,25 @@ class ToneGenerator:
         
         distance = math.sqrt((cx-ox)**2+(cy-oy)**2)     # Euclidean distance
         radian = np.arccos((cx-ox)/distance)            # radian = arccos(x), r = 1
+        # check quadrant
+        if ox > cx and oy < cx:
+            # q1
+            add = 0
+        elif ox < cx and oy < cx:
+            # q2
+            add = MAX_RADIAN / 4
+        elif ox < cx and oy > cx:
+            # q3
+            add = MAX_RADIAN / 2
+        else: # ox > cx and oy > cx
+            # q4
+            add = 3 * (MAX_RADIAN / 4)
+        radian += add
+        # radian = np.arctan2((cy, oy), (cx, ox))            # radian = arccos(x), r = 1
         idx = None
-        print("Radian:", radian)
+        # print("Radian:", radian)
         # fix the frequency to nearest note
+        idx = NUM_NODES - 1
         for i in range(NUM_NODES):
             if radian < (i+1)*MAX_RADIAN/NUM_NODES:
                 idx = i
@@ -36,7 +52,8 @@ class ToneGenerator:
         frequency = frequency_list[idx]                         # bijecting radian to each discrete frequency 
         amplitude = distance * elc_list[idx] * VOLUME_SCALAR    # amplitude = distance * elc
 
-        print(f"Amplitude: {amplitude}, Frequency: {frequency}")
+        # print(f"Amplitude: {amplitude}, Frequency: {frequency}")
+        print(f"Created {tag}")
         match tag:
             case Tag.TRIANGLE.value:
                 return Triangle(amplitude, frequency, duration)
@@ -52,6 +69,7 @@ class ToneGenerator:
                 # raise Exception(f"Wave Undefined with tag: {tag}")
                 print(f"Wave Undefined with tag: {tag}")
                 return None
+            
     
 def main():
     """for testing"""
