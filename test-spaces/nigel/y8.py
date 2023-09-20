@@ -8,11 +8,12 @@ from ultralytics import YOLO
 model = YOLO("yolov8n.pt")
 
 # Open the video file
-video_path = "path/to/video.mp4"
-cap = cv2.VideoCapture(0)
+video_path = r"C:\Users\Forge-15 PRO\OneDrive\Pictures\Camera Roll\test3.mp4"
+cap = cv2.VideoCapture(video_path)
 
 # Store the track history
-track_history = defaultdict(lambda: [])
+track_histories = defaultdict(list)
+track_averages = defaultdict(list)
 
 # Loop through the video frames
 while cap.isOpened():
@@ -24,6 +25,7 @@ while cap.isOpened():
         results = model.track(frame, show=False, persist=True)
 
         # Get the boxes and track IDs
+        data_output = results[0].boxes.data.tolist()
         boxes = results[0].boxes.xywh.cpu()
         track_ids = results[0].boxes.id.int().cpu().tolist()
 
@@ -33,13 +35,29 @@ while cap.isOpened():
         # Plot the tracks
         for box, track_id in zip(boxes, track_ids):
             x, y, w, h = box
-            track = track_history[track_id]
-            track.append((float(x), float(y)))  # x, y center point
-            if len(track) > 30:  # retain 90 tracks for 90 frames
-                track.pop(0)
+            track_history = track_histories[track_id]
+            track_history.append((float(x), float(y)))  # x, y center point
+            if len(track_history) > 30:
+                track_history.pop(0)
+
+        for track_id, track in track_histories.items():
+            total_x = sum(coord[0] for coord in track)
+            total_y = sum(coord[1] for coord in track)
+            avg_center_x = total_x / len(track_histories[track_id])
+            avg_center_y = total_y / len(track_histories[track_id])
+
+            # create key with track_id in track_average,
+            # to store the average center coord associated with the track_id
+            track_avg = track_averages[track_id]
+            track_avg.append((float(avg_center_x), float(avg_center_y)))
+
+            # stores only the latest 10 average coord
+            # removes previous entry
+            if len(track_avg) > 10:
+                track_avg.pop(0)
 
             # Draw the tracking lines
-            points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
+            points = np.hstack(track_avg).astype(np.int32).reshape((-1, 1, 2))
             cv2.polylines(
                 annotated_frame,
                 [points],

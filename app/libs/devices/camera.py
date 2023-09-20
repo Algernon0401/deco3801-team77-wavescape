@@ -9,6 +9,7 @@ import os
 from ..object import *
 import time
 from ultralytics import YOLO
+from collections import defaultdict
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 MODEL_CONFIDENCE_THRESHOLD = 0.5
@@ -307,10 +308,148 @@ class Camera:
             self.object_results = objects
             self.refresh_ready = True
 
-    def stabilise(objects):
+    def test_object_conversion(self):
         """
-        Takes the average xy centre of the last 10 input for each ID
+        nigel test object_conversion
         """
+        while self.active:
+            time.sleep(0.1)  # Only update 50ms or so to prevent computer lag
+
+            if not self.valid or self.model is None:
+                # Set objects to empty list
+                self.object_results = []
+                continue  # Continue to next iteration
+
+            # Initialize the dictionaries
+            track_histories = defaultdict(list)
+            track_averages = defaultdict(list)
+            registered_results = {}
+
+            objects = []
+            old_results = self.object_results
+            cvframe = self.capture_video()
+
+            # Get width and height of cvframe
+            if self.video is None:
+                return
+
+            camera_x = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
+            camera_y = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
+
+            if camera_x <= 0 and camera_y <= 0:
+                return
+
+            # Get scale of camera to screen
+            (screen_x, screen_y) = (self.w, self.h)
+            (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
+
+            # Check to make sure feed is valid
+            if cvframe is None:
+                # Set objects to empty list
+                self.object_results = []
+                return
+
+            # Convert Object Detection results from model
+            if self.model_results is not None:
+                # loop over the detections
+                try:
+                    results = self.model_results[0].boxes.data.tolist()
+
+                    for data in results:
+                        confidence = data[5]
+                        # filter out weak detections by ensuring the
+                        # confidence is greater than the minimum confidence
+                        if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
+                            continue
+
+                        # if the confidence is greater than the minimum confidence,
+                        # assign track_id
+                        track_id = int(data[4])
+
+                        # draw the bounding box on the frame
+                        xmin = int(data[0])
+                        ymin = int(data[1])
+                        xmax = int(data[2])
+                        ymax = int(data[3])
+                        tag = self.model_results.names[int(data[6])]
+
+                        # Adjust for scale
+                        xmin *= scale_x
+                        xmax *= scale_x
+                        ymin *= scale_y
+                        ymax *= scale_y
+
+                        # create key with track_id in track_histories,
+                        # to store bottom left(BL) coords associated with the track_id
+                        track_hist = track_histories[track_id]
+                        track_hist.append((float(xmin), float(ymin)))
+
+                        # stores the latest 30 coords, removes earliest entry
+                        if len(track_hist) > 30:
+                            track_hist.pop(0)
+
+                        # loop over all store bottom left(BL) coords for track_id
+                    for track_id, track in track_histories.items():
+                        total_x = sum(coord[0] for coord in track)
+                        total_y = sum(coord[1] for coord in track)
+                        avg_bl_x = total_x / len(track_histories[track_id])
+                        avg_bl_y = total_y / len(track_histories[track_id])
+
+                        # create key with track_id in track_average, to store
+                        # the average bottom left(BL) coord associated with the track_id
+                        track_avg = track_averages[track_id]
+                        track_avg.append((float(avg_bl_x), float(avg_bl_y)))
+
+                        # stores the latest 10 average coord
+                        # removes earliest entry
+                        if len(track_avg) > 10:
+                            track_avg.pop(0)
+
+                        # to be implemented:
+                        # comparison of current track_avg to newest entry
+                        # if  difference is +-10% then swap to new average
+                        # to combat jitteryness.
+
+                    # Create Camera Object
+                    old_object_found = False
+                    if track_id in list(track_histories.keys()):
+                        # Keep old object with new object
+                        old_object_found = True
+                        obj = registered_results[track_id]
+                        latest_average = track_averages[track_id][-1]
+                        obj.x = latest_average[0]
+                        obj.y = latest_average[1]
+                        obj.w = (
+                            xmax - xmin
+                        )  # not sure what to assign, average it as well?
+                        obj.h = (
+                            ymax - ymin
+                        )  # not sure what to assign, average it as well?
+                        obj.date_last_included = datetime.datetime.now()
+                        objects.append(obj)
+                        break
+
+                    if not old_object_found:
+                        # Create new object with track_id
+                        new_object = CamObject(
+                            tag,
+                            (
+                                xmin,
+                                ymin,
+                                xmax - xmin,
+                                ymax - ymin,
+                            ),
+                            track_id,
+                        )
+
+                        registered_results[track_id] = new_object
+
+                        objects.append(new_object)
+                except:
+                    print("Error;303 camera.py")
+
+            self.object_results = objects
+            self.refresh_ready = True
 
     def update(self, controller):
         """
