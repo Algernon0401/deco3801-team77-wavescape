@@ -54,6 +54,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
+            "args": ["-tz"],
             "console": "integratedTerminal",
             "justMyCode": true
         }
