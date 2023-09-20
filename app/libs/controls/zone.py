@@ -84,6 +84,10 @@ class Zone(Control):
         self.tone_gen = ToneGenerator()
         self.object_attributes = {}
         self.graph = None
+        self.current_objects = []
+        sound_thread = threading.Thread(target=self.handle_sound)
+        sound_thread.start()
+        self.sounds_active = True
         
     def get_object_attributes(self, object):
         """
@@ -182,7 +186,7 @@ class Zone(Control):
             actual_objects.append(object)
         
         objects = actual_objects
-        
+        self.current_objects = actual_objects
         
         # Object connectivity graph via distance.
         graph = self.create_connectivity_tree(None, objects, center, center)
@@ -226,8 +230,7 @@ class Zone(Control):
         # Y silent duration (0, 1)
         # X frequency (500 - 5000)
 
-        sound_thread = threading.Thread(target=self.play_sounds, args=(objects,))
-        sound_thread.start()
+        
         # self.play_sounds(objects)
         
 
@@ -244,10 +247,10 @@ class Zone(Control):
             can_play = True
             
             # Check whether we must play the sound
-            last_played = self.get_object_attribute(obj, "last_played")
+            last_played = obj.get_object_attribute("last_played")
             if last_played is not None:
                 can_play = False
-                if datetime.datetime.now() > last_played + timedelta(seconds=1):
+                if datetime.datetime.now() > last_played + timedelta(seconds=0.99):
                     can_play = True
 
             if can_play:
@@ -257,7 +260,7 @@ class Zone(Control):
                                                       obj.get_center(), obj.tag, 1)
                 if obj_wave is not None:
                     waves.append(obj_wave)
-                self.set_object_attribute(obj, "last_played", datetime.datetime.now())
+                obj.set_object_attribute("last_played", datetime.datetime.now())
         
         if len(waves) > 0:
             print(f"Playing {len(waves)} waves...")
@@ -291,6 +294,12 @@ class Zone(Control):
                     
             
         pass
+
+    def handle_sound(self):
+        while self.sounds_active:
+            time.sleep(0.1)
+            self.play_sounds(self.current_objects)
+
     
     def render(self, controller: AppController, screen: pygame.Surface):
         """
