@@ -114,15 +114,22 @@ class ObjectNode:
             if self.object is not None:
                 time = self.object.get_time_since_creation()
 
+            cycles = freq / 500
+            dist_per_cycle = dist / cycles
+            time_per_cycle = freq / 5000
             if type_from == TYPE_SINE:
+                
                 for d in range(dist):
                     # create point that is not translated from start.
                     px = d 
-                    py = math.sin(time * d * freq / 1000) * amp_dist
+                    perc = 1 - abs(dist / 2 - d) / (dist / 2)
+                    # approximately upscaled by 500 (i.e. 500 = 1 cycle)
+                    
+                    py = math.sin(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle) * amp_dist * perc
                     # rotate point around origin (sx, sy)
                     points.append(
                         (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
-                         cy1 - py * math.cos(slope_rot) + px * math.sin(slope_rot))
+                         cy1 + px * math.sin(slope_rot) - py * math.cos(slope_rot))
                     )
             
 
