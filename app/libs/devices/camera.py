@@ -12,7 +12,8 @@ from ultralytics import YOLO
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 MODEL_CONFIDENCE_THRESHOLD = 0.5
-CAMERA_UPDATE_DELAY = 0.1 # Number of seconds until camera is allowed to update again.
+CAMERA_UPDATE_DELAY = 0.1  # Number of seconds until camera is allowed to update again.
+
 
 class Camera:
     """
@@ -41,13 +42,13 @@ class Camera:
             self.model_results = None
             self.object_results = None
             self.camera_no = 0
-            self.offset_x = 0 # To be calibrated
-            self.offset_y = 0 # To be calibrated
-            self.scale_x = 1 # To be calibrated
-            self.scale_y = 1 # To be calibrated
+            self.offset_x = 0  # To be calibrated
+            self.offset_y = 0  # To be calibrated
+            self.scale_x = 1  # To be calibrated
+            self.scale_y = 1  # To be calibrated
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             self.last_time_updated = datetime.datetime.now()
-            self.current_update = 0 # Alternates between 0 and 1
+            self.current_update = 0  # Alternates between 0 and 1
             # Create thread for opening camera and YOLO object detection
             threading.Thread(target=self.open_camera, args=[]).start()
             threading.Thread(target=self.load_default_model, args=[]).start()
@@ -120,7 +121,6 @@ class Camera:
             self.video.release()
         self.video = None
         threading.Thread(target=self.next_camera, args=[]).start()
-        
 
     def next_camera(self):
         """
@@ -130,7 +130,7 @@ class Camera:
         try:
             self.loading = True
             while self.valid:
-                pass # Wait until main thread catches up
+                pass  # Wait until main thread catches up
             self.camera_no += 1
             self.video = cv.VideoCapture(self.camera_no)
 
@@ -142,7 +142,7 @@ class Camera:
                 self.open_camera()
         except:
             print("Error swapping camera")
-            self.camera_no = 0 # Reset to first camera
+            self.camera_no = 0  # Reset to first camera
             self.loading = False
             self.valid = False
             # Open initial camera
@@ -175,47 +175,49 @@ class Camera:
                     frame.tobytes(), frame.shape[1::-1], "BGR"
                 )
         return None
-    
+
     def display_to_screen(self, controller, screen: pygame.Surface):
         """
         Displays the camera to the screen (full-screen), with the given
         calibration settings.
         """
-        
+
         frame = self.capture_video_pygame()
-        (screen_w, screen_h) = controller.get_screen_size() 
+        (screen_w, screen_h) = controller.get_screen_size()
         if frame is not None:
             # Find camera dimensions and offset
             camera_w = screen_w * self.scale_x
             camera_h = screen_h * self.scale_y
-            
-            camera_x = screen_w / 2 - (camera_w * (1-self.offset_x) / 2)
-            camera_y = screen_h / 2 - (camera_h * (1-self.offset_y) / 2)
 
-            screen.blit(pygame.transform.scale(frame, (camera_w, camera_h)), (camera_x, camera_y))
+            camera_x = screen_w / 2 - (camera_w * (1 - self.offset_x) / 2)
+            camera_y = screen_h / 2 - (camera_h * (1 - self.offset_y) / 2)
+
+            screen.blit(
+                pygame.transform.scale(frame, (camera_w, camera_h)),
+                (camera_x, camera_y),
+            )
 
     def object_conversion(self):
         """
         Continuously converts model results into usable camera objects.
         (to be run in another thread - see __init__)
         """
-        
+
         while self.active:
-            time.sleep(0.1) # Only update 50ms or so to prevent computer lag
-            
+            time.sleep(0.1)  # Only update 50ms or so to prevent computer lag
+
             if not self.valid or self.model is None:
                 # Set objects to empty list
                 self.object_results = []
-                continue # Continue to next iteration
-                
+                continue  # Continue to next iteration
+
             objects = []
-            
-            # NOTE Sam to Nigel - copy your code here (update objects) 
-            
+
+            # NOTE Sam to Nigel - copy your code here (update objects)
+
             # Uncomment below line when implemented.
-            #self.object_results = objects
+            # self.object_results = objects
             self.refresh_ready = True
-        
 
     def update(self, controller):
         """
@@ -224,21 +226,23 @@ class Camera:
         """
         # Check to make sure camera and model is initialized.
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
-        if not self.refresh_ready or time_passed < CAMERA_UPDATE_DELAY: # Only update every 100ms
+        if (
+            not self.refresh_ready or time_passed < CAMERA_UPDATE_DELAY
+        ):  # Only update every 100ms
             # Ensure that we do not continuously lag the python app
             # when the video feed has not updated.
             if self.object_results is not None:
                 controller.set_cam_objects(self.object_results.copy())
             return
-        
+
         self.last_time_updated = datetime.datetime.now()
         self.refresh_ready = False
         self.current_update = 1 - self.current_update
-                  
+
         # Update camera objects to given results from conversion thread.
         if self.object_results is not None:
             controller.set_cam_objects(self.object_results.copy())
-        
+
         # NOTE from Sam to Nigel -- I'm not too sure of your changes to this class, so
         # I'm going to leave you to change self.object_results to the correct value (objects).
         # Please move code from update to object_conversion which is run in another thread
@@ -302,10 +306,6 @@ class Camera:
                 )
 
         self.object_results = objects
-        
-        
-
-        
 
     def destroy(self):
         """
@@ -316,4 +316,3 @@ class Camera:
             self.video.release()
         self.model = None
         self.valid = False
-        
