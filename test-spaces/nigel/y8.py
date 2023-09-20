@@ -8,7 +8,7 @@ from ultralytics import YOLO
 model = YOLO("yolov8n.pt")
 
 # Open the video file
-video_path = r"C:\Users\Forge-15 PRO\OneDrive\Pictures\Camera Roll\test3.mp4"
+video_path = r"test.mp4"
 cap = cv2.VideoCapture(video_path)
 
 # Store the track history
@@ -22,7 +22,7 @@ while cap.isOpened():
 
     if success:
         # Run YOLOv8 tracking on the frame, persisting tracks between frames
-        results = model.track(frame, show=False, persist=True)
+        results = model.track(frame, iou=0.1, verbose=False, persist=True)
 
         # Get the boxes and track IDs
         data_output = results[0].boxes.data.tolist()
@@ -37,7 +37,7 @@ while cap.isOpened():
             x, y, w, h = box
             track_history = track_histories[track_id]
             track_history.append((float(x), float(y)))  # x, y center point
-            if len(track_history) > 30:
+            if len(track_history) > 10:
                 track_history.pop(0)
 
         for track_id, track in track_histories.items():
