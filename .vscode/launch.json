@@ -1,0 +1,66 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Sam",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app/app.py",
+            "args": [
+                "-mo",
+                "-tz"
+            ],
+            "cwd": "app",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Nigel",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app/app.py",
+            "cwd": "app",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Luke",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "args": [
+                "-mo",
+                "-tz"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Miles",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "William",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Samson",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
