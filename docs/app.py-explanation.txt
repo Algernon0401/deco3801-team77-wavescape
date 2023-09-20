@@ -1,0 +1,43 @@
+app.py
+	- Joins everything together.
+	- Should rarely need modification except when adding new controllers and controls.
+	
+	base.py
+	- Contains the basic classes for Control and Controller, and contains the AppController, which is a globally
+	  passed object to every control and controller's update/render/event methods.
+	
+	- AppController is responsible for updating the camera, storing the camera, the current objects on screen, and the current
+	  controls and other controllers.
+
+	Controllers 
+	- You can define a Controller (extends Controller) to do something on a tick of the app (repetitive task).
+	  (for example, the zone_controller.py that currently exists handles the logic for creating zones from objects).
+	
+	Controls
+	- You can define a Control which is effectively an extension of a Controller, except has rendering methods.
+	- Basically anything you see on screen is drawn by a control, however it does have x,y,w,h variables, whereas
+	  the last control added has rendering priority.
+
+	- ddcam.py is the control that is currently being used to drawn objects to screen and model loading/camera loading.
+	- it is a control which encompasses the entire screen.
+
+	- A zone has been defined as a control, so if you wish to have zone-dependent functions I would add stuff in here.
+
+	Creating a Control:
+	
+	1. Create a new file for your control under 'controls'.
+	2. Copy from existing Control (use Zone under zone.py)
+	3. Rename control to what you want and remove unrelated methods and code.
+		- Keep update, render, and event blank for now.
+		- change init to what is necessary for your control.
+	4. Add update/render/event logic (see pygame event help if needed, e.g. keydown/mousedown)
+	5. In app.py search for # Add initial controls, and use controller.add_control(<your control>) to add your control permanently.
+
+	Creating a Controller:
+	1. Create a new file for your controller under 'controls'.
+	2. Copy from existing Controller (use ZoneController under zone_controller.py)
+	3. Rename control to what you want and remove unrelated methods and code.
+		- Keep update, and event blank for now.
+		- change init to what is necessary for your control.
+	4. Add update/event logic (see pygame event help if needed, e.g. keydown/mousedown)
+	5. In app.py search for # Add logic controllers, and use controller.add_controller(<your controller>) to add your control permanently.

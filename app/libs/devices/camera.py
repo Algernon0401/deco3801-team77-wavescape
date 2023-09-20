@@ -88,8 +88,8 @@ class Camera:
             while self.model is not None:
                 if self.valid:
                     # Update model results
-                    self.model_results = self.model(
-                        self.capture_video(), verbose=False
+                    self.model_results = self.model.track(
+                        self.capture_video(), verbose=False, persist=True
                     )[0]
                 time.sleep(0.05)  # Ensure this does not clog up machine
         except Exception as e:
