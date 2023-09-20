@@ -8,6 +8,7 @@ import pygame
 from datetime import *
 from random import randint
 import threading
+import math
 
 # Import app controller, control base class, camera and sound class
 from ..base import Control
@@ -26,6 +27,14 @@ zone_border_corner_tl = pygame.image.load(ASSET_ZONE_BORDER_CORNER)
 zone_border_corner_tr = pygame.transform.rotate(zone_border_corner_tl, -90)
 zone_border_corner_br = pygame.transform.rotate(zone_border_corner_tr, -90)
 zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
+
+HIGH_AMP = 4000
+TYPE_NONE = -1
+TYPE_SINE = 0
+TYPE_SQUARE = 1
+TYPE_SAWTOOTH = 2
+TYPE_TRIANGLE = 3
+TYPE_PULSE = 4
 
 class ObjectNode:
     """
@@ -50,13 +59,82 @@ class ObjectNode:
             
         for connection in self.connections:
             connection.destroy_children_in_list(list)
-            
+
+    def sound_type(self):
+        """
+        Gets the sound type of the object,
+        returning
+
+        0 = Sine
+        1 = Square
+        2 = Sawtooth
+        3 = Triangle
+        4 = Pulse
+        """
+        if self.object is None:
+            return TYPE_NONE
+        
+        match self.object.tag:
+            case Tag.TRIANGLE.value:
+                return TYPE_TRIANGLE
+            case Tag.SQUARE.value:
+                return TYPE_SQUARE
+            case Tag.CIRCLE.value:
+                return TYPE_SINE
+            case Tag.STAR.value:
+                return TYPE_SAWTOOTH
+            case Tag.ARROW.value:
+                return TYPE_PULSE
+            case _:
+                return TYPE_NONE
+
     def render(self, controller, screen):
         """
         Renders the given tree/graph animations and elements onto the screen
         """
         for connection in self.connections:
-            pygame.draw.line(screen, pygame.Color(255,255,255), self.center, connection.center)
+            type_from = self.sound_type()
+            type_to = connection.sound_type()
+            (cx1, cy1) = self.center
+            (cx2, cy2) = connection.center
+            
+            amplitude = 2000 # to be edited later
+            
+            dist = int(math.sqrt((cx2 - cx1) * (cx2 - cx1) + (cy2 - cy1) * (cy2 - cy1)))
+            amp_dist = (dist / 4) * (amplitude / HIGH_AMP) 
+            freq = 2400
+            slope_rot = math.atan2(cy2 - cy1, cx2 - cx1)
+
+            # Create point list
+            points = [self.center]
+
+            type_from = TYPE_SINE #debug
+            time = 0
+            
+            if self.object is not None:
+                time = self.object.get_time_since_creation()
+
+            if type_from == TYPE_SINE:
+                for d in range(dist):
+                    # create point that is not translated from start.
+                    px = d 
+                    py = math.sin(time * d * freq / 1000) * amp_dist
+                    # rotate point around origin (sx, sy)
+                    points.append(
+                        (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
+                         cy1 - py * math.cos(slope_rot) + px * math.sin(slope_rot))
+                    )
+            
+
+            points.append(connection.center)
+
+            lpx = cx1
+            lpy = cy1
+            for i in range(1, len(points)):
+                (px,py) = points[i]
+                pygame.draw.line(screen, pygame.Color(255,255,255), (lpx, lpy), (px, py))
+                lpx = px
+                lpy = py
             
             connection.render(controller, screen)
         
@@ -204,26 +282,10 @@ class Zone(Control):
         # self.last_time_updated = datetime.datetime.now()
         
         for object in objects:
-            state = self.get_object_attribute(object, "ripple_state")
-            direction = self.get_object_attribute(object, "ripple_direction")
-            if self.get_object_attribute(object, "ripple_count") is None:
-                self.set_object_attribute(object, "ripple_count", randint(1, 10))
-            if self.get_object_attribute(object, "ripple_colour") is None:
-                self.set_object_attribute(object, "ripple_colour", pygame.Color(randint(1, 255), randint(1, 255), randint(1, 255), 100))
-            if state is None:
-                state = 0
-            
-            if direction is None:
-                direction = -1
-            
-            if state >= 30:
-                direction = -1
-            if state == 0:
-                direction = 1
-            state = state + (0.5 * direction)
-
-            self.set_object_attribute(object, "ripple_state", state)
-            self.set_object_attribute(object, "ripple_direction", direction)
+            if object.get_object_attribute("ripple_count") is None:
+                object.set_object_attribute("ripple_count", randint(1, 5))
+            if object.get_object_attribute("ripple_colour") is None:
+                object.set_object_attribute("ripple_colour", pygame.Color(randint(1, 255), randint(1, 255), randint(1, 255), 100))
 
         return
         
@@ -325,14 +387,17 @@ class Zone(Control):
         """
             Generates a ripple effect on the given object.
         """
-        state = self.get_object_attribute(obj, "ripple_state")
-        ripple_count = self.get_object_attribute(obj, "ripple_count")
-        colour = self.get_object_attribute(obj, "ripple_colour")
-        if state is None:
-            return
+        state = (math.sin(obj.get_time_since_creation()*5) + 1) * 30
+        ripple_count = obj.get_object_attribute("ripple_count")
+        if ripple_count is None:
+            ripple_count = 3
+        colour = obj.get_object_attribute("ripple_colour") 
+        if colour is None:
+            colour = pygame.Color(255, 255, 255, 100)
         
         for i in range(ripple_count):
-            adj_state = state + (i * 5)
+            colour.a = (100 - (i * 20)) # Update alpha
+            adj_state = state + (i * 10)
             rect = pygame.Rect(obj.get_center(), (0, 0)).inflate((adj_state * 2, adj_state * 2))
             surf = pygame.Surface(rect.size, pygame.SRCALPHA)
             pygame.draw.circle(surf, colour, (adj_state, adj_state), adj_state)

@@ -96,4 +96,10 @@ class CamObject:
         center_x = self.x + self.w/2
         center_y = self.y + self.h/2
         return math.sqrt(math.pow(x - center_x, 2) + math.pow(y - center_y, 2))
+    
+    def get_time_since_creation(self) -> float:
+        """
+            Returns the time since the object was created.
+        """
+        return (datetime.datetime.now() - self.date_created).total_seconds()
         
