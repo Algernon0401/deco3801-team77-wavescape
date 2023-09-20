@@ -1,60 +1,63 @@
-import datetime
-from ultralytics import YOLO
 import cv2
+import numpy as np
+from collections import defaultdict
 
+from ultralytics import YOLO
 
-# define some constants
-CONFIDENCE_THRESHOLD = 0.7
-GREEN = (0, 255, 0)
+# Load the YOLOv8 model
+model = YOLO("yolov8n.pt")
 
-# initialize the video capture object
-video_cap = cv2.VideoCapture(0)
+# Open the video file
+video_path = "path/to/video.mp4"
+cap = cv2.VideoCapture(0)
 
-# load the pre-trained YOLOv8n model
-model = YOLO(r"runs\detect\train5\weights\best.pt")
+# Store the track history
+track_history = defaultdict(lambda: [])
 
-while True:
-    # start time to compute the fps
-    start = datetime.datetime.now()
+# Loop through the video frames
+while cap.isOpened():
+    # Read a frame from the video
+    success, frame = cap.read()
 
-    ret, frame = video_cap.read()
+    if success:
+        # Run YOLOv8 tracking on the frame, persisting tracks between frames
+        results = model.track(frame, show=False, persist=True)
 
-    # if there are no more frames to process, break out of the loop
-    if not ret:
+        # Get the boxes and track IDs
+        boxes = results[0].boxes.xywh.cpu()
+        track_ids = results[0].boxes.id.int().cpu().tolist()
+
+        # Visualize the results on the frame
+        annotated_frame = results[0].plot()
+
+        # Plot the tracks
+        for box, track_id in zip(boxes, track_ids):
+            x, y, w, h = box
+            track = track_history[track_id]
+            track.append((float(x), float(y)))  # x, y center point
+            if len(track) > 30:  # retain 90 tracks for 90 frames
+                track.pop(0)
+
+            # Draw the tracking lines
+            points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
+            cv2.polylines(
+                annotated_frame,
+                [points],
+                isClosed=False,
+                color=(230, 230, 230),
+                thickness=10,
+            )
+
+        # Display the annotated frame
+        cv2.imshow("YOLOv8 Tracking", annotated_frame)
+
+        # Break the loop if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+    else:
+        # Break the loop if the end of the video is reached
         break
 
-    # run the YOLO model on the frame
-    detections = model(frame)
-
-    # loop over the detections
-    for data in detections.boxes.data.tolist():
-        # extract the confidence (i.e., probability) associated with the detection
-        confidence = data[4]
-
-        # filter out weak detections by ensuring the
-        # confidence is greater than the minimum confidence
-        if float(confidence) < CONFIDENCE_THRESHOLD:
-            continue
-
-        # if the confidence is greater than the minimum confidence,
-        # draw the bounding box on the frame
-        xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])
-        cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), GREEN, 2)
-
-        # end time to compute the fps
-    end = datetime.datetime.now()
-    # show the time it took to process 1 frame
-    total = (end - start).total_seconds()
-    print(f"Time to process 1 frame: {total * 1000:.0f} milliseconds")
-
-    # calculate the frame per second and draw it on the frame
-    fps = f"FPS: {1 / total:.2f}"
-    cv2.putText(frame, fps, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 8)
-
-    # show the frame to our screen
-    cv2.imshow("Frame", frame)
-    if cv2.waitKey(1) == ord("q"):
-        break
-
-video_cap.release()
+# Release the video capture object and close the display window
+cap.release()
 cv2.destroyAllWindows()
