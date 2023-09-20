@@ -28,6 +28,14 @@ zone_border_corner_tr = pygame.transform.rotate(zone_border_corner_tl, -90)
 zone_border_corner_br = pygame.transform.rotate(zone_border_corner_tr, -90)
 zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
 
+HIGH_AMP = 4000
+TYPE_NONE = -1
+TYPE_SINE = 0
+TYPE_SQUARE = 1
+TYPE_SAWTOOTH = 2
+TYPE_TRIANGLE = 3
+TYPE_PULSE = 4
+
 class ObjectNode:
     """
         A node representing a object placed in the zone.
@@ -51,13 +59,82 @@ class ObjectNode:
             
         for connection in self.connections:
             connection.destroy_children_in_list(list)
-            
+
+    def sound_type(self):
+        """
+        Gets the sound type of the object,
+        returning
+
+        0 = Sine
+        1 = Square
+        2 = Sawtooth
+        3 = Triangle
+        4 = Pulse
+        """
+        if self.object is None:
+            return TYPE_NONE
+        
+        match self.object.tag:
+            case Tag.TRIANGLE.value:
+                return TYPE_TRIANGLE
+            case Tag.SQUARE.value:
+                return TYPE_SQUARE
+            case Tag.CIRCLE.value:
+                return TYPE_SINE
+            case Tag.STAR.value:
+                return TYPE_SAWTOOTH
+            case Tag.ARROW.value:
+                return TYPE_PULSE
+            case _:
+                return TYPE_NONE
+
     def render(self, controller, screen):
         """
         Renders the given tree/graph animations and elements onto the screen
         """
         for connection in self.connections:
-            pygame.draw.line(screen, pygame.Color(255,255,255), self.center, connection.center)
+            type_from = self.sound_type()
+            type_to = connection.sound_type()
+            (cx1, cy1) = self.center
+            (cx2, cy2) = connection.center
+            
+            amplitude = 2000 # to be edited later
+            
+            dist = int(math.sqrt((cx2 - cx1) * (cx2 - cx1) + (cy2 - cy1) * (cy2 - cy1)))
+            amp_dist = (dist / 4) * (amplitude / HIGH_AMP) 
+            freq = 2400
+            slope_rot = math.atan2(cy2 - cy1, cx2 - cx1)
+
+            # Create point list
+            points = [self.center]
+
+            type_from = TYPE_SINE #debug
+            time = 0
+            
+            if self.object is not None:
+                time = self.object.get_time_since_creation()
+
+            if type_from == TYPE_SINE:
+                for d in range(dist):
+                    # create point that is not translated from start.
+                    px = d 
+                    py = math.sin(time * d * freq / 1000) * amp_dist
+                    # rotate point around origin (sx, sy)
+                    points.append(
+                        (cx1 + px * math.cos(slope_rot) - py * math.sin(slope_rot),
+                         cy1 - py * math.cos(slope_rot) + px * math.sin(slope_rot))
+                    )
+            
+
+            points.append(connection.center)
+
+            lpx = cx1
+            lpy = cy1
+            for i in range(1, len(points)):
+                (px,py) = points[i]
+                pygame.draw.line(screen, pygame.Color(255,255,255), (lpx, lpy), (px, py))
+                lpx = px
+                lpy = py
             
             connection.render(controller, screen)
         
