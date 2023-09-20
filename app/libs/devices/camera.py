@@ -40,7 +40,7 @@ class Camera:
             self.model_loading = True
             self.refresh_ready = False
             self.model_results = None
-            self.object_results = None
+            self.object_results = []
             self.camera_no = 0
             self.offset_x = 0  # To be calibrated
             self.offset_y = 0  # To be calibrated
@@ -49,6 +49,8 @@ class Camera:
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             self.last_time_updated = datetime.datetime.now()
             self.current_update = 0  # Alternates between 0 and 1
+            self.w = 1920
+            self.h = 1080
             # Create thread for opening camera and YOLO object detection
             threading.Thread(target=self.open_camera, args=[]).start()
             threading.Thread(target=self.load_default_model, args=[]).start()
@@ -88,8 +90,8 @@ class Camera:
             while self.model is not None:
                 if self.valid:
                     # Update model results
-                    self.model_results = self.model(
-                        self.capture_video(), verbose=False
+                    self.model_results = self.model.track(
+                        self.capture_video(), verbose=False, persist=True
                     )[0]
                 time.sleep(0.05)  # Ensure this does not clog up machine
         except Exception as e:
@@ -102,7 +104,7 @@ class Camera:
             print("Camera initializing...")
             self.video = cv.VideoCapture(self.camera_no)
             # Ensure video camera is opened.
-            self.valid = self.video.isOpened()
+            self.valid = self.video is None or self.video.isOpened()
             print("Camera initialized.")
             self.loading = False
         except:
@@ -133,9 +135,9 @@ class Camera:
                 pass  # Wait until main thread catches up
             self.camera_no += 1
             self.video = cv.VideoCapture(self.camera_no)
-
+            
             # Ensure video camera is opened.
-            self.valid = self.video.isOpened()
+            self.valid = self.video is None or self.video.isOpened()
             self.loading = False
             if not self.valid:
                 # Open initial camera
@@ -202,6 +204,9 @@ class Camera:
         Continuously converts model results into usable camera objects.
         (to be run in another thread - see __init__)
         """
+        
+        registered_results = {}
+        all_track_ids = []
 
         while self.active:
             time.sleep(0.1)  # Only update 50ms or so to prevent computer lag
@@ -212,11 +217,92 @@ class Camera:
                 continue  # Continue to next iteration
 
             objects = []
+            old_results = self.object_results
+            cvframe = self.capture_video()
 
-            # NOTE Sam to Nigel - copy your code here (update objects)
+            # Get width and height of cvframe
+            if self.video is None:
+                return
+            
+            camera_x = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
+            camera_y = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
 
-            # Uncomment below line when implemented.
-            # self.object_results = objects
+            if camera_x <= 0 and camera_y <= 0:
+                return
+
+            # Get scale of camera to screen
+            (screen_x, screen_y) = (self.w, self.h)
+            (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
+
+            # Check to make sure feed is valid
+            if cvframe is None:
+                # Set objects to empty list
+                self.object_results = []
+                return
+
+            # Convert Object Detection results from model
+            if self.model_results is not None:
+                # loop over the detections
+                try:
+                    track_ids = self.model_results.boxes.id.int().cpu().tolist()
+                    for data, track_id in zip(self.model_results.boxes.data.tolist(), track_ids):
+                        # extract the confidence (i.e., probability) associated with the detection
+                        confidence = data[4]
+
+                        # filter out weak detections by ensuring the
+                        # confidence is greater than the minimum confidence
+                        if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
+                            continue
+
+                        # if the confidence is greater than the minimum confidence,
+                        # draw the bounding box on the frame
+                        screen_xmin = int(data[0])
+                        screen_xmax = int(data[2])
+                        screen_ymin = int(data[1])
+                        screen_ymax = int(data[3])
+                        tag = self.model_results.names[int(data[5])]
+
+                        # Adjust for scale
+                        screen_xmin *= scale_x
+                        screen_xmax *= scale_x
+                        screen_ymin *= scale_y
+                        screen_ymax *= scale_y
+
+                        # Create Camera Object
+                        old_object_found = False
+                        if track_id in all_track_ids:
+                                # Keep old object with new object
+                                obj = registered_results[track_id]
+                                obj.x = screen_xmin
+                                old_object_found = True
+                                obj.y = screen_ymin
+                                obj.w = screen_xmax - screen_xmin
+                                obj.h = screen_ymax - screen_ymin
+                                obj.date_last_included = datetime.datetime.now()
+                                objects.append(obj)
+                                break
+
+                        if not old_object_found:
+                            # Create new object with track_id
+                            new_object = CamObject(
+                                    tag,
+                                    (
+                                        screen_xmin,
+                                        screen_ymin,
+                                        screen_xmax - screen_xmin,
+                                        screen_ymax - screen_ymin,
+                                    ),
+                                    track_id
+                                )
+                            
+                            registered_results[track_id] = new_object
+                            all_track_ids.append(track_id)
+                            
+                            objects.append(new_object)
+                except:
+                    print("Error;303 camera.py")
+
+            self.object_results = objects
             self.refresh_ready = True
 
     def update(self, controller):
@@ -226,6 +312,7 @@ class Camera:
         """
         # Check to make sure camera and model is initialized.
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
+        (self.w, self.h) = controller.get_screen_size()
         if (
             not self.refresh_ready or time_passed < CAMERA_UPDATE_DELAY
         ):  # Only update every 100ms
@@ -234,7 +321,7 @@ class Camera:
             if self.object_results is not None:
                 controller.set_cam_objects(self.object_results.copy())
             return
-
+        
         self.last_time_updated = datetime.datetime.now()
         self.refresh_ready = False
         self.current_update = 1 - self.current_update
@@ -248,64 +335,7 @@ class Camera:
         # Please move code from update to object_conversion which is run in another thread
         # for optimization.
 
-        objects = []
-
-        cvframe = self.capture_video()
-
-        # Get width and height of cvframe
-        camera_x = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
-        camera_y = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
-
-        # Get scale of camera to screen
-        (screen_x, screen_y) = controller.get_screen_size()
-        (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
-
-        # Check to make sure feed is valid
-        if cvframe is None:
-            # Set objects to empty list
-            controller.set_cam_objects([])
-            return
-
-        # Convert Object Detection results from model
-        if self.model_results is not None:
-            # loop over the detections
-            for data in self.model_results.boxes.data.tolist():
-                # extract the confidence (i.e., probability) associated with the detection
-                confidence = data[4]
-
-                # filter out weak detections by ensuring the
-                # confidence is greater than the minimum confidence
-                if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
-                    continue
-
-                # if the confidence is greater than the minimum confidence,
-                # draw the bounding box on the frame
-                screen_xmin = int(data[0])
-                screen_xmax = int(data[2])
-                screen_ymin = int(data[1])
-                screen_ymax = int(data[3])
-                tag = self.model_results.names[int(data[5])]
-
-                # Adjust for scale
-                screen_xmin *= scale_x
-                screen_xmax *= scale_x
-                screen_ymin *= scale_y
-                screen_ymax *= scale_y
-
-                # Create Camera Object
-                objects.append(
-                    CamObject(
-                        tag,
-                        (
-                            screen_xmin,
-                            screen_ymin,
-                            screen_xmax - screen_xmin,
-                            screen_ymax - screen_ymin,
-                        ),
-                    )
-                )
-
-        self.object_results = objects
+        
 
     def destroy(self):
         """
