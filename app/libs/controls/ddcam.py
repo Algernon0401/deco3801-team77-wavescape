@@ -60,7 +60,7 @@ class DDCamVisual(Control):
             r.set_alpha(128)
             r.fill((255,255,255))
             screen.blit(r, (object.x,object.y))
-            text = self.font.render(tag, True, pygame.Color(0, 128, 128))
+            text = self.font.render(str(tag)+str(object.track_id), True, pygame.Color(0, 128, 128))
             text_rect = text.get_rect()
             text_rect.center = (object.x+object.w/2,object.y+object.h/2)
             screen.blit(text, text_rect)
