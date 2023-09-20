@@ -1,5 +1,6 @@
 import math
 import pygame
+import datetime
 from enum import Enum
 class Tag(Enum):
     """
@@ -32,7 +33,7 @@ class CamObject:
         Represents an object that is recognised from the camera.
     """
 
-    def __init__(self, tag:Tag, bounds, depth=0):
+    def __init__(self, tag:Tag, bounds, track_id=0):
         """
             Constructs a camera recognised object from the given
             tag and bounds.
@@ -42,14 +43,14 @@ class CamObject:
             the ratio of camera feed to screen size)
 
             The tag should be the recognised object name (e.g. star)
-
-            The depth can be left out at this point in time.
         """ 
 
         self.tag = tag
         (self.x, self.y, self.w, self.h) = bounds
-        self.depth = depth
+        self.track_id = track_id
         self.attributes = {} # Attribute list for controls
+        self.date_created = datetime.datetime.now()
+        self.date_last_included = datetime.datetime.now()
     
     def within(self, bounds):
         """

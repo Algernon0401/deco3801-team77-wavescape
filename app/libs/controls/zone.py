@@ -157,7 +157,6 @@ class Zone(Control):
             
         return ObjectNode(object, center, connections) 
         
-    
     def update(self, controller: AppController):
         """
             Updates the control on every loop iteration.
