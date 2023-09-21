@@ -8,7 +8,7 @@ from ultralytics import YOLO
 model = YOLO("yolov8n.pt")
 
 # Open the video file
-video_path = r"test.mp4"
+video_path = r"C:\Users\Forge-15 PRO\OneDrive\Pictures\Camera Roll\test4.mp4"
 cap = cv2.VideoCapture(video_path)
 
 # Store the track history
