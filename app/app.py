@@ -52,6 +52,8 @@ def app_init():
                 controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
+            if arg == "-feed":
+                controller.display_feed = True
     except:
         print("Invalid command-line arguments")
         
