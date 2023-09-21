@@ -379,10 +379,15 @@ class Camera:
                         ymin *= scale_y
                         ymax *= scale_y
 
+                        width = xmax - xmin
+                        height = ymax - ymin
+
                         # create key with track_id in track_histories,
                         # to store bottom left(BL) coords associated with the track_id
                         track_hist = track_histories[track_id]
-                        track_hist.append((float(xmin), float(ymin)))
+                        track_hist.append(
+                            (float(xmin), float(ymin), float(width), float(height))
+                        )
 
                         # stores the latest 30 coords, removes earliest entry
                         if len(track_hist) > 30:
@@ -392,13 +397,25 @@ class Camera:
                     for track_id, track in track_histories.items():
                         total_x = sum(coord[0] for coord in track)
                         total_y = sum(coord[1] for coord in track)
-                        avg_bl_x = total_x / len(track_histories[track_id])
-                        avg_bl_y = total_y / len(track_histories[track_id])
+                        total_width = sum(coord[2] for coord in track)
+                        total_height = sum(coord[3] for coord in track)
+
+                        avg_x = total_x / len(track_histories[track_id])
+                        avg_y = total_y / len(track_histories[track_id])
+                        avg_width = total_width / len(track_histories[track_id])
+                        avg_height = total_height / len(track_histories[track_id])
 
                         # create key with track_id in track_average, to store
                         # the average bottom left(BL) coord associated with the track_id
                         track_avg = track_averages[track_id]
-                        track_avg.append((float(avg_bl_x), float(avg_bl_y)))
+                        track_avg.append(
+                            (
+                                float(avg_x),
+                                float(avg_y),
+                                float(avg_width),
+                                float(avg_height),
+                            )
+                        )
 
                         # stores the latest 10 average coord
                         # removes earliest entry
@@ -419,12 +436,12 @@ class Camera:
                         latest_average = track_averages[track_id][-1]
                         obj.x = latest_average[0]
                         obj.y = latest_average[1]
-                        obj.w = (
-                            xmax - xmin
-                        )  # not sure what to assign, average it as well?
-                        obj.h = (
-                            ymax - ymin
-                        )  # not sure what to assign, average it as well?
+                        obj.w = latest_average[
+                            2
+                        ]  # not sure what to assign, average it as well?
+                        obj.h = latest_average[
+                            3
+                        ]  # not sure what to assign, average it as well?
                         obj.date_last_included = datetime.datetime.now()
                         objects.append(obj)
                         break
