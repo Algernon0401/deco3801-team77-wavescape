@@ -53,6 +53,12 @@ class DDCamVisual(Control):
                 screen -- the surface this control is drawn on.
         """ 
         
+        # Draw outcome slightly
+        feed = controller.camera.capture_video_pygame()
+        if feed is not None:
+            feed.set_alpha(50)
+            screen.blit(pygame.transform.scale(feed, controller.get_screen_size()), (0,0))
+        
         # Test every object location (draw location)
         for object in controller.objects:
             tag = object.tag

@@ -30,6 +30,7 @@ zone_border_corner_br = pygame.transform.rotate(zone_border_corner_tr, -90)
 zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
 
 HIGH_AMP = 4000
+LINE_QUALITY = 5 # A higher number is a lower quality
 TYPE_NONE = -1
 TYPE_SINE = 0
 TYPE_SQUARE = 1
@@ -133,8 +134,10 @@ class ObjectNode:
             time_per_cycle = freq / 5000
             point_color = color_from
             
+            #t = datetime.datetime.now()
+            
             if type_to == TYPE_SINE:
-                for d in range(dist):
+                for d in range(0, dist, LINE_QUALITY):
                     # create point that is not translated from start.
                     px = d 
                     perc = 1 - abs(dist / 2 - d) / (dist / 2)
@@ -225,6 +228,7 @@ class ObjectNode:
                         )
                     )       
             
+            #print((datetime.datetime.now() - t).total_seconds())
             points.append((connection.center, color_to))
 
             lpx = cx1

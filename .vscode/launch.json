@@ -56,6 +56,14 @@
             "program": "${workspaceFolder}/app.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }
