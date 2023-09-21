@@ -49,6 +49,7 @@ class AppController:
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
+        self.display_feed = False
         self.object_attributes = {}
         self.persistent_objects = [] # Testing objects
         self.zone_border_object = Tag.ARROW.value
