@@ -19,8 +19,7 @@
             "name": "Nigel",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/app/app.py",
-            "cwd": "app",
+            "program": "${workspaceFolder}/app.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },

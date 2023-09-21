@@ -81,8 +81,8 @@ class Camera:
         try:
             print("YOLOv8 Model Initialising...")
             if self.has_model:
-                # self.model = YOLO(ASSET_TRAINED_MODEL)
-                self.model = YOLO("yolov8n.pt")
+                self.model = YOLO(ASSET_TRAINED_MODEL)
+                # self.model = YOLO("yolov8n.pt")
             else:
                 self.model = YOLO("yolov8n.pt")
 
