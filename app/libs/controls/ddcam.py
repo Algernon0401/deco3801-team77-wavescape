@@ -11,6 +11,8 @@ from ..base import *
 from ..devices.camera import *
 from ..object import *
 
+font = pygame.font.Font('assets/fonts/arial.ttf', 16)   
+
 class DDCamVisual(Control):
     """
         Reads the camera directly.
@@ -32,8 +34,7 @@ class DDCamVisual(Control):
         (self.w, self.h) = controller.get_screen_size()
         self.display_feed = display_feed
         self.test_create_type = Tag.TRIANGLE.value
-        self.font = pygame.font.Font('assets/fonts/arial.ttf', 16)
-    
+        
     def update(self, controller: AppController):
         """
             Updates the control on every loop iteration.
@@ -67,13 +68,13 @@ class DDCamVisual(Control):
             r.set_alpha(128)
             r.fill((255,255,255))
             screen.blit(r, (object.x,object.y))
-            text = self.font.render(str(tag)+str(object.track_id), True, pygame.Color(0, 128, 128))
+            text = font.render(str(tag)+str(object.track_id), True, pygame.Color(0, 128, 128))
             text_rect = text.get_rect()
             text_rect.center = (object.x+object.w/2,object.y+object.h/2)
             screen.blit(text, text_rect)
 
         # Display current object to add
-        text = self.font.render(self.test_create_type, True, pygame.Color(255, 255, 255))
+        text = font.render(self.test_create_type, True, pygame.Color(255, 255, 255))
         text_rect = text.get_rect()
         (sx,sy) = controller.get_screen_size()
         text_rect.center = (sx/2, sy-30)

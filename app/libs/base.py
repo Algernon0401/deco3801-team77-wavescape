@@ -30,11 +30,10 @@ class AppController:
     (including controls currently existing)
     """
 
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self):
         """
-        Creates the controller with the given screen
+        Creates the controller
         """
-        self.screen = screen
         self.controls = []  # Control list
         self.static_controls = [] # Static control list
         self.controllers = [] # Controller list (for app logic)
@@ -418,7 +417,7 @@ class Control:
 
     def render(self, controller: AppController, screen: pygame.Surface):
         """
-        Updates the control on every loop iteration.
+        Renders the control on every loop iteration.
 
         Arguments:
             controller -- the app controller this control runs from
