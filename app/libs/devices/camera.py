@@ -201,7 +201,7 @@ class Camera:
                 (camera_x, camera_y),
             )
 
-    def object_conversion(self):
+    def old_object_conversion(self):
         """
         Continuously converts model results into usable camera objects.
         (to be run in another thread - see __init__)
@@ -309,10 +309,16 @@ class Camera:
             self.object_results = objects
             self.refresh_ready = True
 
-    def test_object_conversion(self):
+    def object_conversion(self):
         """
         nigel test object_conversion
         """
+
+        # Initialize the dictionaries
+        track_histories = defaultdict(list)
+        track_averages = defaultdict(list)
+        registered_results = {}
+
         while self.active:
             time.sleep(0.1)  # Only update 50ms or so to prevent computer lag
 
@@ -321,24 +327,19 @@ class Camera:
                 self.object_results = []
                 continue  # Continue to next iteration
 
-            # Initialize the dictionaries
-            track_histories = defaultdict(list)
-            track_averages = defaultdict(list)
-            registered_results = {}
-
             objects = []
             old_results = self.object_results
             cvframe = self.capture_video()
 
             # Get width and height of cvframe
             if self.video is None:
-                return
+                continue
 
             camera_x = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
             camera_y = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
 
             if camera_x <= 0 and camera_y <= 0:
-                return
+                continue
 
             # Get scale of camera to screen
             (screen_x, screen_y) = (self.w, self.h)
@@ -348,13 +349,13 @@ class Camera:
             if cvframe is None:
                 # Set objects to empty list
                 self.object_results = []
-                return
+                continue
 
             # Convert Object Detection results from model
             if self.model_results is not None:
                 # loop over the detections
                 try:
-                    results = self.model_results[0].boxes.data.tolist()
+                    results = self.model_results.boxes.data.tolist()
 
                     for data in results:
                         confidence = data[5]
@@ -391,8 +392,44 @@ class Camera:
                         )
 
                         # stores the latest 30 coords, removes earliest entry
-                        if len(track_hist) > 30:
+                        if len(track_hist) > 5:
                             track_hist.pop(0)
+
+                        # Create Camera Object
+                        old_object_found = False
+                        if track_id in list(registered_results.keys()):
+                            # Keep old object with new object
+                            old_object_found = True
+                            obj = registered_results[track_id]
+                            latest_average = track_averages[track_id][-1]
+                            obj.x = latest_average[0]
+                            obj.y = latest_average[1]
+                            obj.w = latest_average[
+                                2
+                            ]  # not sure what to assign, average it as well?
+                            obj.h = latest_average[
+                                3
+                            ]  # not sure what to assign, average it as well?
+                            obj.date_last_included = datetime.datetime.now()
+                            objects.append(obj)
+                            continue
+
+                        if not old_object_found:
+                            # Create new object with track_id
+                            new_object = CamObject(
+                                tag,
+                                (
+                                    xmin,
+                                    ymin,
+                                    xmax - xmin,
+                                    ymax - ymin,
+                                ),
+                                track_id,
+                            )
+
+                            registered_results[track_id] = new_object
+
+                            objects.append(new_object)
 
                         # loop over all store bottom left(BL) coords for track_id
                     for track_id, track in track_histories.items():
@@ -426,43 +463,7 @@ class Camera:
                         # to be implemented:
                         # comparison of current track_avg to newest entry
                         # if  difference is +-10% then swap to new average
-                        # to combat jitteryness.
-
-                    # Create Camera Object
-                    old_object_found = False
-                    if track_id in list(track_histories.keys()):
-                        # Keep old object with new object
-                        old_object_found = True
-                        obj = registered_results[track_id]
-                        latest_average = track_averages[track_id][-1]
-                        obj.x = latest_average[0]
-                        obj.y = latest_average[1]
-                        obj.w = latest_average[
-                            2
-                        ]  # not sure what to assign, average it as well?
-                        obj.h = latest_average[
-                            3
-                        ]  # not sure what to assign, average it as well?
-                        obj.date_last_included = datetime.datetime.now()
-                        objects.append(obj)
-                        break
-
-                    if not old_object_found:
-                        # Create new object with track_id
-                        new_object = CamObject(
-                            tag,
-                            (
-                                xmin,
-                                ymin,
-                                xmax - xmin,
-                                ymax - ymin,
-                            ),
-                            track_id,
-                        )
-
-                        registered_results[track_id] = new_object
-
-                        objects.append(new_object)
+                        # to combat jitteryness
                 except:
                     print("Error;303 camera.py")
 

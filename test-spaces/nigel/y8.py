@@ -8,7 +8,7 @@ from ultralytics import YOLO
 model = YOLO("yolov8n.pt")
 
 # Open the video file
-video_path = r"C:\Users\Forge-15 PRO\OneDrive\Pictures\Camera Roll\test4.mp4"
+video_path = r"C:\Users\Forge-15 PRO\OneDrive\Pictures\Camera Roll\test.mp4"
 cap = cv2.VideoCapture(video_path)
 
 # Store the track history
@@ -53,7 +53,7 @@ while cap.isOpened():
 
             # stores only the latest 10 average coord
             # removes previous entry
-            if len(track_avg) > 10:
+            if len(track_avg) > 5:
                 track_avg.pop(0)
 
             # Draw the tracking lines
