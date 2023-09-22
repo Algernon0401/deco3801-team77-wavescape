@@ -9,6 +9,9 @@ import pygame
 # Import camera
 from .devices.camera import Camera
 
+# Import audio system
+from .devices.audio import AudioSystem
+
 # Import camera object
 from .object import *
 
@@ -42,12 +45,14 @@ class AppController:
         self.running = True
         self.calibrating = False
         self.camera = Camera()
+        self.audio_system = AudioSystem()
         self.single_update = False
         
         self.objects = []
         from .controls.zone import Zone
         self.global_zone = Zone(self)
         self.global_zone.is_global = True
+        self.use_global_zone = False
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False

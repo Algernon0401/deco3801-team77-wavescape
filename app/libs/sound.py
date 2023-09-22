@@ -192,7 +192,7 @@ class Sound:
     # @jit(target_backend='CPU')
     @functools.cache
     def generate_buffer(self, wave: Wave):
-        print("Generated buffer")
+        # print("Generated buffer")
         num_samples = int(round(wave.duration * self.sample_rate))
 
         # setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above

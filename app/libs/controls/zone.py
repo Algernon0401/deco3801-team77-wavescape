@@ -328,17 +328,16 @@ class Zone(Control):
         self.is_zone = True
         self.w = 128
         self.h = 128 # Standard size
-        # Allow for center definitions (zone stabilisation)
+        self.tone_gen = ToneGenerator()
+        # Allow for center definitions
         self.center_x = 0
         self.center_y = 0
         self.interactive = True
-        self.audio_system = Sound()
-        self.tone_gen = ToneGenerator()
         self.object_attributes = {}
         self.graph = None
         self.current_objects = []
         self.sounds_active = True
-        sound_thread = threading.Thread(target=self.handle_sound)
+        sound_thread = threading.Thread(target=self.handle_sound, args=[controller])
         sound_thread.start()
         
     def get_object_attributes(self, object):
@@ -425,12 +424,14 @@ class Zone(Control):
         """
         objects = None
         if self.is_global:
-            objects = controller.get_cam_objects_in_global()
             self.x = 0
             self.y = 0
             (w,h) = controller.get_screen_size()
             self.w = w
             self.h = h 
+            if not controller.use_global_zone:
+                return
+            objects = controller.get_cam_objects_in_global()
         else:
             objects = controller.get_cam_objects_in_bounds(self.get_bounds())
         
@@ -473,7 +474,7 @@ class Zone(Control):
 
         return
         
-    def play_sounds(self, objects):
+    def play_sounds(self, controller, objects):
         # Play sound for each object
         waves = []
         # print(len(objects))
@@ -505,16 +506,16 @@ class Zone(Control):
                 obj.set_object_attribute("wave", obj_wave)
         
         if len(waves) > 0:
-            print(f"Playing {len(waves)} waves...")
-            for wave in waves:
-                print(f"Wave: F:({wave.frequency})")
-            self.audio_system.chorus(waves)
+            #print(f"Playing {len(waves)} waves...")
+            #for wave in waves:
+                #print(f"Wave: F:({wave.frequency})")
+            controller.audio_system.play_waves(waves)
 
 
-    def handle_sound(self):
-        while self.sounds_active:
+    def handle_sound(self, controller):
+        while self.sounds_active and controller.is_running():
             time.sleep(0.1)
-            self.play_sounds(self.current_objects)
+            self.play_sounds(controller, self.current_objects)
 
     def prerender(self, controller: AppController):
         """
@@ -568,6 +569,9 @@ class Zone(Control):
         screen.blit(pygame.transform.scale(zone_border_t, (self.w - corner_width * 2,
                                                            border_width)),
                     (self.x + corner_width, self.y + self.h - border_width))
+        
+        if self.is_global and not controller.use_global_zone:
+            return # No effects as global zone not in use
         
         # Draw animations between objects
         if self.graph is not None:

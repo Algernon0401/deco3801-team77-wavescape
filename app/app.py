@@ -52,6 +52,8 @@ def app_init():
                 controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
+            if arg == "-gz":
+                controller.use_global_zone = True
             if arg == "-feed":
                 controller.display_feed = True
     except:
@@ -64,7 +66,6 @@ def app_init():
 
     # Add static system controls (displayed last)
 
-    controller.add_static_control(AppBorder(controller))
     controller.add_static_control(Menu(controller))
     controller.add_static_control(Status(controller))
 
@@ -132,6 +133,7 @@ def app_init():
     # Release resources
     controller.destroy_all_controls()
     controller.camera.destroy()
+    controller.audio_system.destroy()
 
     print("App Exiting...")
 

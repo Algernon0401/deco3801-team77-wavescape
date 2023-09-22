@@ -66,15 +66,13 @@ def load_yolo_model(path):
         # Tell main process that yolo was successfully initialised
         queues.message_yolo_queue.put(Message(MP_MSG_YOLO_MODEL_LOADED))
         
-        can_continue = True
         camera_feed = None
         # Repeatedly get object detection results in this thread
-        while can_continue:
+        while True:
             # Process messages from main thread
             while queues.message_camera_queue.qsize() > 0:
                 msg = queues.message_camera_queue.get()
                 if msg.type == MP_MSG_QUIT:
-                    can_continue = False
                     return
                 
             # Get feed from main thread
