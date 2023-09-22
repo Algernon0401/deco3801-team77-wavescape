@@ -162,6 +162,7 @@ class Sound:
         Args:
             waves (list): a list of wave objects
         """
+        
         threads = []
         for wave in waves:
             wave_thread = threading.Thread(target=self.play, args=(wave,))
@@ -179,6 +180,7 @@ class Sound:
         Args:
             wave (Wave): a wave object
         """
+        
         if wave.buffer is None:
            wave.buffer = self.generate_buffer(wave)
 

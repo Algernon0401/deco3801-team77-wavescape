@@ -85,6 +85,9 @@ def app_init():
         # Update all static (overlay) controls
         for control in controller.get_static_controls():
             control.update(controller)
+            
+        # Update global zone control
+        controller.global_zone.update(controller)
 
         # Update all logic controls
         for lc in controller.get_controllers():
@@ -148,10 +151,14 @@ def app_render(controller: AppController, screen: pygame.Surface):
         for control in controller.get_controls():
             control.render(controller, screen)
 
+        # Render global zone control
+        controller.global_zone.render(controller, screen)
+
         # Render all overlaying controls (all controls that must be on top of everything else)
         for control in controller.get_static_controls():
             control.render(controller, screen)
 
+        
         # Update the screen
         pygame.display.flip()
     print("Render thread exiting...")

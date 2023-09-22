@@ -324,6 +324,8 @@ class Zone(Control):
                 controller -- the app controller this control runs from
         """
         super().__init__(controller)
+        self.is_global = False
+        self.is_zone = True
         self.w = 128
         self.h = 128 # Standard size
         # Allow for center definitions (zone stabilisation)
@@ -421,9 +423,20 @@ class Zone(Control):
             Arguments:
                 controller -- the app controller this control runs from
         """
+        objects = None
+        if self.is_global:
+            objects = controller.get_cam_objects_in_global()
+            self.x = 0
+            self.y = 0
+            (w,h) = controller.get_screen_size()
+            self.w = w
+            self.h = h 
+        else:
+            objects = controller.get_cam_objects_in_bounds(self.get_bounds())
+        
         center = self.get_center()
         (self.center_x, self.center_y) = center
-        objects = controller.get_cam_objects_in_bounds(self.get_bounds())
+        
         
         # Remove corner objects (of type)
         
