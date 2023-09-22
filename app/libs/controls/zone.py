@@ -272,7 +272,9 @@ class ObjectNode:
                     ) 
                     for d in range(0, dist, LINE_QUALITY)
                     ]          
-                    
+            else:
+                points = [(self.center, color_from)] # Single line
+            
             points.append((connection.center, color_to))
             
             if len(points) == 0:
