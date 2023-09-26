@@ -84,6 +84,7 @@ class AudioSystem:
         so that it is played next.
         """
         global queues
+        
         if queues.wave_queue.qsize() >= MAX_WAVE_COUNT:
             # No choice but to remove queue item
             queues.wave_queue.get()

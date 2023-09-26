@@ -214,7 +214,7 @@ class ObjectNode:
             time_per_cycle = freq / 5000
             point_color = color_from
             #t = datetime.datetime.now()
-            
+            type_to = -1
             # Generate wave points from wave rotation and factor
             if type_to == TYPE_SINE:
                 points = [
