@@ -9,6 +9,9 @@ import pygame
 # Import camera
 from .devices.camera import Camera
 
+# Import audio system
+from .devices.audio import AudioSystem
+
 # Import camera object
 from .object import *
 
@@ -30,11 +33,10 @@ class AppController:
     (including controls currently existing)
     """
 
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self):
         """
-        Creates the controller with the given screen
+        Creates the controller
         """
-        self.screen = screen
         self.controls = []  # Control list
         self.static_controls = [] # Static control list
         self.controllers = [] # Controller list (for app logic)
@@ -43,9 +45,14 @@ class AppController:
         self.running = True
         self.calibrating = False
         self.camera = Camera()
+        self.audio_system = AudioSystem()
         self.single_update = False
         
         self.objects = []
+        from .controls.zone import Zone
+        self.global_zone = Zone(self)
+        self.global_zone.is_global = True
+        self.use_global_zone = False
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
@@ -104,8 +111,6 @@ class AppController:
         # Re-add zones
         for zone in self.zones:
             self.add_control(zone, False)
-        
-        
 
     def swap_camera(self):
         """
@@ -164,13 +169,6 @@ class AppController:
                 self.hover_control = control
                 break
             
-        
-            
-        # Update logic controllers
-        for controller in self.controllers:
-            controller.update(self)
-        
-        
     def create_zone(self, position):
         """
         Creates a new zone at the given position.
@@ -208,6 +206,27 @@ class AppController:
             if object.within(bounds):
                 object_list.append(object)
                 
+        return object_list
+
+    def get_cam_objects_in_global(self):
+        """
+        Gets the list of camera objects that are in the 'global zone'.
+        i.e. all objects that are not contained within a zone.
+        """
+        object_list = []
+        
+        # Add objects that do not belong in any zone.
+        for object in self.objects:
+            zone_object = False
+            # Detect whether object belongs in zone
+            for zone in self.zones:
+                if object.within((zone.x, zone.y, zone.w, zone.h)):
+                   zone_object = True
+                   break     
+               
+            if not zone_object:
+                object_list.append(object)
+        
         return object_list
 
     def get_screen_size(self):
@@ -253,8 +272,7 @@ class AppController:
         if check_zone is false.
         """
         self.added_controls.append(control)
-        from .controls.zone import Zone
-        if control is Zone:
+        if control.is_zone:
             self.zones.append(control)
 
     def add_static_control(self, control: Control):
@@ -288,8 +306,7 @@ class AppController:
         If it is a zone, then remove it from the zone list as well.
         """
         self.removed_controls.append(control)
-        from .controls.zone import Zone
-        if control is Zone:
+        if control.is_zone:
             self.zones.remove(control)
 
     def destroy_all_controls(self):
@@ -351,6 +368,7 @@ class Control:
         self.y = 0
         self.w = 0
         self.h = 0
+        self.is_zone = False
         self.interactive = False # Set to True if this control interacts in any way
         pass
     
@@ -418,7 +436,7 @@ class Control:
 
     def render(self, controller: AppController, screen: pygame.Surface):
         """
-        Updates the control on every loop iteration.
+        Renders the control on every loop iteration.
 
         Arguments:
             controller -- the app controller this control runs from

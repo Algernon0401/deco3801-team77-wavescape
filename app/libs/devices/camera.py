@@ -8,12 +8,95 @@ import threading
 import os
 from ..object import *
 import time
+from multiprocessing import Process, Queue
 from ultralytics import YOLO
 from collections import defaultdict
+from ..mp import Message
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 MODEL_CONFIDENCE_THRESHOLD = 0.5
 CAMERA_UPDATE_DELAY = 0.1  # Number of seconds until camera is allowed to update again.
+MAX_ITEMS_IN_MP_QUEUE = (
+    3  # Number of items that can be queued until results are forcibly popped.
+)
+
+MP_MSG_YOLO_ERROR = 0
+MP_MSG_YOLO_MODEL_LOADED = 1
+
+MP_MSG_QUIT = 100
+
+
+class CameraQueueManager:
+    """
+    Wrapper for the four camera/yolo queues.
+    """
+
+    def __init__(self):
+        """
+        Initialises the four camera/yolo queues.
+        """
+        self.camera_feed_queue = Queue(1)  # Sending camera feed to YOLO
+        self.object_detection_queue = Queue(5)  # Sending object results to main process
+        self.message_camera_queue = Queue(5)  # From camera to yolo
+        self.message_yolo_queue = Queue(5)  # From yolo to camera
+
+
+queues = None
+
+
+def load_yolo_model(path):
+    """
+    Loads the YOLOv8 trained model into runtime.
+
+    If self.has_model is set to False, then the
+    path is ignored and YOLOv8n is loaded.
+
+    Arguments:
+        path -- the path that contains the trained model.
+    """
+    global queues
+    try:
+        print("YOLOv8 Model Initialising...")
+
+        # Load the model from a file
+        model = None
+        if path is not None:
+            # self.model = YOLO(ASSET_TRAINED_MODEL)
+            model = YOLO("yolov8n.pt")
+        else:
+            model = YOLO("yolov8n.pt")
+
+        print("YOLOv8 Model Initialised.")
+
+        # Tell main process that yolo was successfully initialised
+        queues.message_yolo_queue.put(Message(MP_MSG_YOLO_MODEL_LOADED))
+
+        camera_feed = None
+        # Repeatedly get object detection results in this thread
+        while True:
+            # Process messages from main thread
+            while queues.message_camera_queue.qsize() > 0:
+                msg = queues.message_camera_queue.get()
+                if msg.type == MP_MSG_QUIT:
+                    return
+
+            # Get feed from main thread
+            if queues.camera_feed_queue.qsize() > 0:
+                camera_feed = queues.camera_feed_queue.get()
+
+            # Process feed
+            if camera_feed is not None:
+                if queues.object_detection_queue.qsize() >= MAX_ITEMS_IN_MP_QUEUE:
+                    queues.object_detection_queue.get()
+
+                # Send new model results to queue
+                queues.object_detection_queue.put(
+                    model.track(camera_feed, persist=True)[0]
+                )
+            time.sleep(0.05)  # Ensure model attempts to run less than 20x a second
+    except Exception as e:
+        print("Error with YOLOv8 Model: " + str(e))
+        queues.message_yolo_queue.put(Message(MP_MSG_YOLO_ERROR, None))
 
 
 class Camera:
@@ -33,13 +116,15 @@ class Camera:
         which opens the camera for opencv and pygame use,
         and loads the given YOLOv5 model.
         """
+        global queues
         try:
+            queues = CameraQueueManager()
             self.active = True
             self.loading = True
             self.valid = False
             self.model = None
             self.model_loading = True
-            self.refresh_ready = False
+            self.refresh_ready = True
             self.model_results = None
             self.object_results = []
             self.camera_no = 0
@@ -52,28 +137,35 @@ class Camera:
             self.current_update = 0  # Alternates between 0 and 1
             self.w = 1920
             self.h = 1080
-            # Create thread for opening camera and YOLO object detection
+
+            # Create thread for opening camera (debug and calibration use only)
             threading.Thread(target=self.open_camera, args=[]).start()
-            threading.Thread(target=self.load_default_model, args=[]).start()
-            # Create thread for object conversion
+
+            # Create sub-process for processing camera via YOLO.
+            Process(target=self.load_default_model, args=(queues,)).start()
+
+            # Create thread for transferring camera feed to yolo model
+            threading.Thread(target=self.feed_camera_to_yolo, args=[]).start()
+
+            # Create thread for object conversion from yolo results
             threading.Thread(target=self.object_conversion, args=[]).start()
+
         except:
-            print("Error creating thread (camera thread/yolo thread)")
+            print("Error creating thread (camera thread and/or YOLO thread)")
             self.valid = False
             self.loading = False
 
-    def load_default_model(self):
+    def feed_camera_to_yolo(self):
+        """
+        Feeds the camera data to the YOLO sub-process.
+        """
+        global queues
+        if queues.camera_feed_queue.qsize() == 0:
+            queues.camera_feed_queue.put(self.capture_video())
+
+    def load_default_model(self, cross_process_queues):
         """
         Loads the default trained model if it exists.
-        """
-        self.load_yolo_model(ASSET_TRAINED_MODEL)
-
-    def load_yolo_model(self, path):
-        """
-        Loads the YOLOv5 trained model into runtime.
-
-        If self.has_model is set to False, then the
-        path is ignored and YOLOv5s is loaded.
 
         Arguments:
             path -- the path that contains the trained model.
@@ -81,8 +173,8 @@ class Camera:
         try:
             print("YOLOv8 Model Initialising...")
             if self.has_model:
-                self.model = YOLO(ASSET_TRAINED_MODEL)
-                # self.model = YOLO("yolov8n.pt")
+                # self.model = YOLO(ASSET_TRAINED_MODEL)
+                self.model = YOLO("yolov8n.pt")
             else:
                 self.model = YOLO("yolov8n.pt")
 
@@ -242,6 +334,11 @@ class Camera:
                 self.object_results = []
                 return
 
+            # Extract model results from queue
+            if queues.object_detection_queue.qsize() > 0:
+                self.model_results = queues.object_detection_queue.get()
+                self.model_loading = False
+
             # Convert Object Detection results from model
             if self.model_results is not None:
                 # loop over the detections
@@ -313,7 +410,7 @@ class Camera:
         """
         nigel test object_conversion
         """
-
+        global queues
         # Initialize the dictionaries
         track_histories = defaultdict(list)
         track_averages = defaultdict(list)
@@ -350,6 +447,10 @@ class Camera:
                 # Set objects to empty list
                 self.object_results = []
                 continue
+
+            # Extract model results from queue
+            if queues.object_detection_queue.qsize() > 0:
+                self.model_results = queues.object_detection_queue.get()
 
             # Convert Object Detection results from model
             if self.model_results is not None:
@@ -475,9 +576,21 @@ class Camera:
         Updates by detecting the objects from the frame, outputting
         to the controller's object list.
         """
+        global queues
         # Check to make sure camera and model is initialized.
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
         (self.w, self.h) = controller.get_screen_size()
+
+        # Process YOLO message events
+        while queues.message_yolo_queue.qsize() > 0:
+            msg = queues.message_yolo_queue.get()
+            if msg.type == MP_MSG_YOLO_ERROR:
+                self.model = None
+                self.model_loading = False
+            elif msg.type == MP_MSG_YOLO_MODEL_LOADED:
+                self.model = msg.data
+                self.model_loading = False
+
         if (
             not self.refresh_ready or time_passed < CAMERA_UPDATE_DELAY
         ):  # Only update every 100ms
@@ -491,6 +604,8 @@ class Camera:
         self.refresh_ready = False
         self.current_update = 1 - self.current_update
 
+        self.feed_camera_to_yolo()
+
         # Update camera objects to given results from conversion thread.
         if self.object_results is not None:
             controller.set_cam_objects(self.object_results.copy())
@@ -499,8 +614,10 @@ class Camera:
         """
         Releases the video capture reference and YOLO model
         """
+        global queues
         self.active = False
         if self.valid:
             self.video.release()
         self.model = None
         self.valid = False
+        queues.message_camera_queue.put(Message(MP_MSG_QUIT, 0))

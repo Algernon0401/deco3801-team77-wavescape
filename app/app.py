@@ -40,7 +40,7 @@ def app_init():
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
     # Main loop (runs infinitely until window exits)
-    controller = AppController(screen)
+    controller = AppController()
     
     # Read command line arguments
     try:
@@ -52,6 +52,8 @@ def app_init():
                 controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
+            if arg == "-gz":
+                controller.use_global_zone = True
             if arg == "-feed":
                 controller.display_feed = True
     except:
@@ -64,7 +66,6 @@ def app_init():
 
     # Add static system controls (displayed last)
 
-    controller.add_static_control(AppBorder(controller))
     controller.add_static_control(Menu(controller))
     controller.add_static_control(Status(controller))
 
@@ -72,7 +73,7 @@ def app_init():
     controller.add_controller(ZoneController(controller))
 
     # Create render thread
-    threading.Thread(target=app_render, args=[controller]).start()
+    threading.Thread(target=app_render, args=[controller, screen]).start()
 
     while controller.is_running():
         # Update camera objects and basic logic
@@ -85,6 +86,9 @@ def app_init():
         # Update all static (overlay) controls
         for control in controller.get_static_controls():
             control.update(controller)
+            
+        # Update global zone control
+        controller.global_zone.update(controller)
 
         # Update all logic controls
         for lc in controller.get_controllers():
@@ -129,14 +133,14 @@ def app_init():
     # Release resources
     controller.destroy_all_controls()
     controller.camera.destroy()
+    controller.audio_system.destroy()
 
     print("App Exiting...")
 
-def app_render(controller: AppController):
+def app_render(controller: AppController, screen: pygame.Surface):
     """
     Continuously renders the app.
     """
-    screen = controller.screen
     while controller.is_running():
         if not controller.single_update:
             time.sleep(0.06)
@@ -147,12 +151,16 @@ def app_render(controller: AppController):
 
         # Render all controls
         for control in controller.get_controls():
-            control.render(controller, controller.screen)
+            control.render(controller, screen)
+
+        # Render global zone control
+        controller.global_zone.render(controller, screen)
 
         # Render all overlaying controls (all controls that must be on top of everything else)
         for control in controller.get_static_controls():
-            control.render(controller, controller.screen)
+            control.render(controller, screen)
 
+        
         # Update the screen
         pygame.display.flip()
     print("Render thread exiting...")

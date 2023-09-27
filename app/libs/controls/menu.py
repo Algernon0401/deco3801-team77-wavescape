@@ -54,13 +54,19 @@ class MenuItem:
             self.descriptor = descriptor
             self.function = function
 
+# Initialise menu options
+items = [
+    MenuItem(asset_menu_button_swap_camera, lambda controller: controller.swap_camera()),
+    MenuItem(asset_menu_button_calibrate, lambda controller: controller.setup_calibration()),
+    MenuItem(asset_menu_button_quit, lambda controller: controller.exit()),
+    MenuItem(asset_menu_button_hide, lambda controller: None)
+]
+
 class Menu(Control):
     """
         Controls for the main menu.
     """
 
-    
-    
     def __init__(self, controller: AppController):
         """
             Initializes the control
@@ -74,14 +80,7 @@ class Menu(Control):
         self.expanded = False
         self.menu_offset = 0 # Offset from bottom
         self.w = asset_menu_bar.get_width()
-        self.h = asset_menu_bar.get_height()
-        # Initialise menu options
-        self.items = [
-            MenuItem(asset_menu_button_swap_camera, controller.swap_camera),
-            MenuItem(asset_menu_button_calibrate, controller.setup_calibration),
-            MenuItem(asset_menu_button_quit, controller.exit),
-            MenuItem(asset_menu_button_hide, lambda: None)
-        ]
+        self.h = asset_menu_bar.get_height() 
         self.last_time_updated = datetime.datetime.now()
 
     def update(self, controller: AppController):
@@ -157,7 +156,7 @@ class Menu(Control):
             button_height = asset_menu_popup_item_mouse.get_height()
             button_width = asset_menu_popup_item_mouse.get_width()
             # Draw all menu items
-            for button in self.items:
+            for button in items:
                 bg_state = self.select_state(controller, 
                                              (menu_x, menu_y, button_width, button_height), None,
                                              asset_menu_popup_item_hover, asset_menu_popup_item_mouse)
@@ -206,10 +205,10 @@ class Menu(Control):
                     menu_y = self.y + self.h + self.menu_offset
                     button_width = asset_menu_popup_item_mouse.get_width()
                     button_height = asset_menu_popup_item_mouse.get_height()
-                    for button in self.items:
+                    for button in items:
                         if controller.is_mouse_over((menu_x, menu_y, button_width, button_height)):
                             self.expanded = False # Hide menu
-                            button.function()
+                            button.function(controller)
                             break
                 
                         menu_y += button_height

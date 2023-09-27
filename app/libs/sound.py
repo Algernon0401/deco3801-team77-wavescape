@@ -162,6 +162,7 @@ class Sound:
         Args:
             waves (list): a list of wave objects
         """
+        
         threads = []
         for wave in waves:
             wave_thread = threading.Thread(target=self.play, args=(wave,))
@@ -179,6 +180,7 @@ class Sound:
         Args:
             wave (Wave): a wave object
         """
+        
         if wave.buffer is None:
            wave.buffer = self.generate_buffer(wave)
 
@@ -190,7 +192,7 @@ class Sound:
     # @jit(target_backend='CPU')
     @functools.cache
     def generate_buffer(self, wave: Wave):
-        print("Generated buffer")
+        # print("Generated buffer")
         num_samples = int(round(wave.duration * self.sample_rate))
 
         # setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above
