@@ -1,6 +1,9 @@
 """
     app.py - initializes the window and controls the main logic of the app.  
 """
+import pygame
+# Initialize the pygame module
+pygame.init()
 
 import sys
 
@@ -20,7 +23,6 @@ from libs.controls.status import *
 # Import logic controllers
 from libs.controllers.zone_controller import * 
 
-import pygame
 
 
 def app_init():
@@ -30,9 +32,6 @@ def app_init():
     
     print("App Initializing...")
 
-    # Initialize the pygame module
-    pygame.init()
-
     # Set the caption for the window
     pygame.display.set_caption("Friction in Design Project - AR")
 
@@ -40,7 +39,7 @@ def app_init():
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
     # Main loop (runs infinitely until window exits)
-    controller = AppController()
+    controller = AppController(screen)
     
     # Read command line arguments
     try:

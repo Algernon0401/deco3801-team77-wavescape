@@ -8,6 +8,7 @@ from mpmath import cot
 import threading
 import math
 import numpy as np
+
 from multiprocessing import Queue
 
 # Import app controller, control base class, camera and sound class
@@ -31,7 +32,7 @@ zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
 HIGH_AMP = 4000
 
 WAVE_SPAN = 80 # How long a wave is in pixels
-WAVE_QUALITY = 2 # The quality of the wave (larger numbers are faster but less visually appealing)
+WAVE_QUALITY = 4 # The quality of the wave (larger numbers are faster but less visually appealing)
 WAVE_CYCLES = 2 # How many cycles of a wave is displayed
 
 # Time taken to complete one cycle revolution
@@ -670,3 +671,4 @@ class Zone(Control):
         Destroys all resources of a zone
         """
         self.sounds_active = False # Dispose of extra threads
+        

@@ -1,7 +1,9 @@
 OpenCV: -U opencv-python==4.8.0.76
-Pygame: -U pygame-ce
+Pygame: -U pygame
+PygameCE: -U pygame-ce --upgrade
 Ultralytics: ultralytics
 Ultralytics: -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt
 Numpy: numpy
 Pyserial: pyserial
 Numba: numba
+ScreenInfo: screeninfo

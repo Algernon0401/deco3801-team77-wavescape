@@ -5,6 +5,7 @@
 
 # Import pygame for window rendering
 import pygame
+import screeninfo
 
 # Import camera
 from .devices.camera import Camera
@@ -33,7 +34,7 @@ class AppController:
     (including controls currently existing)
     """
 
-    def __init__(self):
+    def __init__(self, screen: pygame.Surface):
         """
         Creates the controller
         """
@@ -47,6 +48,7 @@ class AppController:
         self.camera = Camera()
         self.audio_system = AudioSystem()
         self.single_update = False
+        self.screen = screen
         
         self.objects = []
         from .controls.zone import Zone
@@ -60,6 +62,7 @@ class AppController:
         self.object_attributes = {}
         self.persistent_objects = [] # Testing objects
         self.zone_border_object = Tag.ARROW.value
+        self.current_screen = 0
         
         
     def setup_calibration(self):
@@ -117,6 +120,19 @@ class AppController:
         Swaps the current camera with another camera.
         """
         self.camera.init_next_camera()
+        
+    def swap_screen(self):
+        """
+        Repositions the pygame window so that it displays on the
+        next screen.
+        """
+        displays = pygame.display.get_num_displays()
+        self.current_screen += 1
+        if self.current_screen >= displays:
+            self.current_screen = 0
+        
+        pygame.display.set_mode((0,0), pygame.FULLSCREEN, display=self.current_screen+1)
+        pass
     
     def get_object_attributes(self, object):
         """
