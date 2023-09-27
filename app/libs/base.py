@@ -63,6 +63,7 @@ class AppController:
         self.persistent_objects = [] # Testing objects
         self.zone_border_object = Tag.ARROW.value
         self.current_screen = 0
+        self.is_fullscreen = True
         
         
     def setup_calibration(self):
@@ -121,17 +122,16 @@ class AppController:
         """
         self.camera.init_next_camera()
         
-    def swap_screen(self):
+    def toggle_fullscreen(self):
         """
-        Repositions the pygame window so that it displays on the
-        next screen.
+        Allows the user to reposition the window
         """
-        displays = pygame.display.get_num_displays()
-        self.current_screen += 1
-        if self.current_screen >= displays:
-            self.current_screen = 0
-        
-        pygame.display.set_mode((0,0), pygame.FULLSCREEN, display=self.current_screen+1)
+        if self.is_fullscreen:
+            pygame.display.set_mode((600, 400), pygame.RESIZABLE)
+        else:
+            pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+            
+        self.is_fullscreen = not self.is_fullscreen
         pass
     
     def get_object_attributes(self, object):

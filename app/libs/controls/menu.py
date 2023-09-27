@@ -24,7 +24,7 @@ ASSET_MENU_BUTTON_HIDE = 'assets/images/menu/button_hide.png'
 ASSET_MENU_BUTTON_QUIT = 'assets/images/menu/button_quit.png'
 ASSET_MENU_BUTTON_CALIBRATE = 'assets/images/menu/button_calibrate.png'
 ASSET_MENU_BUTTON_SWAP_CAMERA = 'assets/images/menu/button_swap_camera.png'
-ASSET_MENU_BUTTON_SWAP_SCREEN = 'assets/images/menu/button_swap_screen.png'
+ASSET_MENU_BUTTON_TOGGLE_FULLSCREEN = 'assets/images/menu/button_toggle_fullscreen.png'
 
 asset_menu_bar = pygame.image.load(ASSET_MENU_BAR)
 asset_menu_bar_hover = pygame.image.load(ASSET_MENU_BAR_STATE_HOVER)
@@ -37,7 +37,7 @@ asset_menu_popup_item_mouse = pygame.image.load(ASSET_MENU_POPUP_ITEM_MOUSE)
 asset_menu_button_hide = pygame.image.load(ASSET_MENU_BUTTON_HIDE)
 asset_menu_button_quit = pygame.image.load(ASSET_MENU_BUTTON_QUIT)
 asset_menu_button_calibrate = pygame.image.load(ASSET_MENU_BUTTON_CALIBRATE)
-asset_menu_button_swap_screen = pygame.image.load(ASSET_MENU_BUTTON_SWAP_SCREEN)
+asset_menu_button_toggle_fullscreen = pygame.image.load(ASSET_MENU_BUTTON_TOGGLE_FULLSCREEN)
 asset_menu_button_swap_camera = pygame.image.load(ASSET_MENU_BUTTON_SWAP_CAMERA)
 
 class MenuItem:
@@ -58,7 +58,7 @@ class MenuItem:
 
 # Initialise menu options
 items = [
-    MenuItem(asset_menu_button_swap_screen, lambda controller: controller.swap_screen()),
+    MenuItem(asset_menu_button_toggle_fullscreen, lambda controller: controller.toggle_fullscreen()),
     MenuItem(asset_menu_button_swap_camera, lambda controller: controller.swap_camera()),
     MenuItem(asset_menu_button_calibrate, lambda controller: controller.setup_calibration()),
     MenuItem(asset_menu_button_quit, lambda controller: controller.exit()),

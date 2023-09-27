@@ -624,12 +624,10 @@ class Zone(Control):
         if self.is_global and not controller.use_global_zone:
             return # No effects as global zone not in use
         
-        t = datetime.datetime.now()
         # Draw animations between objects
         if self.graph is not None:
             self.graph.render(controller, screen)
             
-        print((datetime.datetime.now() - t).total_seconds())
         for object in controller.get_cam_objects_in_bounds(self.get_bounds()):
             if object is None:
                 continue

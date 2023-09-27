@@ -2,6 +2,7 @@
     app.py - initializes the window and controls the main logic of the app.  
 """
 import pygame
+
 # Initialize the pygame module
 pygame.init()
 
