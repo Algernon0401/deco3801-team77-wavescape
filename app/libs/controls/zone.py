@@ -1,8 +1,5 @@
 """
-    ddcam.py - directly display camera
-    
-    Contains a simple control for demonstration purposes, which
-    involves displaying the current input of the camera.
+    zone.py - contains zone controls and functions
 """
 import pygame
 from datetime import *
@@ -10,6 +7,7 @@ from random import randint
 from mpmath import cot
 import threading
 import math
+import numpy as np
 from multiprocessing import Queue
 
 # Import app controller, control base class, camera and sound class
@@ -31,7 +29,16 @@ zone_border_corner_br = pygame.transform.rotate(zone_border_corner_tr, -90)
 zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
 
 HIGH_AMP = 4000
-LINE_QUALITY = 5 # A higher number is a lower quality
+
+WAVE_SPAN = 80 # How long a wave is in pixels
+WAVE_QUALITY = 2 # The quality of the wave (larger numbers are faster but less visually appealing)
+WAVE_CYCLES = 2 # How many cycles of a wave is displayed
+
+# Time taken to complete one cycle revolution
+# = (1 / FREQ) * WAVE_TIME_FREQUENCY_RATIO
+# e.g. if ratio is 2000, and freq is 1000, then time taken to play one cycle = 2s
+WAVE_TIME_FREQUENCY_RATIO = 2000 
+
 TYPE_NONE = -1
 TYPE_SINE = 0
 TYPE_SQUARE = 1
@@ -83,6 +90,27 @@ def sawtooth_factor(d, time, dist_per_cycle, time_per_cycle):
     i.e. the y position (percentage) should display at given dist using max amplitude.
     """
     return math.tanh(cot(2 * math.pi * d / dist_per_cycle + 2 * math.pi * time / time_per_cycle))
+
+def line_rotation(d, origin_x, origin_y, rot):
+        """
+        Gets the rotation for a line factor at distance d.
+        
+        Arguments:
+            d -- the distance between 0 and distance to calculate the position for.
+            origin_x -- the origin point x pos to rotate the wave around
+            origin_y -- the origin point y pos to rotate the wave around
+            rot -- the rotation to rotate the wave around
+        """
+
+        # Store cos and sin for computational efficiency
+        rot_cos = math.cos(rot)
+        rot_sin = math.sin(rot)
+
+        # Perform 2D rotation around the origin
+        return (
+            origin_x + d * rot_cos,
+            origin_y + d * rot_sin
+        )
 
 def wave_rotation(factor, d, dist, amp_dist, origin_x, origin_y, rot):
         """
@@ -200,78 +228,104 @@ class ObjectNode:
             amp_dist = (dist / 4) * (amplitude / HIGH_AMP) 
             freq = 2400
             slope_rot = math.atan2(cy2 - cy1, cx2 - cx1)
-
-            # Create point list
-            points = None
-
+            points = []
+            add_point = points.append
+            
             time = 0
             
             if connection.object is not None:
                 time = connection.object.get_time_since_creation()
 
-            cycles = freq / 500
-            dist_per_cycle = dist / cycles
-            time_per_cycle = freq / 5000
-            point_color = color_from
+             
+            dist_per_cycle = WAVE_SPAN / WAVE_CYCLES
+            time_per_cycle = (1 / freq) * WAVE_TIME_FREQUENCY_RATIO
+            wave_span = WAVE_SPAN
+            if wave_span > dist:
+               wave_span = dist
             #t = datetime.datetime.now()
-            type_to = -1
+            
             # Generate wave points from wave rotation and factor
             if type_to == TYPE_SINE:
-                points = [
-                    (
+                add_point((self.center, color_from))
+                wave_start = line_rotation(dist / 2 - wave_span/2, cx1, cy1, slope_rot)
+                add_point((wave_start, color_from))
+                (wsx, wsy) = wave_start
+                for d in range(0, wave_span, WAVE_QUALITY):
+                    add_point((
                         wave_rotation(
-                            sine_factor(d, time, dist_per_cycle, time_per_cycle),
-                            d, dist, amp_dist, cx1, cy1, slope_rot
-                            ), # get position of sine wave at distance.
-                        color_from.lerp(color_to, d / dist) # set color of point
-                    ) 
-                    for d in range(0, dist, LINE_QUALITY)
-                    ]
+                             sine_factor(d, time, dist_per_cycle, time_per_cycle),
+                             d, wave_span, amp_dist, wsx, wsy, slope_rot
+                             ), # get position of sine wave at distance.
+                        color_from.lerp(color_to, d / wave_span)   
+                    ))
+                
+                add_point((line_rotation(wave_span, wsx, wsy, slope_rot), color_to))
+                add_point((connection.center, color_to))
             elif type_to == TYPE_SQUARE:
-                points = [
-                    (
+                add_point((self.center, color_from))
+                wave_start = line_rotation(dist / 2 - wave_span/2, cx1, cy1, slope_rot)
+                add_point((wave_start, color_from))
+                (wsx, wsy) = wave_start
+                for d in range(0, wave_span, WAVE_QUALITY):
+                    add_point((
                         wave_rotation(
-                            square_factor(d, time, dist_per_cycle, time_per_cycle),
-                            d, dist, amp_dist, cx1, cy1, slope_rot
-                            ), # get position of sine wave at distance.
-                        color_from.lerp(color_to, d / dist) # set color of point
-                    ) 
-                    for d in range(0, dist, LINE_QUALITY)
-                    ]       
+                             square_factor(d, time, dist_per_cycle, time_per_cycle),
+                             d, wave_span, amp_dist, wsx, wsy, slope_rot
+                             ), # get position of sine wave at distance.
+                        color_from.lerp(color_to, d / wave_span)   
+                    ))
+                
+                add_point((line_rotation(wave_span, wsx, wsy, slope_rot), color_to))
+                add_point((connection.center, color_to))
             elif type_to == TYPE_PULSE:
                 duty_cycle = 0.125
-                points = [
-                    (
+                add_point((self.center, color_from))
+                wave_start = line_rotation(dist / 2 - wave_span/2, cx1, cy1, slope_rot)
+                add_point((wave_start, color_from))
+                (wsx, wsy) = wave_start
+                for d in range(0, wave_span, WAVE_QUALITY):
+                    add_point((
                         wave_rotation(
-                            pulse_factor(duty_cycle, d, time, dist_per_cycle, time_per_cycle),
-                            d, dist, amp_dist, cx1, cy1, slope_rot
-                            ), # get position of sine wave at distance.
-                        color_from.lerp(color_to, d / dist) # set color of point
-                    ) 
-                    for d in range(0, dist, LINE_QUALITY)
-                ]         
+                             pulse_factor(duty_cycle,d, time, dist_per_cycle, time_per_cycle),
+                             d, wave_span, amp_dist, wsx, wsy, slope_rot
+                             ), # get position of sine wave at distance.
+                        color_from.lerp(color_to, d / wave_span)   
+                    ))
+                
+                add_point((line_rotation(wave_span, wsx, wsy, slope_rot), color_to))
+                add_point((connection.center, color_to))
             elif type_to == TYPE_TRIANGLE:
-                points = [
-                    (
+                add_point((self.center, color_from))
+                wave_start = line_rotation(dist / 2 - wave_span/2, cx1, cy1, slope_rot)
+                add_point((wave_start, color_from))
+                (wsx, wsy) = wave_start
+                for d in range(0, wave_span, WAVE_QUALITY):
+                    add_point((
                         wave_rotation(
-                            triangle_factor(d, time, dist_per_cycle, time_per_cycle),
-                            d, dist, amp_dist, cx1, cy1, slope_rot
-                            ), # get position of sine wave at distance.
-                        color_from.lerp(color_to, d / dist) # set color of point
-                    ) 
-                    for d in range(0, dist, LINE_QUALITY)
-                    ]
+                             triangle_factor(d, time, dist_per_cycle, time_per_cycle),
+                             d, wave_span, amp_dist, wsx, wsy, slope_rot
+                             ), # get position of sine wave at distance.
+                        color_from.lerp(color_to, d / wave_span)   
+                    ))
+                
+                add_point((line_rotation(wave_span, wsx, wsy, slope_rot), color_to))
+                add_point((connection.center, color_to))
             elif type_to == TYPE_SAWTOOTH:
-                points = [
-                    (
+                add_point((self.center, color_from))
+                wave_start = line_rotation(dist / 2 - wave_span/2, cx1, cy1, slope_rot)
+                add_point((wave_start, color_from))
+                (wsx, wsy) = wave_start
+                for d in range(0, wave_span, WAVE_QUALITY):
+                    add_point((
                         wave_rotation(
-                            sawtooth_factor(d, time, dist_per_cycle, time_per_cycle),
-                            d, dist, amp_dist, cx1, cy1, slope_rot
-                            ), # get position of sine wave at distance.
-                        color_from.lerp(color_to, d / dist) # set color of point
-                    ) 
-                    for d in range(0, dist, LINE_QUALITY)
-                    ]          
+                             sawtooth_factor(d, time, dist_per_cycle, time_per_cycle),
+                             d, wave_span, amp_dist, wsx, wsy, slope_rot
+                             ), # get position of sine wave at distance.
+                        color_from.lerp(color_to, d / wave_span)   
+                    ))
+                
+                add_point((line_rotation(wave_span, wsx, wsy, slope_rot), color_to))
+                add_point((connection.center, color_to))
             else:
                 points = [(self.center, color_from)] # Single line
             
@@ -293,20 +347,16 @@ class ObjectNode:
         self.prerender_update(controller)
         
         for connection in self.connections:
-            (cx1, cy1) = self.center
-
             # Render all lines in wave lines
-            lpx = cx1
-            lpy = cy1
-            
+            last_center = self.center
             wave_lines = connection.wave_lines    
             
-            for i in range(1, len(wave_lines)):
-                (center, color) = wave_lines[i]
-                (px,py) = center
-                pygame.draw.line(screen, color, (lpx, lpy), (px, py))
-                lpx = px
-                lpy = py
+            #pygame.draw.aalines(screen, pygame.Color(255,255,255,255), False, wave_lines)
+            
+            for line in wave_lines: 
+                 (center, color) = line
+                 pygame.draw.aaline(screen, color, last_center, center)
+                 last_center = center
             
             connection.render(controller, screen)
         
@@ -573,10 +623,12 @@ class Zone(Control):
         if self.is_global and not controller.use_global_zone:
             return # No effects as global zone not in use
         
+        t = datetime.datetime.now()
         # Draw animations between objects
         if self.graph is not None:
             self.graph.render(controller, screen)
-        
+            
+        print((datetime.datetime.now() - t).total_seconds())
         for object in controller.get_cam_objects_in_bounds(self.get_bounds()):
             if object is None:
                 continue
