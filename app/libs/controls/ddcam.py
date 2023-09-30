@@ -12,7 +12,6 @@ from ..devices.camera import *
 from ..object import *
 
 font = pygame.font.Font('assets/fonts/arial.ttf', 16)   
-
 class DDCamVisual(Control):
     """
         Reads the camera directly.

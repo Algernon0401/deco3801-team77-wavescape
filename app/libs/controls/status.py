@@ -37,6 +37,7 @@ class Status(Control):
         super().__init__(controller)
         self.x = 0
         self.y = 0
+        self.camera_verified = False
     
     def update(self, controller: AppController):
         """
@@ -45,7 +46,8 @@ class Status(Control):
             Arguments:
                 controller -- the app controller this control runs from
         """
-
+        if controller.camera.model_loading:
+            self.camera_verified = False
         pass
     
     def render(self, controller: AppController, screen: pygame.Surface):
@@ -63,7 +65,11 @@ class Status(Control):
             overlay_y += 20
         else:    
             # Capture frame, and if none then display invalid camera image.
-            frame = controller.camera.capture_video()        
+            frame = True
+            if not self.camera_verified:
+                frame = controller.camera.capture_video()
+                if frame is not None:
+                    self.camera_verified = True
             if frame is None:
                 screen.blit(invalid_camera_overlay, (5,overlay_y))
                 overlay_y += 20

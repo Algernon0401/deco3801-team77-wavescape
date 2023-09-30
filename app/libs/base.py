@@ -5,6 +5,7 @@
 
 # Import pygame for window rendering
 import pygame
+import screeninfo
 
 # Import camera
 from .devices.camera import Camera
@@ -33,7 +34,7 @@ class AppController:
     (including controls currently existing)
     """
 
-    def __init__(self):
+    def __init__(self, screen: pygame.Surface):
         """
         Creates the controller
         """
@@ -47,6 +48,7 @@ class AppController:
         self.camera = Camera()
         self.audio_system = AudioSystem()
         self.single_update = False
+        self.screen = screen
         
         self.objects = []
         from .controls.zone import Zone
@@ -60,6 +62,8 @@ class AppController:
         self.object_attributes = {}
         self.persistent_objects = [] # Testing objects
         self.zone_border_object = Tag.ARROW.value
+        self.current_screen = 0
+        self.is_fullscreen = True
         
         
     def setup_calibration(self):
@@ -117,6 +121,18 @@ class AppController:
         Swaps the current camera with another camera.
         """
         self.camera.init_next_camera()
+        
+    def toggle_fullscreen(self):
+        """
+        Allows the user to reposition the window
+        """
+        if self.is_fullscreen:
+            pygame.display.set_mode((600, 400), pygame.RESIZABLE)
+        else:
+            pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+            
+        self.is_fullscreen = not self.is_fullscreen
+        pass
     
     def get_object_attributes(self, object):
         """
