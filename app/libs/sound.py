@@ -8,19 +8,19 @@ import time
 import pygame
 import numpy as np
 import threading
-from numba import jit, cuda 
+# from numba import jit, cuda 
 import functools
 
 class Wave:
     """Base class representing a sound wave."""
-    def __init__(self, amplitude, frequency, duration):
+    def __init__(self, amplitude, frequency, volume):
         self.amplitude = amplitude
         self.frequency = frequency
-        self.duration = duration
+        self.volume = volume
         self.buffer = None # cache the buffer
         # self.buffer = Sound.generate_buffer(Sine(100, 100, 0.5))
         # self.tsound = pygame.sndarray.make_sound(self.buffer)
-
+        
     def generate(self, time):
         """Generates the amplitude of the wave at given time step. Template function only.
 
@@ -36,11 +36,20 @@ class Wave:
         if x == 0: return 1
         return x/abs(x)
     
+    def __eq__(self, other):
+        return self.amplitude == other.amplitude \
+              and self.frequency == other.frequency \
+              and self.volume == other.volume \
+              and type(self) == type(other)
+    
+    def __hash__(self):
+        return hash((self.amplitude, self.frequency, self.volume, type(self)))
+    
     
 class Sine(Wave):
     """Represents a sine wave."""
-    def __init__(self, amplitude, frequency, duration):
-        super().__init__(amplitude, frequency, duration)
+    def __init__(self, amplitude, frequency, volume):
+        super().__init__(amplitude, frequency, volume)
 
     def generate(self, time):
         """Generates the amplitude of a sine wave at given time step.
@@ -56,8 +65,8 @@ class Sine(Wave):
 
 class Square(Wave):
     """Represents a square wave."""
-    def __init__(self, amplitude, frequency, duration):
-        super().__init__(amplitude, frequency, duration)
+    def __init__(self, amplitude, frequency, volume):
+        super().__init__(amplitude, frequency, volume)
 
     def generate(self, time):
         """Generates the amplitude of a square wave at given time step.
@@ -73,8 +82,8 @@ class Square(Wave):
 
 class Triangle(Wave):
     """Represents a triangle wave."""
-    def __init__(self, amplitude, frequency, duration):
-        super().__init__(amplitude, frequency, duration)
+    def __init__(self, amplitude, frequency, volume):
+        super().__init__(amplitude, frequency, volume)
 
     def generate(self, time):
         """Generates the amplitude of a triangle wave at given time step.
@@ -91,8 +100,8 @@ class Triangle(Wave):
 
 class Sawtooth(Wave):
     """Represents a sawtooth wave."""
-    def __init__(self, amplitude, frequency, duration):
-        super().__init__(amplitude, frequency, duration)
+    def __init__(self, amplitude, frequency, volume):
+        super().__init__(amplitude, frequency, volume)
 
     def generate(self, time):
         """Generates the amplitude of a sawtooth wave at given time step.
@@ -109,8 +118,8 @@ class Sawtooth(Wave):
 
 class Pulse(Wave):
     """Represents a pulse wave."""
-    def __init__(self, amplitude, frequency, duration, duty_cycle=0.175):
-        super().__init__(amplitude, frequency, duration)
+    def __init__(self, amplitude, frequency, volume, duty_cycle=0.175):
+        super().__init__(amplitude, frequency, volume)
         self.duty_cycle = duty_cycle
 
     def pulse_sign(self, time):
@@ -148,13 +157,21 @@ class Sound:
         self.sample_rate = sample_rate
         self.bit_rate = bit_rate
         self.speaker = speaker
+        self.playing = {}
 
         self.LEFT = 0
         self.RIGHT = 1
 
         # init pygame
-        pygame.mixer.pre_init(self.sample_rate, self.bit_rate)
+        pygame.mixer.pre_init(self.sample_rate, self.bit_rate, 1, allowedchanges=0)
         pygame.init()
+        self.max_channels = pygame.mixer.get_num_channels()
+
+    def get_next_channel(self):
+        c = pygame.mixer.find_channel()
+        if c is None:
+            pygame.mixer.set_num_channels(self.max_channels*2)
+        return pygame.mixer.find_channel()
 
     def chorus(self, waves: list):
         """Takes a list of wave objects and plays their corresponding sounds.
@@ -162,14 +179,37 @@ class Sound:
         Args:
             waves (list): a list of wave objects
         """
-        
+        # pygame.mixer.set_num_channels(len(waves))
         threads = []
-        for wave in waves:
-            wave_thread = threading.Thread(target=self.play, args=(wave,))
-            threads.append(wave_thread)
+        sounds = []
+        for i, wave in enumerate(waves):
+            if wave.buffer is None:
+                wave.buffer = self.generate_buffer(wave)
+            # wave_thread = threading.Thread(target=self.play, args=(wave,))
+            # threads.append(wave_thread)
+        for i, wave in enumerate(waves):
+            time.sleep(0.05*i)
+            pygame_sound = pygame.mixer.Sound(wave.buffer)
+            pygame_sound.set_volume(0.15)
+            one_sec = 1000 # Milliseconds
+            pygame.mixer.Channel(i).play(pygame_sound, loops=1)#, maxtime=int(wave.duration * one_sec * 5))
+            pygame.mixer.Channel(i).queue(pygame_sound)
+            # pygame.mixer.Channel(i).fadeout(10000)
 
-        for thread in threads:
-            thread.start()
+        c = 0
+        for i in range(5):
+            print(i, pygame.mixer.get_busy())
+            time.sleep(1)
+            if i == 2:
+                wave.buffer = self.generate_buffer(wave)
+                pygame_sound = pygame.mixer.Sound(wave.buffer)
+                pygame_sound.set_volume(0.15)
+                one_sec = 1000 # Milliseconds
+                pygame.mixer.Channel(i).play(pygame_sound, loops=1)#, maxtime=int(wave.duration * one_sec * 5))
+                pygame.mixer.Channel(i).queue(pygame_sound)
+
+        # for thread in threads:
+        #     thread.start()
 
         # for thread in threads:
         #     thread.join()
@@ -180,20 +220,46 @@ class Sound:
         Args:
             wave (Wave): a wave object
         """
+        if wave is None:
+            return
+        
+        if wave in self.playing.values():
+            return
+
+        channel = self.get_next_channel()
+        self.playing[channel] = wave
         
         if wave.buffer is None:
            wave.buffer = self.generate_buffer(wave)
 
-        pygame_sound = pygame.sndarray.make_sound(wave.buffer)
-        one_sec = 1000 # Milliseconds
-        pygame_sound.play(loops = 1, maxtime=int(wave.duration * one_sec))
-        time.sleep(wave.duration)
+        # # pygame_sound = pygame.sndarray.make_sound(wave.buffer)
+        # pygame_sound = pygame.mixer.Sound(wave.buffer)
+        # one_sec = 1000 # Milliseconds
+        # pygame_sound.set_volume(0.25)
+        # pygame_sound.play(loops = 1, maxtime=int(wave.duration * one_sec))
+        # time.sleep(wave.duration)
+
+        pygame_sound = pygame.mixer.Sound(wave.buffer)
+        pygame_sound.set_volume(wave.volume)
+        channel.play(pygame_sound, loops=-1)
+        channel.queue(pygame_sound)
+    
+    def cleanup(self, waves: list):
+        cull_list = []
+        for channel, wave in self.playing.items():
+            if wave not in waves:
+                channel.stop()
+                cull_list.append(channel)
+        for channel in cull_list:
+            self.playing.pop(channel)
+
+
 
     # @jit(target_backend='CPU')
     @functools.cache
     def generate_buffer(self, wave: Wave):
         # print("Generated buffer")
-        num_samples = int(round(wave.duration * self.sample_rate))
+        num_samples = int(round(wave.volume * self.sample_rate))
 
         # setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above
         buffer = np.zeros((num_samples, 2), dtype = np.int32)
@@ -220,23 +286,39 @@ class Sound:
         
         return buffer
 
-# s = Sound()
+def main():
+    """for testing"""
+    s = Sound()
 
-# waves = []
-# freqs = [440, 480, 880]
+    waves = []
+    freqs = [440, 480, 880]
 
-# base_f = 75
-# major_ratios = [4, 5, 6]
-# minor_ratios = [10, 12, 15]
-# dimin_ratios = [160, 192, 231]
+    base_f = 75
+    major_ratios = [4, 5, 6]
+    minor_ratios = [10, 12, 15]
+    dimin_ratios = [160, 192, 231]
 
-# seventh_ratios = [20, 25, 30, 36]
-# maj_seventh_ratios = [10, 12, 15, 18]
-# min_seventh_ratios = [8, 10, 12, 15]
+    seventh_ratios = [20, 25, 30, 36]
+    maj_seventh_ratios = [10, 12, 15, 18]
+    min_seventh_ratios = [8, 10, 12, 15]
 
-# for r in min_seventh_ratios:
-#     w = Sine(4000, r*base_f, 1)
-#     waves.append(w)
-#     s.play(w)
+    for r in major_ratios:
+        w = Sine(100, r*base_f, 1)
+        waves.append(w)
+        s.play(w)
+        time.sleep(1)
+        break
+        # s.play(w)
 
-# s.chorus(waves)
+    # for r in seventh_ratios:
+    #     w = Sine(100, r*base_f, 0.5)
+    #     waves.append(w)
+
+    # for r in maj_seventh_ratios:
+    #     w = Sine(100, r*base_f, 0.5)
+    #     waves.append(w)
+
+    # s.chorus(waves)
+    
+if __name__ == "__main__":
+    main()
