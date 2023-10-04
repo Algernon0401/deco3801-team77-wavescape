@@ -46,7 +46,6 @@ class AppController:
         self.running = True
         self.calibrating = False
         self.camera = Camera()
-        # self.audio_system = AudioSystem()
         self.single_update = False
         self.screen = screen
         

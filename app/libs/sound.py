@@ -164,7 +164,6 @@ class Sound:
 
         # init pygame
         pygame.mixer.pre_init(self.sample_rate, self.bit_rate, 1, allowedchanges=0)
-        pygame.init()
         self.max_channels = pygame.mixer.get_num_channels()
 
     def get_next_channel(self):

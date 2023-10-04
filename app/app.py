@@ -133,7 +133,6 @@ def app_init():
     # Release resources
     controller.destroy_all_controls()
     controller.camera.destroy()
-    controller.audio_system.destroy()
 
     print("App Exiting...")
 
@@ -160,7 +159,6 @@ def app_render(controller: AppController, screen: pygame.Surface):
         for control in controller.get_static_controls():
             control.render(controller, screen)
 
-        
         # Update the screen
         pygame.display.flip()
     print("Render thread exiting...")

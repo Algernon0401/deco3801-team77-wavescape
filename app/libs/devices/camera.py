@@ -91,7 +91,7 @@ def load_yolo_model(path):
 
                 # Send new model results to queue
                 queues.object_detection_queue.put(
-                    model.track(camera_feed, verbose=0, persist=True)[0]
+                    model.track(camera_feed, verbose=False, persist=True)[0]
                 )
             time.sleep(0.05)  # Ensure model attempts to run less than 20x a second
     except Exception as e:
@@ -170,6 +170,13 @@ class Camera:
         Arguments:
             path -- the path that contains the trained model.
         """
+        global queues
+        queues = cross_process_queues
+        model_path = ASSET_TRAINED_MODEL
+        if not self.has_model:
+            model_path = None
+        load_yolo_model(model_path)
+        return
         try:
             print("YOLOv8 Model Initialising...")
             if self.has_model:
