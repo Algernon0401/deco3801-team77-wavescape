@@ -91,7 +91,7 @@ def load_yolo_model(path):
 
                 # Send new model results to queue
                 queues.object_detection_queue.put(
-                    model.track(camera_feed, persist=True)[0]
+                    model.track(camera_feed, verbose=0, persist=True)[0]
                 )
             time.sleep(0.05)  # Ensure model attempts to run less than 20x a second
     except Exception as e:
@@ -185,7 +185,7 @@ class Camera:
                 if self.valid:
                     # Update model results
                     self.model_results = self.model.track(
-                        self.capture_video(), persist=True
+                        self.capture_video(), verbose=0, persist=True
                     )[0]
                 time.sleep(0.05)  # Ensure this does not clog up machine
         except Exception as e:
