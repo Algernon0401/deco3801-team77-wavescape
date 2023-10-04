@@ -60,7 +60,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
             "args": [
-                "-tz"
+                "-tz2"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

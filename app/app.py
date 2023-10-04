@@ -52,6 +52,15 @@ def app_init():
                 controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
+            if arg == "-tz2":
+                controller.add_persistent_object(controller.zone_border_object, (190,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (800,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (1400,190), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (1400,790), (24,24))
+                controller.add_persistent_object(controller.zone_border_object, (800,790), (24,24))
             if arg == "-gz":
                 controller.use_global_zone = True
             if arg == "-feed":
