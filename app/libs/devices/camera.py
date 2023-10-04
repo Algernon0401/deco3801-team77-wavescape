@@ -8,7 +8,7 @@ import threading
 import os
 from ..object import *
 import time
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Manager
 from ultralytics import YOLO
 from collections import defaultdict
 from ..mp import Message
@@ -35,10 +35,10 @@ class CameraQueueManager:
         """
         Initialises the four camera/yolo queues.
         """
-        self.camera_feed_queue = Queue(1)  # Sending camera feed to YOLO
-        self.object_detection_queue = Queue(5)  # Sending object results to main process
-        self.message_camera_queue = Queue(5)  # From camera to yolo
-        self.message_yolo_queue = Queue(5)  # From yolo to camera
+        self.camera_feed_queue = Manager().Queue(1)  # Sending camera feed to YOLO
+        self.object_detection_queue = Manager().Queue(5)  # Sending object results to main process
+        self.message_camera_queue = Manager().Queue(5)  # From camera to yolo
+        self.message_yolo_queue = Manager().Queue(5)  # From yolo to camera
 
 
 queues = None

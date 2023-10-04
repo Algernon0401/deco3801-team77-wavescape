@@ -5,7 +5,7 @@
 
 # Import pygame for window rendering
 import pygame
-import screeninfo
+# import screeninfo
 
 # Import camera
 from .devices.camera import Camera
