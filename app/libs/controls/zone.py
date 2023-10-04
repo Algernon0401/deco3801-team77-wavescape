@@ -390,6 +390,9 @@ class Zone(Control):
         self.sounds_active = True
         sound_thread = threading.Thread(target=self.handle_sound, args=[controller])
         sound_thread.start()
+    
+    def get_max_dist(self):
+        return math.sqrt((self.w/2)**2 + (self.h/2)**2)
         
     def get_object_attributes(self, object):
         """
@@ -525,14 +528,10 @@ class Zone(Control):
 
         return
         
-    def play_sounds(self, controller, objects):
+    def play_sounds(self, controller, objects, sound_player):
         # Play sound for each object
         waves = []
-        # print(len(objects))
-        # print([o.get_center() for o in objects])
         for obj in objects:
-            # print(obj.get_center())
-            # print((self.center_x, self.center_y))
             can_play = True
             
             # Check whether we must play the sound
@@ -543,7 +542,6 @@ class Zone(Control):
                     can_play = True
 
             if can_play:
-                # print(obj.get_center())
                 # Check whether the object already has a wave
                 obj_wave = obj.get_object_attribute("wave")
                 if obj_wave is None:
@@ -564,9 +562,21 @@ class Zone(Control):
 
 
     def handle_sound(self, controller):
+        sound_player = Sound()
         while self.sounds_active and controller.is_running():
             time.sleep(0.1)
-            self.play_sounds(controller, self.current_objects)
+            # self.play_sounds(controller, self.current_objects, sound_player)
+            waves = []
+            for obj in self.current_objects:
+                # Check whether the object already has a wave
+                obj_wave = obj.get_object_attribute("wave")
+                if obj_wave is None:
+                    # Create a wave object based on object type and relative position
+                    obj_wave = self.tone_gen.pos_to_wave((self.center_x, self.center_y),
+                                                        obj.get_center(), self.get_max_dist(), obj.tag)
+                waves.append(obj_wave)
+                sound_player.play(obj_wave)
+            sound_player.cleanup(waves)
 
     def prerender(self, controller: AppController):
         """
