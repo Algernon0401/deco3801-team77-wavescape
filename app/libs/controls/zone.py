@@ -707,6 +707,7 @@ class Zone(Control):
                 
             if objimg is not None:
                 screen.blit(objimg, (px + pw / 2 - objimg.get_width() / 2, py + ph * 1.5 + 10 - objimg.get_height() / 2))
+                screen.blit(objimg, (self.x + self.w / 2 - objimg.get_width() / 2, self.y + self.h / 2 - objimg.get_height() / 2))
         
         if self.is_global and not controller.use_global_zone:
             return # No effects as global zone not in use
