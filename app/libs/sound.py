@@ -144,7 +144,6 @@ class Pulse(Wave):
         """
         return int(round(self.amplitude * self.pulse_sign(time)))
 
-
 class Sound:
     """Class for playing sounds, with one or more waves"""
     def __init__(self, sample_rate=44100, bit_rate=16, speaker="both"):

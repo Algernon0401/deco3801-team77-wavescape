@@ -19,8 +19,24 @@ from ..object import *
 from ..sound import *
 from ..tone_generator import ToneGenerator
 
+ZTYPE_OBJ_WAVEGEN = 0 # Generate waves for an object
+ZTYPE_OBJ_ARRANGEMENT = 1 # Generate a tune arrangement from objects
+
+PLAYBACK_MARKER_TAG = Tag.ARROW.value # Object to indicate playback is checked in playback box.
+PLAYBACK_COOLDOWN = 2 #seconds
+
 ASSET_ZONE_BORDER = 'assets/images/zone_border_l.png'
 ASSET_ZONE_BORDER_CORNER = 'assets/images/zone_border_c.png'
+
+ASSET_STAR = 'assets/images/obj_star.png'
+ASSET_SQUARE = 'assets/images/obj_square.png'
+ASSET_CIRCLE = 'assets/images/obj_circle.png'
+ASSET_TRIANGLE = 'assets/images/obj_triangle.png'
+
+objimg_star = pygame.image.load(ASSET_STAR)
+objimg_square = pygame.image.load(ASSET_SQUARE)
+objimg_circle = pygame.image.load(ASSET_CIRCLE)
+objimg_triangle = pygame.image.load(ASSET_TRIANGLE)
 
 zone_border_l = pygame.image.load(ASSET_ZONE_BORDER)
 zone_border_t = pygame.transform.rotate(zone_border_l, 90)
@@ -388,8 +404,19 @@ class Zone(Control):
         self.graph = None
         self.current_objects = []
         self.sounds_active = True
-        sound_thread = threading.Thread(target=self.handle_sound, args=[controller])
-        sound_thread.start()
+        self.type = ZTYPE_OBJ_WAVEGEN
+        self.wave_gen_tag = Tag.STAR.value # default value for wavegen zone
+        self.scaled_x = 0 # Ratio 0-1 of screen
+        self.scaled_y = 0
+        self.scaled_w = 0
+        self.scaled_h = 0
+        self.addsize_w = 0
+        self.addsize_h = 0
+        self.offset_x = 0
+        self.offset_y = 0
+        self.sound_enabled = True # True if sound playback occurs
+        self.time_since_playback_existed = datetime.datetime.now() 
+        self.sound_thread = None
     
     def get_max_dist(self):
         return math.sqrt((self.w/2)**2 + (self.h/2)**2)
@@ -427,6 +454,9 @@ class Zone(Control):
             Creates a new connectivity tree from the given list of objects inside
             the zone.
         """
+        return ObjectNode(object, center, [ObjectNode(o, o.get_center(), []) for o in objects])
+        
+        # Depreciated / obsolete workings below
         
         uncreated_objects = objects.copy()
         connections = [] # Connections for this node
@@ -469,6 +499,13 @@ class Zone(Control):
             
         return ObjectNode(object, center, connections) 
         
+    def get_playback_box_bounds(self, controller: AppController):
+        """
+        Returns the bounds of a fixed playback checkbox,
+        that is 30 in w/h. 
+        """
+        return (self.x - 40, self.y, 30, 30)
+        
     def update(self, controller: AppController):
         """
             Updates the control on every loop iteration.
@@ -477,17 +514,32 @@ class Zone(Control):
                 controller -- the app controller this control runs from
         """
         objects = None
+        (w,h) = controller.get_screen_size()
         if self.is_global:
             self.x = 0
             self.y = 0
-            (w,h) = controller.get_screen_size()
             self.w = w
             self.h = h 
             if not controller.use_global_zone:
                 return
             objects = controller.get_cam_objects_in_global()
         else:
+            # Adjust zone positions accordingly
+            if self.scaled_w + self.scaled_h != 0:
+                self.x = w * self.scaled_x + self.offset_x
+                self.y = h * self.scaled_y + self.offset_y
+                self.w = w * self.scaled_w + self.addsize_w
+                self.h = h * self.scaled_h + self.addsize_h
             objects = controller.get_cam_objects_in_bounds(self.get_bounds())
+            if self.type == ZTYPE_OBJ_WAVEGEN:
+                if controller.has_object_in_bounds(PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)):
+                    self.time_since_playback_existed = datetime.datetime.now()
+                self.sound_enabled = (datetime.datetime.now() - self.time_since_playback_existed).total_seconds() < PLAYBACK_COOLDOWN
+        
+        if self.type == ZTYPE_OBJ_WAVEGEN:
+            if self.sound_thread is None:
+                self.sound_thread = threading.Thread(target=self.handle_sound, args=[controller])
+                self.sound_thread.start()
         
         center = self.get_center()
         (self.center_x, self.center_y) = center
@@ -506,25 +558,21 @@ class Zone(Control):
         objects = actual_objects
         self.current_objects = actual_objects
         
-        # Object connectivity graph via distance, but only if the old graph was
-        # completed or non-existing.
-        self.graph = self.create_connectivity_tree(None, objects, center, center)
-        # NOTE from Sam to Luke:
-        # in game development, there are often lag between one frame to the next.
-        # To account for this, time passed is used so that animation is not slowed
-        # down with program. With python, it is especially noticeable when it slows
-        # down (as by no means python is a fast language due to being dynamically
-        # interpreted)
-        # 
-        # time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
-        # ...do logic...
-        # self.last_time_updated = datetime.datetime.now()
+
+        if self.type == ZTYPE_OBJ_WAVEGEN:
+            # Object connectivity graph via distance, but only if the old graph was
+            # completed or non-existing.
+            self.graph = self.create_connectivity_tree(None, objects, center, center)
         
         for object in objects:
             if object.get_object_attribute("ripple_count") is None:
                 object.set_object_attribute("ripple_count", randint(1, 5))
             if object.get_object_attribute("ripple_colour") is None:
                 object.set_object_attribute("ripple_colour", pygame.Color(randint(1, 255), randint(1, 255), randint(1, 255), 100))
+
+        if self.type == ZTYPE_OBJ_ARRANGEMENT:
+            # You may implement your arrangement code here if you wish.
+            pass
 
         return
         
@@ -553,6 +601,9 @@ class Zone(Control):
 
                 obj.set_object_attribute("last_played", datetime.datetime.now())
                 obj.set_object_attribute("wave", obj_wave)
+                
+        # Store waves list according to object tag
+        controller.set_object_attribute(obj, "waves", waves)
         
         if len(waves) > 0:
             #print(f"Playing {len(waves)} waves...")
@@ -565,6 +616,8 @@ class Zone(Control):
         sound_player = Sound()
         while self.sounds_active and controller.is_running():
             time.sleep(0.1)
+            if not self.sound_enabled:
+                continue
             # self.play_sounds(controller, self.current_objects, sound_player)
             waves = []
             for obj in self.current_objects:
@@ -589,6 +642,44 @@ class Zone(Control):
         if self.graph is not None:
             self.graph.prerender(controller)
         
+    def draw_border(self, screen: pygame.Surface, x, y, w, h):
+        """
+        Draws a zone box.
+        Arguments:
+                screen -- the surface this control is drawn on.
+        """
+        corner_width = zone_border_corner_tl.get_width()
+        corner_height = zone_border_corner_tl.get_height()
+        border_width = zone_border_l.get_width()
+        
+        # Draw corners
+        screen.blit(zone_border_corner_tl, (x,y))
+        screen.blit(zone_border_corner_tr, (x + w - corner_width, y))
+        
+        screen.blit(zone_border_corner_bl, (x, 
+                                            y + h - corner_height))
+        screen.blit(zone_border_corner_br, (x + w - zone_border_corner_tl.get_width(), 
+                                            y + h - corner_height))
+        
+        # Draw spanning rectangle
+        
+        # Vertical lines
+        screen.blit(pygame.transform.scale(zone_border_l, (border_width, h 
+                                                           - corner_height * 2)),
+                    (x, y + corner_height))
+        
+        screen.blit(pygame.transform.scale(zone_border_l, (border_width, h 
+                                                           - corner_height * 2)),
+                    (x + w - border_width, y + corner_height))
+        
+        # Horizontal lines
+        screen.blit(pygame.transform.scale(zone_border_t, (w - corner_width * 2,  
+                                                           border_width)),
+                    (x + corner_width, y))
+        
+        screen.blit(pygame.transform.scale(zone_border_t, (w - corner_width * 2,
+                                                           border_width)),
+                    (x + corner_width, y + h - border_width))
     
     def render(self, controller: AppController, screen: pygame.Surface):
         """
@@ -598,38 +689,24 @@ class Zone(Control):
                 controller -- the app controller this control runs from
                 screen -- the surface this control is drawn on.
         """
-        corner_width = zone_border_corner_tl.get_width()
-        corner_height = zone_border_corner_tl.get_height()
-        border_width = zone_border_l.get_width()
+        self.draw_border(screen, self.x, self.y, self.w, self.h)
         
-        # Draw corners
-        screen.blit(zone_border_corner_tl, (self.x,self.y))
-        screen.blit(zone_border_corner_tr, (self.x + self.w - corner_width, self.y))
+        if self.type == ZTYPE_OBJ_WAVEGEN:
+            (px, py, pw, ph) = self.get_playback_box_bounds(controller)
+            self.draw_border(screen, px, py, pw, ph)
         
-        screen.blit(zone_border_corner_bl, (self.x, 
-                                            self.y + self.h - corner_height))
-        screen.blit(zone_border_corner_br, (self.x + self.w - zone_border_corner_tl.get_width(), 
-                                            self.y + self.h - corner_height))
-        
-        # Draw spanning rectangle
-        
-        # Vertical lines
-        screen.blit(pygame.transform.scale(zone_border_l, (border_width, self.h 
-                                                           - corner_height * 2)),
-                    (self.x, self.y + corner_height))
-        
-        screen.blit(pygame.transform.scale(zone_border_l, (border_width, self.h 
-                                                           - corner_height * 2)),
-                    (self.x + self.w - border_width, self.y + corner_height))
-        
-        # Horizontal lines
-        screen.blit(pygame.transform.scale(zone_border_t, (self.w - corner_width * 2,  
-                                                           border_width)),
-                    (self.x + corner_width, self.y))
-        
-        screen.blit(pygame.transform.scale(zone_border_t, (self.w - corner_width * 2,
-                                                           border_width)),
-                    (self.x + corner_width, self.y + self.h - border_width))
+            objimg = None
+            if self.wave_gen_tag == Tag.STAR.value:
+                objimg = objimg_star
+            elif self.wave_gen_tag == Tag.SQUARE.value:
+                objimg = objimg_square
+            elif self.wave_gen_tag == Tag.TRIANGLE.value:
+                objimg = objimg_triangle
+            elif self.wave_gen_tag == Tag.CIRCLE.value:
+                objimg = objimg_circle
+                
+            if objimg is not None:
+                screen.blit(objimg, (px + pw / 2 - objimg.get_width() / 2, py + ph * 1.5 + 10 - objimg.get_height() / 2))
         
         if self.is_global and not controller.use_global_zone:
             return # No effects as global zone not in use
@@ -637,6 +714,7 @@ class Zone(Control):
         # Draw animations between objects
         if self.graph is not None:
             self.graph.render(controller, screen)
+        
             
         for object in controller.get_cam_objects_in_bounds(self.get_bounds()):
             if object is None:
