@@ -1,6 +1,0 @@
-{
-    "board": "arduino:avr:uno",
-    "sketch": "ControlBoard.ino",
-    "port": "COM5",
-    "programmer": "arduinoisp"
-}
