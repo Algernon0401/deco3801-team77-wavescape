@@ -218,4 +218,6 @@ class Menu(Control):
 
                 
             self.mouse_down = False
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self.toggle()
         pass

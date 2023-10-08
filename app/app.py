@@ -1,35 +1,33 @@
 """
     app.py - initializes the window and controls the main logic of the app.  
 """
-import pygame
-
-# Initialize the pygame module
-pygame.init()
-
-import sys
-
-# Import camera class.
-from libs.devices.camera import *
-
-from threading import *
-
-# Import control base and app controller
-from libs.base import *
-
-# Import controls
-from libs.controls.border import *
-from libs.controls.menu import *
-from libs.controls.status import *
-
-# Import logic controllers
-from libs.controllers.zone_controller import * 
-
-
 
 def app_init():
     """
     Initializes the app
     """
+    import pygame
+    import sys
+
+    # Import camera class.
+    from libs.devices.camera import Camera
+
+    import threading
+
+    from libs.object import Tag
+
+    # Import control base and app controller
+    from libs.base import Control, AppController
+
+    # Import controls
+    from libs.controls.border import AppBorder
+    from libs.controls.menu import Menu
+    from libs.controls.status import Status
+    from libs.controls.zone import Zone, ZTYPE_OBJ_WAVEGEN, ZTYPE_OBJ_ARRANGEMENT
+    
+    # Initialize the pygame module
+    pygame.init()
+
     
     print("App Initializing...")
 
@@ -52,6 +50,8 @@ def app_init():
                 controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
+                print("-tz not allowed - zone controller missing")
+                return
             if arg == "-tz2":
                 controller.add_persistent_object(controller.zone_border_object, (190,190), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
@@ -61,8 +61,12 @@ def app_init():
                 controller.add_persistent_object(controller.zone_border_object, (1400,190), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (1400,790), (24,24))
                 controller.add_persistent_object(controller.zone_border_object, (800,790), (24,24))
+                print("-tz2 not allowed - zone controller missing")
+                return
             if arg == "-gz":
                 controller.use_global_zone = True
+                print("-gz not allowed")
+                return
             if arg == "-feed":
                 controller.display_feed = True
     except:
@@ -78,9 +82,61 @@ def app_init():
     controller.add_static_control(Menu(controller))
     controller.add_static_control(Status(controller))
 
-    # Add logic controllers
-    controller.add_controller(ZoneController(controller))
-
+    # Add zones
+    z_star = Zone(controller)
+    z_star.type = ZTYPE_OBJ_WAVEGEN
+    z_star.wave_gen_tag = Tag.STAR.value
+    z_star.scaled_x = 0.02
+    z_star.scaled_y = 0.02
+    z_star.scaled_w = 0.31
+    z_star.scaled_h = 0.47
+    z_star.addsize_w = -40
+    z_star.offset_x = 40
+    
+    z_circle = Zone(controller)
+    z_circle.type = ZTYPE_OBJ_WAVEGEN
+    z_circle.wave_gen_tag = Tag.CIRCLE.value
+    z_circle.scaled_x = 0.35
+    z_circle.scaled_y = 0.02
+    z_circle.scaled_w = 0.31
+    z_circle.scaled_h = 0.47
+    z_circle.reduction_w = 40
+    z_circle.offset_x = 40
+    z_circle.addsize_w = -40
+    
+    z_square = Zone(controller)
+    z_square.type = ZTYPE_OBJ_WAVEGEN
+    z_square.wave_gen_tag = Tag.SQUARE.value
+    z_square.scaled_x = 0.68
+    z_square.scaled_y = 0.02
+    z_square.scaled_w = 0.31
+    z_square.scaled_h = 0.47
+    z_square.addsize_w = -40
+    z_square.offset_x = 40
+    
+    z_triangle = Zone(controller)
+    z_triangle.type = ZTYPE_OBJ_WAVEGEN
+    z_triangle.wave_gen_tag = Tag.TRIANGLE.value
+    z_triangle.scaled_x = 0.68
+    z_triangle.scaled_y = 0.51
+    z_triangle.scaled_w = 0.31
+    z_triangle.scaled_h = 0.47
+    z_triangle.addsize_w = -40
+    z_triangle.offset_x = 40
+    
+    z_arrange = Zone(controller)
+    z_arrange.type = ZTYPE_OBJ_ARRANGEMENT
+    z_arrange.scaled_x = 0.02
+    z_arrange.scaled_y = 0.51
+    z_arrange.scaled_w = 0.64
+    z_arrange.scaled_h = 0.47
+    
+    controller.add_control(z_arrange)
+    controller.add_control(z_triangle)
+    controller.add_control(z_square)
+    controller.add_control(z_circle)
+    controller.add_control(z_star)
+    
     # Create render thread
     threading.Thread(target=app_render, args=[controller, screen]).start()
 
@@ -145,10 +201,13 @@ def app_init():
 
     print("App Exiting...")
 
-def app_render(controller: AppController, screen: pygame.Surface):
+def app_render(controller, screen):
     """
     Continuously renders the app.
     """
+    import time
+    import pygame
+    
     while controller.is_running():
         if not controller.single_update:
             time.sleep(0.06)

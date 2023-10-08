@@ -222,7 +222,21 @@ class AppController:
                 object_list.append(object)
                 
         return object_list
-
+    
+    def has_object_in_bounds(self, tag, bounds):
+        """
+        Returns true if an object with the given tag
+        exists within the bounds given.
+        
+        Arguments:
+            tag - the tag of objects to check
+            bounds - the bounds to check for
+        """
+        for object in self.objects:
+            if object.tag == tag and object.within(bounds):
+                return True
+        return False
+    
     def get_cam_objects_in_global(self):
         """
         Gets the list of camera objects that are in the 'global zone'.
