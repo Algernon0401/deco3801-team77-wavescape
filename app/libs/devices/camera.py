@@ -3,6 +3,7 @@ import datetime
 import cv2 as cv
 import pygame
 import numpy as np
+
 # import torch
 import threading
 import os
@@ -36,7 +37,9 @@ class CameraQueueManager:
         Initialises the four camera/yolo queues.
         """
         self.camera_feed_queue = Manager().Queue(1)  # Sending camera feed to YOLO
-        self.object_detection_queue = Manager().Queue(5)  # Sending object results to main process
+        self.object_detection_queue = Manager().Queue(
+            5
+        )  # Sending object results to main process
         self.message_camera_queue = Manager().Queue(5)  # From camera to yolo
         self.message_yolo_queue = Manager().Queue(5)  # From yolo to camera
 
@@ -61,7 +64,7 @@ def load_yolo_model(path):
         # Load the model from a file
         model = None
         if path is not None:
-            # self.model = YOLO(ASSET_TRAINED_MODEL)
+            # model = YOLO(ASSET_TRAINED_MODEL)
             model = YOLO("yolov8n.pt")
         else:
             model = YOLO("yolov8n.pt")
