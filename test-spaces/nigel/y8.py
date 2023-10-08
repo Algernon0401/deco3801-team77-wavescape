@@ -5,11 +5,14 @@ from collections import defaultdict
 from ultralytics import YOLO
 
 # Load the YOLOv8 model
+# model = YOLO(r"shapes_dataset\nano_shapes\weights\best.pt")
 model = YOLO("yolov8n.pt")
 
 # Open the video file
 video_path = r"C:\Users\Forge-15 PRO\OneDrive\Pictures\Camera Roll\test.mp4"
-cap = cv2.VideoCapture(video_path)
+cap = cv2.VideoCapture(2, cv2.CAP_DSHOW)
+
+print(cv2.__version__)
 
 # Store the track history
 track_histories = defaultdict(list)
