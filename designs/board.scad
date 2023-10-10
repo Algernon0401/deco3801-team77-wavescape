@@ -97,19 +97,19 @@ module board_base() {
 
 module board_input_holder() {
     translate([15,8+42/2,0]) {
-        potentiometer();
+        //potentiometer();
         potentiometer_holder();
     };
     translate([45,8+42/2,0]) {
-        potentiometer();
+        //potentiometer();
         potentiometer_holder();
     };
     difference() {
     translate([1,8,0]) {
         cube([77, 42, 2]);
-        cube([1.5, 42, 7.5]);
+        cube([1.5, 42, 8.5]);
         translate([75.5, 0, 0]) {
-            cube([1.5, 42, 7.5]);
+            cube([1.5, 42, 8.5]);
         }
     }
     mounting_holes(79, 58, 4, 1.5, 5);
@@ -138,14 +138,14 @@ module board_top() {
      }
 }
 
-board_base();
+//board_base();
 
 translate([0, 0,25]) {
     board_input_holder();
 }
 
 translate([-1.5, -1.5, 36.5]) {
-        board_top();
+        //board_top();
 }
 
 translate([2.5,2.5,2]) {

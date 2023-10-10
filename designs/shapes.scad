@@ -24,6 +24,11 @@ module shape_arrow() {
     }
 }
 
+module shape_plus() {
+    cube([size, size/6, thickness], center=true);
+    cube([size/6, size, thickness], center=true);
+}
+
 module shape_star(points=5) {
     cylinder(thickness, size/4, size/4, $fn=points);
     
@@ -36,4 +41,4 @@ module shape_star(points=5) {
     }
 }
 
-shape_rectangle();
+shape_plus();
