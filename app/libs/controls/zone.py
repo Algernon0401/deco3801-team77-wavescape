@@ -672,6 +672,12 @@ class Zone(Control):
                                                            - corner_height * 2)),
                     (x + w - border_width, y + corner_height))
         
+        if self.type == ZTYPE_OBJ_ARRANGEMENT:
+            for i in range(7):
+                screen.blit(pygame.transform.scale(zone_border_l, (border_width, h
+                                                                   - corner_height * 2)),
+                            (x + (i+1) * w/8 - border_width, y + corner_height))
+        
         # Horizontal lines
         screen.blit(pygame.transform.scale(zone_border_t, (w - corner_width * 2,  
                                                            border_width)),
