@@ -8,13 +8,13 @@ class Tag(Enum):
     """
 
     # type
-    PHONE = "phone"
-    WALLET = "wallet"
-    EARBUDS = "earbuds"
-    WATCH = "watch"
-    KEYS = "keys"
-    BOTTLE = "bottle"
-    CARD = "card"
+    # PHONE = "phone"
+    # WALLET = "wallet"
+    # EARBUDS = "earbuds"
+    # WATCH = "watch"
+    # KEYS = "keys"
+    # BOTTLE = "bottle"
+    # CARD = "card"
 
     # shapes
     TRIANGLE = "triangle"
