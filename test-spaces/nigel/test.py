@@ -2,7 +2,7 @@ from ultralytics import YOLO
 from PIL import Image
 
 # Load a pretrained YOLOv8n model
-model = YOLO(r"shapes_dataset\med_shapes\weights\best.pt")
+model = YOLO(r"shapes_dataset\y8\med_shapes_updated4\weights\best.pt")
 
 # Run inference on an image
 results = model(

@@ -10,7 +10,6 @@
             "request": "launch",
             "program": "${workspaceFolder}/app/app.py",
             "args": [
-                "-mo",
                 "-tz"
             ],
             "cwd": "app",
@@ -24,8 +23,7 @@
             "program": "${workspaceFolder}/app/app.py",
             "cwd": "${workspaceFolder}/app",
             "args": [
-                "-feed",
-                "-gz"
+                "-feed"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

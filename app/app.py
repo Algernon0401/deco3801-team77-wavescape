@@ -2,6 +2,7 @@
     app.py - initializes the window and controls the main logic of the app.  
 """
 
+
 def app_init():
     """
     Initializes the app
@@ -24,11 +25,10 @@ def app_init():
     from libs.controls.menu import Menu
     from libs.controls.status import Status
     from libs.controls.zone import Zone, ZTYPE_OBJ_WAVEGEN, ZTYPE_OBJ_ARRANGEMENT
-    
+
     # Initialize the pygame module
     pygame.init()
 
-    
     print("App Initializing...")
 
     # Set the caption for the window
@@ -39,28 +39,52 @@ def app_init():
 
     # Main loop (runs infinitely until window exits)
     controller = AppController(screen)
-    
+
     # Read command line arguments
     try:
         for arg in sys.argv[1:]:
             if arg == "-mo":
-                controller.add_mouse_object = True
+                controller.add_mouse_object = False  # No longer valid
             if arg == "-tz":
-                controller.add_persistent_object(controller.zone_border_object, (190,190), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
+                controller.add_persistent_object(
+                    controller.zone_border_object, (190, 190), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (790, 190), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (790, 790), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (190, 790), (24, 24)
+                )
                 print("-tz not allowed - zone controller missing")
                 return
             if arg == "-tz2":
-                controller.add_persistent_object(controller.zone_border_object, (190,190), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (790,190), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (790,790), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (190,790), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (800,190), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (1400,190), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (1400,790), (24,24))
-                controller.add_persistent_object(controller.zone_border_object, (800,790), (24,24))
+                controller.add_persistent_object(
+                    controller.zone_border_object, (190, 190), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (790, 190), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (790, 790), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (190, 790), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (800, 190), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (1400, 190), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (1400, 790), (24, 24)
+                )
+                controller.add_persistent_object(
+                    controller.zone_border_object, (800, 790), (24, 24)
+                )
                 print("-tz2 not allowed - zone controller missing")
                 return
             if arg == "-gz":
@@ -71,7 +95,7 @@ def app_init():
                 controller.display_feed = True
     except:
         print("Invalid command-line arguments")
-        
+
     # Add initial controls (displayed first)
     # In this app, only the main control should be added.
     # Zone are later configured, and re-added if necessary.
@@ -92,7 +116,7 @@ def app_init():
     z_star.scaled_h = 0.47
     z_star.addsize_w = -40
     z_star.offset_x = 40
-    
+
     z_circle = Zone(controller)
     z_circle.type = ZTYPE_OBJ_WAVEGEN
     z_circle.wave_gen_tag = Tag.CIRCLE.value
@@ -103,7 +127,7 @@ def app_init():
     z_circle.reduction_w = 40
     z_circle.offset_x = 40
     z_circle.addsize_w = -40
-    
+
     z_square = Zone(controller)
     z_square.type = ZTYPE_OBJ_WAVEGEN
     z_square.wave_gen_tag = Tag.SQUARE.value
@@ -113,7 +137,7 @@ def app_init():
     z_square.scaled_h = 0.47
     z_square.addsize_w = -40
     z_square.offset_x = 40
-    
+
     z_triangle = Zone(controller)
     z_triangle.type = ZTYPE_OBJ_WAVEGEN
     z_triangle.wave_gen_tag = Tag.TRIANGLE.value
@@ -123,20 +147,20 @@ def app_init():
     z_triangle.scaled_h = 0.47
     z_triangle.addsize_w = -40
     z_triangle.offset_x = 40
-    
+
     z_arrange = Zone(controller)
     z_arrange.type = ZTYPE_OBJ_ARRANGEMENT
     z_arrange.scaled_x = 0.02
     z_arrange.scaled_y = 0.51
     z_arrange.scaled_w = 0.64
     z_arrange.scaled_h = 0.47
-    
+
     controller.add_control(z_arrange)
     controller.add_control(z_triangle)
     controller.add_control(z_square)
     controller.add_control(z_circle)
     controller.add_control(z_star)
-    
+
     # Create render thread
     threading.Thread(target=app_render, args=[controller, screen]).start()
 
@@ -151,14 +175,14 @@ def app_init():
         # Update all static (overlay) controls
         for control in controller.get_static_controls():
             control.update(controller)
-            
+
         # Update global zone control
         controller.global_zone.update(controller)
 
         # Update all logic controls
         for lc in controller.get_controllers():
             lc.update(controller)
-            
+
         # Get all events from pygame, and exit if QUIT event exists.
         # Pass all events to controls.
         for event in pygame.event.get():
@@ -180,7 +204,7 @@ def app_init():
                 # Update logic controllers
                 for lc in controller.get_controllers():
                     lc.event(controller, event)
-        
+
         # Update control list
         for control in controller.added_controls:
             controller.controls.append(control)
@@ -201,13 +225,14 @@ def app_init():
 
     print("App Exiting...")
 
+
 def app_render(controller, screen):
     """
     Continuously renders the app.
     """
     import time
     import pygame
-    
+
     while controller.is_running():
         if not controller.single_update:
             time.sleep(0.06)
@@ -230,7 +255,6 @@ def app_render(controller, screen):
         # Update the screen
         pygame.display.flip()
     print("Render thread exiting...")
-
 
 
 if __name__ == "__main__":

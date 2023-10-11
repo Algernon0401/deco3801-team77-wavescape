@@ -2,7 +2,7 @@ import cv2
 from ultralytics import YOLO
 
 # Load the YOLOv8 model
-model = YOLO(r"shapes_dataset\y8\med_shapes_updated3\weights\best.pt")
+model = YOLO(r"shapes_dataset\y8\med_shapes_updated4\weights\best.pt")
 
 # Open the video file
 video_path = r"C:\Users\Forge-15 PRO\Videos\2023-10-10 17-43-49.mkv"
