@@ -642,7 +642,7 @@ class Zone(Control):
     def metre_count(self, controller):
         while controller.is_running():
             time.sleep(1)
-            self.metre_count = 0 if self.metre_count == 7 else self.metre_count + 1 # loop from 0 to 7
+            self.metre = 0 if self.metre == 7 else self.metre + 1 # loop from 0 to 7
             
     def prerender(self, controller: AppController):
         """
