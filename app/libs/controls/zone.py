@@ -727,6 +727,11 @@ class Zone(Control):
             if objimg is not None:
                 screen.blit(objimg, (px + pw / 2 - objimg.get_width() / 2, py + ph * 1.5 + 10 - objimg.get_height() / 2))
                 screen.blit(objimg, (self.x + self.w / 2 - objimg.get_width() / 2, self.y + self.h / 2 - objimg.get_height() / 2))
+
+        if self.type == ZTYPE_OBJ_ARRANGEMENT:
+            zone_metre_indicator = pygame.Surface((self.w/8, self.h), pygame.SRCALPHA)
+            zone_metre_indicator.fill((255,255,255,96))
+            screen.blit(zone_metre_indicator, (self.x + self.metre * self.w/8, self.y))
         
         if self.is_global and not controller.use_global_zone:
             return # No effects as global zone not in use
