@@ -414,12 +414,15 @@ class Zone(Control):
         self.addsize_h = 0
         self.offset_x = 0
         self.offset_y = 0
+        self.metre = 0
         self.sound_enabled = True # True if sound playback occurs
         self.time_since_playback_existed = datetime.datetime.now() 
         self.sound_thread = None
+        self.arrange_thread = None
     
     def get_max_dist(self):
-        return math.sqrt((self.w/2)**2 + (self.h/2)**2)
+        # return math.sqrt((self.w/2)**2 + (self.h/2)**2)
+        return min(self.w, self.h) / 2
         
     def get_object_attributes(self, object):
         """
@@ -541,6 +544,12 @@ class Zone(Control):
                 self.sound_thread = threading.Thread(target=self.handle_sound, args=[controller])
                 self.sound_thread.start()
         
+        if self.type == ZTYPE_OBJ_ARRANGEMENT:
+            if self.arrange_thread is None:
+                pass
+                self.arrange_thread = threading.Thread(target=self.metre_count, args=[controller])
+                self.arrange_thread.start()
+        
         center = self.get_center()
         (self.center_x, self.center_y) = center
         
@@ -577,6 +586,7 @@ class Zone(Control):
         return
         
     def play_sounds(self, controller, objects, sound_player):
+        # DEPRECATED
         # Play sound for each object
         waves = []
         for obj in objects:
@@ -611,14 +621,12 @@ class Zone(Control):
                 #print(f"Wave: F:({wave.frequency})")
             controller.audio_system.play_waves(waves)
 
-
     def handle_sound(self, controller):
-        sound_player = Sound()
         while self.sounds_active and controller.is_running():
             time.sleep(0.1)
             if not self.sound_enabled:
                 continue
-            # self.play_sounds(controller, self.current_objects, sound_player)
+            # self.play_sounds(controller, self.current_objects, controller.sound_player)
             waves = []
             for obj in self.current_objects:
                 # Check whether the object already has a wave
@@ -628,9 +636,14 @@ class Zone(Control):
                     obj_wave = self.tone_gen.pos_to_wave((self.center_x, self.center_y),
                                                         obj.get_center(), self.get_max_dist(), obj.tag)
                 waves.append(obj_wave)
-                sound_player.play(obj_wave)
-            sound_player.cleanup(waves)
+                controller.sound_player.play(obj_wave)
+            controller.sound_player.cleanup(waves)
 
+    def metre_count(self, controller):
+        while controller.is_running():
+            time.sleep(1)
+            self.metre_count = 0 if self.metre_count == 7 else self.metre_count + 1 # loop from 0 to 7
+            
     def prerender(self, controller: AppController):
         """
         Prepares data for rendering continuously.
@@ -671,6 +684,12 @@ class Zone(Control):
         screen.blit(pygame.transform.scale(zone_border_l, (border_width, h 
                                                            - corner_height * 2)),
                     (x + w - border_width, y + corner_height))
+        
+        if self.type == ZTYPE_OBJ_ARRANGEMENT:
+            for i in range(7):
+                screen.blit(pygame.transform.scale(zone_border_l, (border_width, h
+                                                                   - corner_height * 2)),
+                            (x + (i+1) * w/8 - border_width, y + corner_height))
         
         # Horizontal lines
         screen.blit(pygame.transform.scale(zone_border_t, (w - corner_width * 2,  
