@@ -12,6 +12,7 @@ from .devices.camera import Camera
 
 # Import audio system
 from .devices.audio import AudioSystem
+from .sound import *
 
 # Import camera object
 from .object import *
@@ -48,6 +49,7 @@ class AppController:
         self.camera = Camera()
         self.single_update = False
         self.screen = screen
+        self.sound_player = Sound()
         
         self.objects = []
         from .controls.zone import Zone

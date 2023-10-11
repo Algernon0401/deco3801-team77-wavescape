@@ -421,7 +421,8 @@ class Zone(Control):
         self.arrange_thread = None
     
     def get_max_dist(self):
-        return math.sqrt((self.w/2)**2 + (self.h/2)**2)
+        # return math.sqrt((self.w/2)**2 + (self.h/2)**2)
+        return min(self.w, self.h) / 2
         
     def get_object_attributes(self, object):
         """
@@ -585,6 +586,7 @@ class Zone(Control):
         return
         
     def play_sounds(self, controller, objects, sound_player):
+        # DEPRECATED
         # Play sound for each object
         waves = []
         for obj in objects:
@@ -620,12 +622,11 @@ class Zone(Control):
             controller.audio_system.play_waves(waves)
 
     def handle_sound(self, controller):
-        sound_player = Sound()
         while self.sounds_active and controller.is_running():
             time.sleep(0.1)
             if not self.sound_enabled:
                 continue
-            # self.play_sounds(controller, self.current_objects, sound_player)
+            # self.play_sounds(controller, self.current_objects, controller.sound_player)
             waves = []
             for obj in self.current_objects:
                 # Check whether the object already has a wave
@@ -635,8 +636,8 @@ class Zone(Control):
                     obj_wave = self.tone_gen.pos_to_wave((self.center_x, self.center_y),
                                                         obj.get_center(), self.get_max_dist(), obj.tag)
                 waves.append(obj_wave)
-                sound_player.play(obj_wave)
-            sound_player.cleanup(waves)
+                controller.sound_player.play(obj_wave)
+            controller.sound_player.cleanup(waves)
 
     def metre_count(self, controller):
         while controller.is_running():

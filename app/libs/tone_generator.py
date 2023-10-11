@@ -11,7 +11,7 @@ elc_list = list(json.load(open("assets/elc_list.json")))
 NUM_NODES = len(frequency_list)     # based on piano
 MAX_ANGLE = 360
 VOLUME_SCALAR = 0.75                # think it as the volume knob
-SHARP_VOLUME_SCALAR = 1# 0.25                # for sharp sounds
+SHARP_VOLUME_SCALAR = 0.25                # for sharp sounds
 
 class ToneGenerator:
     """A generator of sound"""
@@ -48,28 +48,30 @@ class ToneGenerator:
         frequency = short_f_list[idx]
         amplitude = 2 ** (16 - 1) - 1 #distance * elc_list[idx] #* VOLUME_SCALAR    # amplitude = distance * elc
         elc_scalar = short_elc_list[idx] / max(short_elc_list)
-        print("ELC scalar:", elc_scalar)
-        print("Dist scalar:", distance / max_dist)
-        volume = distance / max_dist * elc_scalar
-        print("Volume:", volume)
+        # print("ELC scalar:", elc_scalar)
+        # print("Dist scalar:", distance / max_dist)
+        # volume = distance / max_dist * elc_scalar
+        volume = 1 * elc_scalar
+        # print("Volume:", volume)
         # print(f"Amplitude: {amplitude}, Frequency: {frequency}")
         # print(f"Created {tag}")
         match tag:
             case Tag.TRIANGLE.value:
                 return Triangle(amplitude, frequency, volume)
             case Tag.SQUARE.value:
-                return Square(amplitude*SHARP_VOLUME_SCALAR, frequency, volume)
+                return Square(amplitude, frequency, volume)
             case Tag.CIRCLE.value:
                 return Sine(amplitude, frequency, volume)
             case Tag.STAR.value:
-                return Sawtooth(amplitude*SHARP_VOLUME_SCALAR, frequency, volume)
+                return Sawtooth(amplitude, frequency, volume)
             case Tag.ARROW.value:
-                return Pulse(amplitude*SHARP_VOLUME_SCALAR, frequency, volume)
+                return Pulse(amplitude, frequency, volume)
             case _:
                 # raise Exception(f"Wave Undefined with tag: {tag}")
                 print(f"Wave Undefined with tag: {tag}")
                 return None
-            
+
+
 def shorten_lookup(lookup: list, start_pct: int, end_pct: int):
     start_idx = math.floor(len(lookup) * start_pct)
     end_idx = math.ceil(len(lookup) * end_pct)
