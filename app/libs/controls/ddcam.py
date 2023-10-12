@@ -63,13 +63,13 @@ class DDCamVisual(Control):
         # Test every object location (draw location)
         for object in controller.objects:
             tag = object.tag
-            r = pygame.Surface((object.w,object.h))
-            r.set_alpha(33)
-            r.fill((255,255,255))
-            screen.blit(r, (object.x,object.y))
+            #r = pygame.Surface((object.w,object.h))
+            #r.set_alpha(33)
+            #r.fill((255,255,255))
+            #screen.blit(r, (object.x,object.y))
             text = font.render(str(tag)+str(object.track_id), True, pygame.Color(0, 128, 128))
             text_rect = text.get_rect()
-            text_rect.center = (object.x+object.w/2,object.y+object.h/2)
+            text_rect.center = (object.x+object.w/2,object.y - 20)
             screen.blit(text, text_rect)
 
         # Display current object to add
