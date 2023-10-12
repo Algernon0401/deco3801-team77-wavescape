@@ -75,7 +75,6 @@ class Calibration(Control):
         screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, 50-cc_height/2))
         screen.blit(asset_calibration_circle, (50-cc_width/2, screen_h-50-cc_height/2))
         screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, screen_h-50-cc_height/2))
-        
         screen.blit(asset_calibration_circle, (screen_w/2-cc_width/2, screen_h/2-cc_height/2))
         
         # Display circles shapes

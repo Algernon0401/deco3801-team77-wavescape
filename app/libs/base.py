@@ -54,9 +54,9 @@ class AppController:
         
         self.objects = []
         from .controls.zone import Zone
-        self.global_zone = Zone(self)
-        self.global_zone.is_global = True
-        self.use_global_zone = False
+        # self.global_zone = Zone(self)
+        # self.global_zone.is_global = True
+        # self.use_global_zone = False
         self.zones = [] # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
