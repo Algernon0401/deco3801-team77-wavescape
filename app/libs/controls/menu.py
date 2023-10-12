@@ -35,7 +35,7 @@ items = [
     MenuItem(asset_menu_button_toggle_fullscreen, lambda controller: controller.toggle_fullscreen()),
     MenuItem(asset_menu_button_swap_camera, lambda controller: controller.swap_camera()),
     MenuItem(asset_menu_button_calibrate, lambda controller: controller.setup_calibration()),
-    MenuItem(asset_menu_button_reconnect_board, lambda controller: controller.reconnect_board()),
+    MenuItem(asset_menu_button_reconnect_board, lambda controller: controller.connect_board()),
     MenuItem(asset_menu_button_quit, lambda controller: controller.exit()),
     MenuItem(asset_menu_button_hide, lambda controller: None)
 ]

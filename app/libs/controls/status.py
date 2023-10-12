@@ -75,7 +75,7 @@ class Status(Control):
             overlay_y += 20
             
         # Check if board is invalid (since board loads quickly, no need for loading overlay).
-        if not controller.board_valid:
+        if not controller.board_connected():
             screen.blit(asset_invalid_board_overlay, (5,overlay_y))
             overlay_y += 20
             
