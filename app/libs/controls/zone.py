@@ -445,8 +445,8 @@ class Zone(Control):
                         obj.tag,
                     )
                 waves.append(obj_wave)
-                controller.sound_player.play(obj_wave)
-            controller.sound_player.cleanup(waves)
+                controller.sound_player.play(self, obj_wave)
+            controller.sound_player.cleanup(self, waves)
             controller.set_volume()
 
     def metre_count(self, controller):

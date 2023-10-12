@@ -172,6 +172,7 @@ class Sound:
         return pygame.mixer.find_channel()
 
     def chorus(self, waves: list):
+        # DEPRECATED
         """Takes a list of wave objects and plays their corresponding sounds.
 
         Args:
@@ -212,7 +213,7 @@ class Sound:
         # for thread in threads:
         #     thread.join()
 
-    def play(self, wave: Wave):
+    def play(self, zone, wave: Wave):
         """Takes a wave object and plays its corresponding sound.
 
         Args:
@@ -221,11 +222,14 @@ class Sound:
         if wave is None:
             return
         
-        if wave in self.playing.values():
+        if zone not in self.playing.keys():
+            self.playing[zone] = {}
+        
+        elif wave in self.playing[zone].values():
             return
 
         channel = self.get_next_channel()
-        self.playing[channel] = wave
+        self.playing[zone][channel] = wave
         
         if wave.buffer is None:
            wave.buffer = self.generate_buffer(wave)
@@ -242,14 +246,14 @@ class Sound:
         channel.play(pygame_sound, loops=-1)
         channel.queue(pygame_sound)
     
-    def cleanup(self, waves: list):
+    def cleanup(self, zone, waves: list):
         cull_list = []
-        for channel, wave in self.playing.items():
+        for channel, wave in self.playing[zone].items():
             if wave not in waves:
                 channel.stop()
                 cull_list.append(channel)
         for channel in cull_list:
-            self.playing.pop(channel)
+            self.playing[zone].pop(channel)
 
 
 
