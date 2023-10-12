@@ -398,6 +398,8 @@ class AppController:
         Sets the volume of the audio system.
         """
         volume = self.board.get_reading("A0") / 1023
+        print(f"Volume: {volume*100}%")
+        return # Disable volume control for now
         for channel, wave in self.sound_player.playing.items():
             if wave is None:
                 continue

@@ -25,6 +25,8 @@ class ControlBoard:
         """
         Connects to the control board.
         """
+        if self.ser is not None and self.ser.isOpen():
+            return
         if self.port is not None:
             self.ser = serial.Serial(f"COM{i}", baudrate)
             line = self.ser.readline().decode('utf-8').split(";")[:-1]
