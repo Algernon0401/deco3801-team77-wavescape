@@ -134,8 +134,17 @@ class Camera:
             # X and Y offsets for center object (as perc of screen)
             self.offset_x = 0 
             self.offset_y = 0
-            self.scale_x = 1  # To be calibrated
-            self.scale_y = 1  # To be calibrated
+            # X and Y resizing for every object (perc of object)
+            self.scale_x = 1 
+            self.scale_y = 1
+            # X and Y skewing (perc of half-screen)
+            # e.g. a Y top skew of 1, means that the difference from the
+            # center to the top is doubled in offset.
+            self.skew_top = 0
+            self.skew_bottom = 0
+            self.skew_left = 0
+            self.skew_right = 0
+            
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             self.last_time_updated = datetime.datetime.now()
             self.current_update = 0  # Alternates between 0 and 1
@@ -516,6 +525,24 @@ class Camera:
                         ymin -= diff_h / 2
                         xmax += diff_w / 2
                         ymax += diff_h / 2
+                        
+                        # Apply calibration settings (skew)
+                        center_x = (xmin + xmax) / 2
+                        center_y = (ymin + ymax) / 2
+                        offset_x = 0
+                        offset_y = 0
+                        if center_x + 8 < screen_x / 2:
+                            offset_x -= self.skew_left * (center_x - screen_x / 2)
+                        if center_x - 8 > screen_x / 2:
+                            offset_x += self.skew_right * (screen_x - center_x)
+                        if center_y + 8 < screen_y / 2:
+                            offset_y -= self.skew_top * (center_y - screen_y / 2)
+                        if center_y - 8 > screen_y / 2:
+                            offset_y += self.skew_bottom * (screen_y - center_y)
+                        xmin += offset_x
+                        xmax += offset_x
+                        ymin += offset_y
+                        ymax += offset_y
 
                         width = xmax - xmin
                         height = ymax - ymin

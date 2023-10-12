@@ -28,7 +28,6 @@ PLAYBACK_MARKER_TAG = (
 )  # Object to indicate playback is checked in playback box.
 PLAYBACK_COOLDOWN = 2  # seconds
 
-
 HIGH_AMP = 4000
 
 WAVE_SPAN = 80  # How long a wave is in pixels

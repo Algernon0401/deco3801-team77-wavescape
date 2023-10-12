@@ -13,7 +13,7 @@ from ..object import *
 from ..assets import *
 
 DISPLAY_OFFSET_FROM_BOTTOM = 300
-NO_OF_CALIBRATION_STEPS = 3
+NO_OF_CALIBRATION_STEPS = 5
 
 class Calibration(Control):
     """
@@ -88,12 +88,32 @@ class Calibration(Control):
         placement_x = screen_w / 2 - asset_calibration_step_one.get_width() / 2 
         
         # Display corresponding calibration step
+        step_img = None
         if self.current_step == 1:
-            screen.blit(asset_calibration_step_one, (placement_x, screen_h-self.step_tip_offset))
+            step_img = asset_calibration_step_one
         elif self.current_step == 2:
-            screen.blit(asset_calibration_step_two, (placement_x, screen_h-self.step_tip_offset))
+            if self.adjust_mode == 0:
+                step_img = asset_calibration_step_two
+            else:
+                step_img = asset_calibration_step_two_alt
         elif self.current_step == 3:
-             screen.blit(asset_calibration_step_three, (placement_x, screen_h-self.step_tip_offset))
+            if self.adjust_mode == 0:
+                step_img = asset_calibration_step_three
+            else:
+                step_img = asset_calibration_step_three_alt
+        elif self.current_step == 4:
+            if self.adjust_mode == 0:
+                step_img = asset_calibration_step_four
+            else:
+                step_img = asset_calibration_step_four_alt
+        elif self.current_step == 5:
+            if self.adjust_mode == 0:
+                step_img = asset_calibration_step_five
+            else:
+                step_img = asset_calibration_step_five_alt
+             
+        if step_img is not None:
+            screen.blit(step_img, (placement_x, screen_h-self.step_tip_offset))
         pass
     
     def next_step(self, controller: AppController):
@@ -149,5 +169,15 @@ class Calibration(Control):
                     controller.camera.scale_x += event.y / 100
                 else:
                     controller.camera.scale_y += event.y / 100
+            elif self.current_step == 4:
+                if self.adjust_mode == 0:
+                    controller.camera.skew_top += event.y / 100
+                else:
+                    controller.camera.skew_left += event.y / 100
+            elif self.current_step == 5:
+                if self.adjust_mode == 0:
+                    controller.camera.skew_bottom += event.y / 100
+                else:
+                    controller.camera.skew_right += event.y / 100
                 
         pass
