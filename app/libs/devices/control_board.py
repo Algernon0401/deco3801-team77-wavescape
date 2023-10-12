@@ -1,6 +1,5 @@
 import serial
 import time
-from serial.serialutil import SerialException
 from serial.tools import list_ports
 
 class ControlBoard:
@@ -56,7 +55,7 @@ class ControlBoard:
         """
         Reads from the serial port and updates the readings dictionary.
         """
-        if self.ser is None or not self.ser.isOpen() or self.port is None:
+        if self.ser is None or not self.ser.isOpen():
             return
         self.ser.flushInput()
         line = self.ser.readline().decode('utf-8').split(";")[:-1]
