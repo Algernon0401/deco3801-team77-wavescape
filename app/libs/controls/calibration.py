@@ -10,11 +10,7 @@ import pygame
 from ..base import *
 from ..devices.camera import *
 from ..object import *
-
-ASSET_CALIBRATION_STEP_ONE = 'assets/images/calibration.s1.png'
-ASSET_CALIBRATION_STEP_TWO = 'assets/images/calibration.s2.png'
-asset_calibration_step_one = pygame.image.load(ASSET_CALIBRATION_STEP_ONE)
-asset_calibration_step_two = pygame.image.load(ASSET_CALIBRATION_STEP_TWO)
+from ..assets import *
 
 DISPLAY_OFFSET_FROM_BOTTOM = 300
 
@@ -71,7 +67,21 @@ class Calibration(Control):
         
         (screen_w,screen_h) = controller.get_screen_size()
         
-        # Display all objects bounding boxes
+        # Display calibration circles
+        cc_width = asset_calibration_circle.get_width()
+        cc_height = asset_calibration_circle.get_height()
+        
+        screen.blit(asset_calibration_circle, (50-cc_width/2, 50-cc_height/2))
+        screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, 50-cc_height/2))
+        screen.blit(asset_calibration_circle, (50-cc_width/2, screen_h-50-cc_height/2))
+        screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, screen_h-50-cc_height/2))
+        
+        screen.blit(asset_calibration_circle, (screen_w/2-cc_width/2, screen_h/2-cc_height/2))
+        
+        # Display circles shapes
+        for obj in controller.get_cam_objects():
+            if obj.tag == "circle":
+                screen.blit()
         
         # Ensure step images are placed in center of screen.
         placement_x = screen_w / 2 - asset_calibration_step_one.get_width() / 2 

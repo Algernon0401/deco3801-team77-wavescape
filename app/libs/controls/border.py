@@ -13,16 +13,7 @@ from ..base import AppController
 from ..devices.camera import *
 from ..object import *
 from ..sound import *
-
-ASSET_APP_BORDER = 'assets/images/zone_border_l.png'
-ASSET_APP_BORDER_CORNER = 'assets/images/zone_border_c.png'
-
-app_boarder_l = pygame.image.load(ASSET_APP_BORDER)
-APP_BORDER_t = pygame.transform.rotate(app_boarder_l, 90)
-app_boarder_corner_tl = pygame.image.load(ASSET_APP_BORDER_CORNER)
-app_boarder_corner_tr = pygame.transform.rotate(app_boarder_corner_tl, -90)
-app_boarder_corner_br = pygame.transform.rotate(app_boarder_corner_tr, -90)
-app_boarder_corner_bl = pygame.transform.rotate(app_boarder_corner_br, -90)
+from ..assets import *
 
 class AppBorder(Control):
     """
@@ -86,11 +77,11 @@ class AppBorder(Control):
                     (self.x + self.w - border_width, self.y + corner_height))
         
         # Horizontal lines
-        screen.blit(pygame.transform.scale(APP_BORDER_t, (self.w - corner_width * 2,  
+        screen.blit(pygame.transform.scale(app_border_t, (self.w - corner_width * 2,  
                                                            border_width)),
                     (self.x + corner_width, self.y))
         
-        screen.blit(pygame.transform.scale(APP_BORDER_t, (self.w - corner_width * 2,  
+        screen.blit(pygame.transform.scale(app_border_t, (self.w - corner_width * 2,  
                                                            border_width)),
                     (self.x + corner_width, self.y + self.h - border_width))
         

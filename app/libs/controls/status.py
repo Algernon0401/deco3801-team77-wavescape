@@ -10,18 +10,8 @@ import pygame
 from ..base import *
 from ..devices.camera import *
 from ..object import *
+from ..assets import *
 
-ASSET_CAMERA_INVALID_OVERLAY = 'assets/images/camera_invalid_overlay.png'
-ASSET_CAMERA_LOADING_OVERLAY = 'assets/images/camera_loading_overlay.png'
-ASSET_MODEL_INVALID_OVERLAY = 'assets/images/model_invalid_overlay.png'
-ASSET_MODEL_LOADING_OVERLAY = 'assets/images/model_loading_overlay.png'
-ASSET_BOARD_INVALID_OVERLAY = 'assets/images/board_invalid_overlay.png'
-
-invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
-loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
-invalid_model_overlay = pygame.image.load(ASSET_MODEL_INVALID_OVERLAY)
-loading_model_overlay = pygame.image.load(ASSET_MODEL_LOADING_OVERLAY)
-invalid_board_overlay = pygame.image.load(ASSET_BOARD_INVALID_OVERLAY)
 
 class Status(Control):
     """

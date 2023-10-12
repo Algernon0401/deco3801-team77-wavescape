@@ -18,6 +18,7 @@ from ..devices.camera import *
 from ..object import *
 from ..sound import *
 from ..tone_generator import ToneGenerator
+from ..assets import *
 
 ZTYPE_OBJ_WAVEGEN = 0  # Generate waves for an object
 ZTYPE_OBJ_ARRANGEMENT = 1  # Generate a tune arrangement from objects
@@ -27,35 +28,6 @@ PLAYBACK_MARKER_TAG = (
 )  # Object to indicate playback is checked in playback box.
 PLAYBACK_COOLDOWN = 2  # seconds
 
-ASSET_ZONE_BORDER = "assets/images/zone_border_l.png"
-ASSET_ZONE_BORDER_CORNER = "assets/images/zone_border_c.png"
-
-ASSET_STAR = "assets/images/obj_star.png"
-ASSET_SQUARE = "assets/images/obj_square.png"
-ASSET_CIRCLE = "assets/images/obj_circle.png"
-ASSET_TRIANGLE = "assets/images/obj_triangle.png"
-
-ASSET_SAWTOOTH_WAVE = "assets/images/wave_sawtooth.png"
-ASSET_SQUARE_WAVE = "assets/images/wave_square.png"
-ASSET_SINE_WAVE = "assets/images/wave_sine.png"
-ASSET_TRIANGLE_WAVE = "assets/images/wave_triangle.png"
-
-objimg_star = pygame.image.load(ASSET_STAR)
-objimg_square = pygame.image.load(ASSET_SQUARE)
-objimg_circle = pygame.image.load(ASSET_CIRCLE)
-objimg_triangle = pygame.image.load(ASSET_TRIANGLE)
-
-waveimg_sine = pygame.image.load(ASSET_SINE_WAVE)
-waveimg_square = pygame.image.load(ASSET_SQUARE_WAVE)
-waveimg_triangle = pygame.image.load(ASSET_TRIANGLE_WAVE)
-waveimg_sawtooth = pygame.image.load(ASSET_SAWTOOTH_WAVE)
-
-zone_border_l = pygame.image.load(ASSET_ZONE_BORDER)
-zone_border_t = pygame.transform.rotate(zone_border_l, 90)
-zone_border_corner_tl = pygame.image.load(ASSET_ZONE_BORDER_CORNER)
-zone_border_corner_tr = pygame.transform.rotate(zone_border_corner_tl, -90)
-zone_border_corner_br = pygame.transform.rotate(zone_border_corner_tr, -90)
-zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
 
 HIGH_AMP = 4000
 
