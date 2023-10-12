@@ -534,11 +534,11 @@ class Camera:
                         if center_x + 8 < screen_x / 2:
                             offset_x -= self.skew_left * (center_x - screen_x / 2)
                         if center_x - 8 > screen_x / 2:
-                            offset_x += self.skew_right * (screen_x - center_x)
+                            offset_x += self.skew_right * -(center_x - screen_x / 2)
                         if center_y + 8 < screen_y / 2:
                             offset_y -= self.skew_top * (center_y - screen_y / 2)
                         if center_y - 8 > screen_y / 2:
-                            offset_y += self.skew_bottom * (screen_y - center_y)
+                            offset_y += self.skew_bottom * -(center_y - screen_y / 2)
                         xmin += offset_x
                         xmax += offset_x
                         ymin += offset_y
