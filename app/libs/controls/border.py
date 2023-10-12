@@ -52,36 +52,36 @@ class AppBorder(Control):
         self.y = 0
         (self.w, self.h) = controller.get_screen_size()
         
-        corner_width = app_boarder_corner_tl.get_width()
-        corner_height = app_boarder_corner_tl.get_height()
-        border_width = app_boarder_l.get_width()
+        corner_width = asset_app_border_corner_tl.get_width()
+        corner_height = asset_app_border_corner_tl.get_height()
+        border_width = asset_app_border_l.get_width()
         
         # Draw corners
-        screen.blit(app_boarder_corner_tl, (self.x,self.y))
-        screen.blit(app_boarder_corner_tr, (self.x + self.w - corner_width, self.y))
+        screen.blit(asset_app_border_corner_tl, (self.x,self.y))
+        screen.blit(asset_app_border_corner_tr, (self.x + self.w - corner_width, self.y))
         
-        screen.blit(app_boarder_corner_bl, (self.x, 
+        screen.blit(asset_app_border_corner_bl, (self.x, 
                                             self.y + self.h - corner_height))
-        screen.blit(app_boarder_corner_br, (self.x + self.w - app_boarder_corner_tl.get_width(), 
+        screen.blit(asset_app_border_corner_br, (self.x + self.w - asset_app_border_corner_tl.get_width(), 
                                             self.y + self.h - corner_height))
         
         # Draw spanning rectangle
         
         # Vertical lines
-        screen.blit(pygame.transform.scale(app_boarder_l, (border_width, self.h 
+        screen.blit(pygame.transform.scale(asset_app_border_l, (border_width, self.h 
                                                            - corner_height * 2)),
                     (self.x, self.y + corner_height))
         
-        screen.blit(pygame.transform.scale(app_boarder_l, (border_width, self.h 
+        screen.blit(pygame.transform.scale(asset_app_border_l, (border_width, self.h 
                                                            - corner_height * 2)),
                     (self.x + self.w - border_width, self.y + corner_height))
         
         # Horizontal lines
-        screen.blit(pygame.transform.scale(app_border_t, (self.w - corner_width * 2,  
+        screen.blit(pygame.transform.scale(asset_app_border_t, (self.w - corner_width * 2,  
                                                            border_width)),
                     (self.x + corner_width, self.y))
         
-        screen.blit(pygame.transform.scale(app_border_t, (self.w - corner_width * 2,  
+        screen.blit(pygame.transform.scale(asset_app_border_t, (self.w - corner_width * 2,  
                                                            border_width)),
                     (self.x + corner_width, self.y + self.h - border_width))
         

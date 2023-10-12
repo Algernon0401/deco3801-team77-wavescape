@@ -45,48 +45,6 @@ def app_init():
         for arg in sys.argv[1:]:
             if arg == "-mo":
                 controller.add_mouse_object = False  # No longer valid
-            if arg == "-tz":
-                controller.add_persistent_object(
-                    controller.zone_border_object, (190, 190), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (790, 190), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (790, 790), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (190, 790), (24, 24)
-                )
-                print("-tz not allowed - zone controller missing")
-                return
-            if arg == "-tz2":
-                controller.add_persistent_object(
-                    controller.zone_border_object, (190, 190), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (790, 190), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (790, 790), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (190, 790), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (800, 190), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (1400, 190), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (1400, 790), (24, 24)
-                )
-                controller.add_persistent_object(
-                    controller.zone_border_object, (800, 790), (24, 24)
-                )
-                print("-tz2 not allowed - zone controller missing")
-                return
             if arg == "-np":
                 controller.playback_checkmark_required = False
             if arg == "-feed":

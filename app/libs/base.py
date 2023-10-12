@@ -57,7 +57,7 @@ class AppController:
         self.sound_player = Sound()
         
         self.objects = []
-        from .controls.zone import Zone
+        # from .controls.zone import Zone
         # self.global_zone = Zone(self)
         # self.global_zone.is_global = True
         # self.use_global_zone = False

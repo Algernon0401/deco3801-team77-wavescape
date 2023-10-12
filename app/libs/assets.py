@@ -16,6 +16,7 @@ ASSET_MENU_BUTTON_RECONNECT_BOARD = 'assets/images/menu/button_reconnect_board.p
 
 ASSET_CALIBRATION_STEP_ONE = 'assets/images/calibration.s1.png'
 ASSET_CALIBRATION_STEP_TWO = 'assets/images/calibration.s2.png'
+ASSET_CALIBRATION_STEP_THREE = 'assets/images/calibration.s3.png'
 ASSET_CALIBRATION_CIRCLE = 'assets/images/calibration_circle.png'
 
 ASSET_APP_BORDER = 'assets/images/zone_border_l.png'
@@ -56,35 +57,36 @@ asset_menu_button_reconnect_board = pygame.image.load(ASSET_MENU_BUTTON_RECONNEC
 
 asset_calibration_step_one = pygame.image.load(ASSET_CALIBRATION_STEP_ONE)
 asset_calibration_step_two = pygame.image.load(ASSET_CALIBRATION_STEP_TWO)
+asset_calibration_step_three = pygame.image.load(ASSET_CALIBRATION_STEP_THREE)
+
 asset_calibration_circle = pygame.image.load(ASSET_CALIBRATION_CIRCLE)
 
+asset_app_border_l = pygame.image.load(ASSET_APP_BORDER)
+asset_app_border_t = pygame.transform.rotate(asset_app_border_l, 90)
+asset_app_border_corner_tl = pygame.image.load(ASSET_APP_BORDER_CORNER)
+asset_app_border_corner_tr = pygame.transform.rotate(asset_app_border_corner_tl, -90)
+asset_app_border_corner_br = pygame.transform.rotate(asset_app_border_corner_tr, -90)
+asset_app_border_corner_bl = pygame.transform.rotate(asset_app_border_corner_br, -90)
 
-app_boarder_l = pygame.image.load(ASSET_APP_BORDER)
-app_border_t = pygame.transform.rotate(app_boarder_l, 90)
-app_boarder_corner_tl = pygame.image.load(ASSET_APP_BORDER_CORNER)
-app_boarder_corner_tr = pygame.transform.rotate(app_boarder_corner_tl, -90)
-app_boarder_corner_br = pygame.transform.rotate(app_boarder_corner_tr, -90)
-app_boarder_corner_bl = pygame.transform.rotate(app_boarder_corner_br, -90)
+asset_invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
+asset_loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
+asset_invalid_model_overlay = pygame.image.load(ASSET_MODEL_INVALID_OVERLAY)
+asset_loading_model_overlay = pygame.image.load(ASSET_MODEL_LOADING_OVERLAY)
+asset_invalid_board_overlay = pygame.image.load(ASSET_BOARD_INVALID_OVERLAY)
 
-invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
-loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
-invalid_model_overlay = pygame.image.load(ASSET_MODEL_INVALID_OVERLAY)
-loading_model_overlay = pygame.image.load(ASSET_MODEL_LOADING_OVERLAY)
-invalid_board_overlay = pygame.image.load(ASSET_BOARD_INVALID_OVERLAY)
+asset_objimg_star = pygame.image.load(ASSET_STAR)
+asset_objimg_square = pygame.image.load(ASSET_SQUARE)
+asset_objimg_circle = pygame.image.load(ASSET_CIRCLE)
+asset_objimg_triangle = pygame.image.load(ASSET_TRIANGLE)
 
-objimg_star = pygame.image.load(ASSET_STAR)
-objimg_square = pygame.image.load(ASSET_SQUARE)
-objimg_circle = pygame.image.load(ASSET_CIRCLE)
-objimg_triangle = pygame.image.load(ASSET_TRIANGLE)
+asset_waveimg_sine = pygame.image.load(ASSET_SINE_WAVE)
+asset_waveimg_square = pygame.image.load(ASSET_SQUARE_WAVE)
+asset_waveimg_triangle = pygame.image.load(ASSET_TRIANGLE_WAVE)
+asset_waveimg_sawtooth = pygame.image.load(ASSET_SAWTOOTH_WAVE)
 
-waveimg_sine = pygame.image.load(ASSET_SINE_WAVE)
-waveimg_square = pygame.image.load(ASSET_SQUARE_WAVE)
-waveimg_triangle = pygame.image.load(ASSET_TRIANGLE_WAVE)
-waveimg_sawtooth = pygame.image.load(ASSET_SAWTOOTH_WAVE)
-
-zone_border_l = pygame.image.load(ASSET_ZONE_BORDER)
-zone_border_t = pygame.transform.rotate(zone_border_l, 90)
-zone_border_corner_tl = pygame.image.load(ASSET_ZONE_BORDER_CORNER)
-zone_border_corner_tr = pygame.transform.rotate(zone_border_corner_tl, -90)
-zone_border_corner_br = pygame.transform.rotate(zone_border_corner_tr, -90)
-zone_border_corner_bl = pygame.transform.rotate(zone_border_corner_br, -90)
+asset_zone_border_l = pygame.image.load(ASSET_ZONE_BORDER)
+asset_zone_border_t = pygame.transform.rotate(asset_zone_border_l, 90)
+asset_zone_border_corner_tl = pygame.image.load(ASSET_ZONE_BORDER_CORNER)
+asset_zone_border_corner_tr = pygame.transform.rotate(asset_zone_border_corner_tl, -90)
+asset_zone_border_corner_br = pygame.transform.rotate(asset_zone_border_corner_tr, -90)
+asset_zone_border_corner_bl = pygame.transform.rotate(asset_zone_border_corner_br, -90)

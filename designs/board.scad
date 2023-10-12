@@ -138,10 +138,10 @@ module board_top() {
      }
 }
 
-//board_base();
+board_base();
 
 translate([0, 0,25]) {
-    board_input_holder();
+    //board_input_holder();
 }
 
 translate([-1.5, -1.5, 36.5]) {

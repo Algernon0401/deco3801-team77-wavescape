@@ -470,18 +470,18 @@ class Zone(Control):
         Arguments:
                 screen -- the surface this control is drawn on.
         """
-        corner_width = zone_border_corner_tl.get_width()
-        corner_height = zone_border_corner_tl.get_height()
-        border_width = zone_border_l.get_width()
+        corner_width = asset_zone_border_corner_tl.get_width()
+        corner_height = asset_zone_border_corner_tl.get_height()
+        border_width = asset_zone_border_l.get_width()
 
         # Draw corners
-        screen.blit(zone_border_corner_tl, (x, y))
-        screen.blit(zone_border_corner_tr, (x + w - corner_width, y))
+        screen.blit(asset_zone_border_corner_tl, (x, y))
+        screen.blit(asset_zone_border_corner_tr, (x + w - corner_width, y))
 
-        screen.blit(zone_border_corner_bl, (x, y + h - corner_height))
+        screen.blit(asset_zone_border_corner_bl, (x, y + h - corner_height))
         screen.blit(
-            zone_border_corner_br,
-            (x + w - zone_border_corner_tl.get_width(), y + h - corner_height),
+            asset_zone_border_corner_br,
+            (x + w - asset_zone_border_corner_tl.get_width(), y + h - corner_height),
         )
 
         # Draw spanning rectangle
@@ -489,14 +489,14 @@ class Zone(Control):
         # Vertical lines
         screen.blit(
             pygame.transform.scale(
-                zone_border_l, (border_width, h - corner_height * 2)
+                asset_zone_border_l, (border_width, h - corner_height * 2)
             ),
             (x, y + corner_height),
         )
 
         screen.blit(
             pygame.transform.scale(
-                zone_border_l, (border_width, h - corner_height * 2)
+                asset_zone_border_l, (border_width, h - corner_height * 2)
             ),
             (x + w - border_width, y + corner_height),
         )
@@ -505,19 +505,19 @@ class Zone(Control):
             for i in range(7):
                 screen.blit(
                     pygame.transform.scale(
-                        zone_border_l, (border_width, h - corner_height * 2)
+                        asset_zone_border_l, (border_width, h - corner_height * 2)
                     ),
                     (x + (i + 1) * w / 8 - border_width, y + corner_height),
                 )
 
         # Horizontal lines
         screen.blit(
-            pygame.transform.scale(zone_border_t, (w - corner_width * 2, border_width)),
+            pygame.transform.scale(asset_zone_border_t, (w - corner_width * 2, border_width)),
             (x + corner_width, y),
         )
 
         screen.blit(
-            pygame.transform.scale(zone_border_t, (w - corner_width * 2, border_width)),
+            pygame.transform.scale(asset_zone_border_t, (w - corner_width * 2, border_width)),
             (x + corner_width, y + h - border_width),
         )
 
@@ -537,13 +537,13 @@ class Zone(Control):
 
             objimg = None
             if self.wave_gen_tag == Tag.STAR.value:
-                objimg = objimg_star
+                objimg = asset_objimg_star
             elif self.wave_gen_tag == Tag.SQUARE.value:
-                objimg = objimg_square
+                objimg = asset_objimg_square
             elif self.wave_gen_tag == Tag.TRIANGLE.value:
-                objimg = objimg_triangle
+                objimg = asset_objimg_triangle
             elif self.wave_gen_tag == Tag.CIRCLE.value:
-                objimg = objimg_circle
+                objimg = asset_objimg_circle
 
             if objimg is not None:
                 screen.blit(
@@ -882,13 +882,13 @@ class ObjectNode:
             type = connection.sound_type()
 
             if type == TYPE_SINE:
-                wave_img = waveimg_sine
+                wave_img = asset_waveimg_sine
             elif type == TYPE_SQUARE:
-                wave_img = waveimg_square
+                wave_img = asset_waveimg_square
             elif type == TYPE_TRIANGLE:
-                wave_img = waveimg_triangle
+                wave_img = asset_waveimg_triangle
             elif type == TYPE_SAWTOOTH:
-                wave_img = waveimg_sawtooth
+                wave_img = asset_waveimg_sawtooth
 
             if wave_img is not None:
                 (cx,cy) = connection.center

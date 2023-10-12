@@ -53,7 +53,7 @@ class Status(Control):
         overlay_y = 5
         # Check if camera is loading, and if so display loading image
         if controller.camera.loading:
-            screen.blit(loading_camera_overlay, (5,overlay_y))
+            screen.blit(asset_loading_camera_overlay, (5,overlay_y))
             overlay_y += 20
         else:    
             # Capture frame, and if none then display invalid camera image.
@@ -63,20 +63,20 @@ class Status(Control):
                 if frame is not None:
                     self.camera_verified = True
             if frame is None:
-                screen.blit(invalid_camera_overlay, (5,overlay_y))
+                screen.blit(asset_invalid_camera_overlay, (5,overlay_y))
                 overlay_y += 20
         
         # Check if model is loading, and if so display loading image.
         if controller.camera.model_loading:
-            screen.blit(loading_model_overlay, (5,overlay_y))
+            screen.blit(asset_loading_model_overlay, (5,overlay_y))
             overlay_y += 20
         elif controller.camera.model is None:
-            screen.blit(invalid_model_overlay, (5,overlay_y))
+            screen.blit(asset_invalid_model_overlay, (5,overlay_y))
             overlay_y += 20
             
         # Check if board is invalid (since board loads quickly, no need for loading overlay).
         if not controller.board_valid:
-            screen.blit(invalid_board_overlay, (5,overlay_y))
+            screen.blit(asset_invalid_board_overlay, (5,overlay_y))
             overlay_y += 20
             
         pass

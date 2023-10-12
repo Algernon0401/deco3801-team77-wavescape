@@ -13,6 +13,7 @@ from ..object import *
 from ..assets import *
 
 DISPLAY_OFFSET_FROM_BOTTOM = 300
+NO_OF_CALIBRATION_STEPS = 3
 
 class Calibration(Control):
     """
@@ -34,6 +35,7 @@ class Calibration(Control):
         self.y = 0
         (self.w, self.h) = controller.get_screen_size()
         self.current_step = 1
+        self.adjust_mode = 0 # 0 for x, 1 for y.
         self.step_tip_offset = 0
         self.last_time_updated = datetime.datetime.now()
     
@@ -79,8 +81,8 @@ class Calibration(Control):
         
         # Display circles shapes
         for obj in controller.get_cam_objects():
-            if obj.tag == "circle":
-                screen.blit()
+            if obj.tag == Tag.CIRCLE.value:     
+                screen.blit(pygame.transform.scale(asset_objimg_circle, (obj.w, obj.h)), (obj.x, obj.y))
         
         # Ensure step images are placed in center of screen.
         placement_x = screen_w / 2 - asset_calibration_step_one.get_width() / 2 
@@ -90,8 +92,31 @@ class Calibration(Control):
             screen.blit(asset_calibration_step_one, (placement_x, screen_h-self.step_tip_offset))
         elif self.current_step == 2:
             screen.blit(asset_calibration_step_two, (placement_x, screen_h-self.step_tip_offset))
+        elif self.current_step == 3:
+             screen.blit(asset_calibration_step_three, (placement_x, screen_h-self.step_tip_offset))
         pass
     
+    def next_step(self, controller: AppController):
+        """
+            Moves onto the next step
+        """
+        # Move onto next step
+        self.current_step += 1
+                
+        # Check if we are finished calibration
+        if self.current_step >= NO_OF_CALIBRATION_STEPS+1:
+            # Finish calibration
+            controller.finish_calibration()
+            
+    def last_step(self, controller: AppController):
+        """
+            Moves onto the last step
+        """
+        # Move onto next step
+        self.current_step -= 1
+        if self.current_step <= 1:
+            self.current_step = 1        
+        
     def event(self, controller: AppController, event: pygame.event.Event):
         """
             Receives an event from the pygame interface.
@@ -102,26 +127,27 @@ class Calibration(Control):
         """
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSE_LEFT:
-                # Move onto next step
-                self.current_step += 1
-                
-                # Check if we are finished calibration
-                if self.current_step >= 3:
-                    # Finish calibration
-                    controller.finish_calibration()
+                self.next_step(controller)
+            elif event.button == MOUSE_RIGHT:
+                # Change between adjusting x/y
+                self.adjust_mode = 1 - self.adjust_mode
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                self.next_step(controller)
+            elif event.key == pygame.K_LEFT:
+                self.last_step(controller)
         elif event.type == pygame.MOUSEWHEEL:
-            if self.current_step == 1:
-                # Top-bottom calibration
-                controller.camera.scale_y += event.y / 100
-                if controller.camera.scale_y < 0.05:
-                    controller.camera.scale_y = 0.05
-                if controller.camera.scale_y > 2:
-                    controller.camera.scale_y = 2
-            elif self.current_step == 2:
-                # Left-right calibration
-                controller.camera.scale_x += event.y / 100
-                if controller.camera.scale_x < 0.05:
-                    controller.camera.scale_x = 0.05
-                if controller.camera.scale_x > 2:
-                    controller.camera.scale_y = 2
+            if self.current_step == 2:
+                # Center offset
+                if self.adjust_mode == 0:
+                    controller.camera.offset_x += event.y / 200
+                else:
+                    controller.camera.offset_y += event.y / 200
+            elif self.current_step == 3:
+                # Object sizing
+                if self.adjust_mode == 0:
+                    controller.camera.scale_x += event.y / 100
+                else:
+                    controller.camera.scale_y += event.y / 100
+                
         pass
