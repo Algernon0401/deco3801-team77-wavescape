@@ -87,10 +87,6 @@ def app_init():
                 )
                 print("-tz2 not allowed - zone controller missing")
                 return
-            if arg == "-gz":
-                controller.use_global_zone = True
-                print("-gz not allowed")
-                return
             if arg == "-np":
                 controller.playback_checkmark_required = False
             if arg == "-feed":
@@ -179,7 +175,7 @@ def app_init():
             control.update(controller)
 
         # Update global zone control
-        controller.global_zone.update(controller)
+        # controller.global_zone.update(controller)
 
         # Update all logic controls
         for lc in controller.get_controllers():
@@ -248,7 +244,7 @@ def app_render(controller, screen):
             control.render(controller, screen)
 
         # Render global zone control
-        controller.global_zone.render(controller, screen)
+        # controller.global_zone.render(controller, screen)
 
         # Render all overlaying controls (all controls that must be on top of everything else)
         for control in controller.get_static_controls():
