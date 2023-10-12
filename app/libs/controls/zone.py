@@ -332,9 +332,10 @@ class Zone(Control):
                     self.time_since_playback_existed = datetime.datetime.now()
                 
                 if controller.playback_checkmark_required:
-                    self.sound_enabled = (
+                    time_passed = (
                         datetime.datetime.now() - self.time_since_playback_existed
-                    ).total_seconds() < PLAYBACK_COOLDOWN
+                    ).total_seconds()
+                    self.sound_enabled = time_passed < PLAYBACK_COOLDOWN
 
         if self.type == ZTYPE_OBJ_WAVEGEN:
             if self.sound_thread is None:
@@ -430,6 +431,7 @@ class Zone(Control):
         while self.sounds_active and controller.is_running():
             time.sleep(0.1)
             if not self.sound_enabled:
+                controller.sound_player.cleanup(self, [])
                 continue
             # self.play_sounds(controller, self.current_objects, controller.sound_player)
             waves = []

@@ -17,6 +17,7 @@ ASSET_MENU_BUTTON_RECONNECT_BOARD = 'assets/images/menu/button_reconnect_board.p
 ASSET_CALIBRATION_STEP_ONE = 'assets/images/calibration.s1.png'
 ASSET_CALIBRATION_STEP_TWO = 'assets/images/calibration.s2.png'
 ASSET_CALIBRATION_STEP_THREE = 'assets/images/calibration.s3.png'
+ASSET_CALIBRATION_STEP_FOUR = 'assets/images/calibration.s4.png'
 ASSET_CALIBRATION_CIRCLE = 'assets/images/calibration_circle.png'
 
 ASSET_APP_BORDER = 'assets/images/zone_border_l.png'
@@ -58,6 +59,7 @@ asset_menu_button_reconnect_board = pygame.image.load(ASSET_MENU_BUTTON_RECONNEC
 asset_calibration_step_one = pygame.image.load(ASSET_CALIBRATION_STEP_ONE)
 asset_calibration_step_two = pygame.image.load(ASSET_CALIBRATION_STEP_TWO)
 asset_calibration_step_three = pygame.image.load(ASSET_CALIBRATION_STEP_THREE)
+asset_calibration_step_four = pygame.image.load(ASSET_CALIBRATION_STEP_FOUR)
 
 asset_calibration_circle = pygame.image.load(ASSET_CALIBRATION_CIRCLE)
 

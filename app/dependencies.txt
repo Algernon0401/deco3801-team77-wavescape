@@ -7,3 +7,4 @@ Numpy: numpy
 Pyserial: pyserial
 Numba: numba
 ScreenInfo: screeninfo
+Serial: serial
