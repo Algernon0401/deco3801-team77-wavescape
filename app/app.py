@@ -91,6 +91,8 @@ def app_init():
                 controller.use_global_zone = True
                 print("-gz not allowed")
                 return
+            if arg == "-np":
+                controller.playback_checkmark_required = False
             if arg == "-feed":
                 controller.display_feed = True
     except:

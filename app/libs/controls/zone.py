@@ -226,7 +226,7 @@ class Zone(Control):
         self.offset_y = 0
         self.metre = 0
         self.sound_enabled = True  # True if sound playback occurs
-        self.time_since_playback_existed = datetime.datetime.now()
+        self.time_since_playback_existed = datetime.datetime.min
         self.sound_thread = None
         self.arrange_thread = None
 
@@ -357,9 +357,11 @@ class Zone(Control):
                     PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
                 ):
                     self.time_since_playback_existed = datetime.datetime.now()
-                self.sound_enabled = (
-                    datetime.datetime.now() - self.time_since_playback_existed
-                ).total_seconds() < PLAYBACK_COOLDOWN
+                
+                if controller.playback_checkmark_required:
+                    self.sound_enabled = (
+                        datetime.datetime.now() - self.time_since_playback_existed
+                    ).total_seconds() < PLAYBACK_COOLDOWN
 
         if self.type == ZTYPE_OBJ_WAVEGEN:
             if self.sound_thread is None:

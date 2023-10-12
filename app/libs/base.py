@@ -46,6 +46,7 @@ class AppController:
         self.removed_controls = []  # Next control list (controls removed)
         self.running = True
         self.calibrating = False
+        self.playback_checkmark_required = True
         self.camera = Camera()
         self.single_update = False
         self.screen = screen
