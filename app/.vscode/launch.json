@@ -9,9 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": [
-                
-            ],
+            "args": [],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -28,10 +26,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": [
-                "-mo",
-                "-tz"
-            ],
+            "args": ["-mo", "-np"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -40,9 +35,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": [
-                "-tz"
-            ],
+            "args": ["-tz"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -59,9 +52,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": [
-                "-tz2"
-            ],
+            "args": ["-tz2"],
             "console": "integratedTerminal",
             "justMyCode": true
         }

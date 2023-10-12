@@ -14,6 +14,9 @@ from .devices.camera import Camera
 from .devices.audio import AudioSystem
 from .sound import *
 
+# Import control board
+from .devices.control_board import ControlBoard
+
 # Import camera object
 from .object import *
 
@@ -48,6 +51,7 @@ class AppController:
         self.calibrating = False
         self.playback_checkmark_required = True
         self.camera = Camera()
+        self.board = ControlBoard()
         self.single_update = False
         self.screen = screen
         self.sound_player = Sound()
@@ -124,12 +128,6 @@ class AppController:
         Swaps the current camera with another camera.
         """
         self.camera.init_next_camera()
-        
-    def reconnect_board(self):
-        """
-        Attempts to reconnect to the board 
-        """
-        pass
         
     def toggle_fullscreen(self):
         """
@@ -388,6 +386,22 @@ class AppController:
         (bx,by,bw,bh) = bounds
 
         return mx >= bx and my >= by and mx < bx + bw and my < by + bh
+    
+    def connect_board(self):
+        """
+        Initializes the control board.
+        """
+        self.board.connect()
+
+    def set_volume(self):
+        """
+        Sets the volume of the audio system.
+        """
+        volume = self.board.get_reading("A0") / 1023
+        for channel, wave in self.sound_player.playing.items():
+            if wave is None:
+                continue
+            channel.set_volume(wave.volume * volume)
 
 
 class Control:

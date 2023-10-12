@@ -10,6 +10,7 @@ class ControlBoard:
 
     def __init__(self) -> None:
         self.ser = None # serial connection
+        self.port = None # port to connect to
         # dictionary to store the readings
         self.readings = {
             "A0": 1023,
@@ -20,22 +21,35 @@ class ControlBoard:
             "D5": 1023,
         }
     
-    def connect(self, port="COM5", baudrate=115200) -> None:
+    def connect(self, baudrate=115200) -> None:
         """
         Connects to the control board.
         """
-        try:
-            self.ser = serial.Serial(port, baudrate)
-            print(f"Connected to {port} at {baudrate} baudrate")
-        except SerialException:
-            print("Could not connect to control board")
-
+        if self.port is not None:
+            self.ser = serial.Serial(f"COM{i}", baudrate)
+            line = self.ser.readline().decode('utf-8').split(";")[:-1]
+            if len(line) == 6:
+                print(f"Reconnected to COM{i}")
+                return
+            else:
+                self.ser.close()
+        for i in range(10):
+            try:
+                self.ser = serial.Serial(f"COM{i}", baudrate)
+                line = self.ser.readline().decode('utf-8').split(";")[:-1]
+                if len(line) == 6:
+                    self.port = f"COM{i}"
+                    print(f"Connected to COM{i}")
+                else:
+                    self.ser.close()
+            except SerialException:
+                continue
 
     def read_from_port(self) -> None:
         """
         Reads from the serial port and updates the readings dictionary.
         """
-        if self.ser is None or not self.ser.isOpen():
+        if self.ser is None or not self.ser.isOpen() or self.port is None:
             return
         self.ser.flushInput()
         line = self.ser.readline().decode('utf-8').split(";")[:-1]
