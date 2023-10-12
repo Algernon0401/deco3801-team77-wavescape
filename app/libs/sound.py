@@ -156,7 +156,7 @@ class Sound:
         self.sample_rate = sample_rate
         self.bit_rate = bit_rate
         self.speaker = speaker
-        self.playing = {}
+        # self.playing = {}
 
         self.LEFT = 0
         self.RIGHT = 1
@@ -222,14 +222,11 @@ class Sound:
         if wave is None:
             return
         
-        if zone not in self.playing.keys():
-            self.playing[zone] = {}
-        
-        elif wave in self.playing[zone].values():
+        if wave in zone.playing.values():
             return
 
         channel = self.get_next_channel()
-        self.playing[zone][channel] = wave
+        zone.playing[channel] = wave
         
         if wave.buffer is None:
            wave.buffer = self.generate_buffer(wave)
@@ -248,12 +245,12 @@ class Sound:
     
     def cleanup(self, zone, waves: list):
         cull_list = []
-        for channel, wave in self.playing[zone].items():
+        for channel, wave in zone.playing.items():
             if wave not in waves:
                 channel.stop()
                 cull_list.append(channel)
         for channel in cull_list:
-            self.playing[zone].pop(channel)
+            zone.playing.pop(channel)
 
 
 
