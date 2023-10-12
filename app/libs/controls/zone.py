@@ -178,6 +178,7 @@ class Zone(Control):
         self.w = 128
         self.h = 128  # Standard size
         self.tone_gen = ToneGenerator()
+        self.playing = {}
         # Allow for center definitions
         self.center_x = 0
         self.center_y = 0
