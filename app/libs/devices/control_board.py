@@ -1,6 +1,7 @@
 import serial
 import time
 from serial.serialutil import SerialException
+from serial.tools import list_ports
 
 class ControlBoard:
     """
@@ -8,9 +9,9 @@ class ControlBoard:
     The control board has support for 3 analog inputs and 3 digital inputs currently.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, baudrate = 115200) -> None:
         self.ser = None # serial connection
-        self.port = None # port to connect to
+        self.baudrate = baudrate
         # dictionary to store the readings
         self.readings = {
             "A0": 1023,
@@ -20,32 +21,36 @@ class ControlBoard:
             "D4": 1023,
             "D5": 1023,
         }
+        self.connect()
     
-    def connect(self, baudrate=115200) -> None:
+    def connect(self) -> bool:
         """
-        Connects to the control board.
+        Connects or reconnects to the control board.
         """
-        if self.ser is not None and self.ser.isOpen():
-            return
-        if self.port is not None:
-            self.ser = serial.Serial(f"COM{i}", baudrate)
-            line = self.ser.readline().decode('utf-8').split(";")[:-1]
-            if len(line) == 6:
-                print(f"Reconnected to COM{i}")
-                return
+        if self.ser is not None:
+            # already connected
+            if self.ser.isOpen():
+                return True
             else:
                 self.ser.close()
-        for i in range(10):
-            try:
-                self.ser = serial.Serial(f"COM{i}", baudrate)
-                line = self.ser.readline().decode('utf-8').split(";")[:-1]
-                if len(line) == 6:
-                    self.port = f"COM{i}"
-                    print(f"Connected to COM{i}")
-                else:
-                    self.ser.close()
-            except SerialException:
-                continue
+        
+        # find the port
+        ports = list_ports.comports()
+        for port in ports:
+            if "Arduino" in port.description:
+                # Connect
+                self.ser = serial.Serial(port.device, self.baudrate)
+                return True
+            
+        return False
+    
+    def is_connected(self) -> bool:
+        """
+        Returns whether the control board is connected or not.
+        """
+        if self.ser is None:
+            return False
+        return self.ser.isOpen()
 
     def read_from_port(self) -> None:
         """

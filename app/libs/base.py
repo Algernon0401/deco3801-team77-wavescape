@@ -191,6 +191,8 @@ class AppController:
             if control.interactive and control.is_mouse_over():
                 self.hover_control = control
                 break
+        
+        self.set_volume()
             
     def create_zone(self, position):
         """
@@ -402,6 +404,12 @@ class AppController:
         for i in range(channels):
             channel = pygame.mixer.Channel(i)
             channel.set_volume(volume)
+    
+    def board_connected(self):
+        """
+        Returns true if the control board is connected.
+        """
+        return self.board.is_connected()
 
 
 class Control:
