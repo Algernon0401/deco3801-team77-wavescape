@@ -64,8 +64,7 @@ def load_yolo_model(path):
         # Load the model from a file
         model = None
         if path is not None:
-            # model = YOLO(ASSET_TRAINED_MODEL)
-            model = YOLO("yolov8n.pt")
+            model = YOLO(ASSET_TRAINED_MODEL)
         else:
             model = YOLO("yolov8n.pt")
 

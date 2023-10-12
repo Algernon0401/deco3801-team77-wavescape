@@ -15,11 +15,13 @@ ASSET_CAMERA_INVALID_OVERLAY = 'assets/images/camera_invalid_overlay.png'
 ASSET_CAMERA_LOADING_OVERLAY = 'assets/images/camera_loading_overlay.png'
 ASSET_MODEL_INVALID_OVERLAY = 'assets/images/model_invalid_overlay.png'
 ASSET_MODEL_LOADING_OVERLAY = 'assets/images/model_loading_overlay.png'
+ASSET_BOARD_INVALID_OVERLAY = 'assets/images/board_invalid_overlay.png'
 
 invalid_camera_overlay = pygame.image.load(ASSET_CAMERA_INVALID_OVERLAY)
 loading_camera_overlay = pygame.image.load(ASSET_CAMERA_LOADING_OVERLAY)
 invalid_model_overlay = pygame.image.load(ASSET_MODEL_INVALID_OVERLAY)
 loading_model_overlay = pygame.image.load(ASSET_MODEL_LOADING_OVERLAY)
+invalid_board_overlay = pygame.image.load(ASSET_BOARD_INVALID_OVERLAY)
 
 class Status(Control):
     """
@@ -81,6 +83,12 @@ class Status(Control):
         elif controller.camera.model is None:
             screen.blit(invalid_model_overlay, (5,overlay_y))
             overlay_y += 20
+            
+        # Check if board is invalid (since board loads quickly, no need for loading overlay).
+        if not controller.board_valid:
+            screen.blit(invalid_board_overlay, (5,overlay_y))
+            overlay_y += 20
+            
         pass
     
     def event(self, controller: AppController, event: pygame.event.Event):

@@ -25,6 +25,7 @@ ASSET_MENU_BUTTON_QUIT = 'assets/images/menu/button_quit.png'
 ASSET_MENU_BUTTON_CALIBRATE = 'assets/images/menu/button_calibrate.png'
 ASSET_MENU_BUTTON_SWAP_CAMERA = 'assets/images/menu/button_swap_camera.png'
 ASSET_MENU_BUTTON_TOGGLE_FULLSCREEN = 'assets/images/menu/button_toggle_fullscreen.png'
+ASSET_MENU_BUTTON_RECONNECT_BOARD = 'assets/images/menu/button_reconnect_board.png'
 
 asset_menu_bar = pygame.image.load(ASSET_MENU_BAR)
 asset_menu_bar_hover = pygame.image.load(ASSET_MENU_BAR_STATE_HOVER)
@@ -39,6 +40,7 @@ asset_menu_button_quit = pygame.image.load(ASSET_MENU_BUTTON_QUIT)
 asset_menu_button_calibrate = pygame.image.load(ASSET_MENU_BUTTON_CALIBRATE)
 asset_menu_button_toggle_fullscreen = pygame.image.load(ASSET_MENU_BUTTON_TOGGLE_FULLSCREEN)
 asset_menu_button_swap_camera = pygame.image.load(ASSET_MENU_BUTTON_SWAP_CAMERA)
+asset_menu_button_reconnect_board = pygame.image.load(ASSET_MENU_BUTTON_RECONNECT_BOARD)
 
 class MenuItem:
         """
@@ -61,6 +63,7 @@ items = [
     MenuItem(asset_menu_button_toggle_fullscreen, lambda controller: controller.toggle_fullscreen()),
     MenuItem(asset_menu_button_swap_camera, lambda controller: controller.swap_camera()),
     MenuItem(asset_menu_button_calibrate, lambda controller: controller.setup_calibration()),
+    MenuItem(asset_menu_button_reconnect_board, lambda controller: controller.reconnect_board()),
     MenuItem(asset_menu_button_quit, lambda controller: controller.exit()),
     MenuItem(asset_menu_button_hide, lambda controller: None)
 ]

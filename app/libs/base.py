@@ -65,6 +65,7 @@ class AppController:
         self.zone_border_object = Tag.ARROW.value
         self.current_screen = 0
         self.is_fullscreen = True
+        self.board_valid = False
         
         
     def setup_calibration(self):
@@ -122,6 +123,12 @@ class AppController:
         Swaps the current camera with another camera.
         """
         self.camera.init_next_camera()
+        
+    def reconnect_board(self):
+        """
+        Attempts to reconnect to the board 
+        """
+        pass
         
     def toggle_fullscreen(self):
         """
