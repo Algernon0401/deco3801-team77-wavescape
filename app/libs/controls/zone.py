@@ -48,6 +48,14 @@ TYPE_SAWTOOTH = 2
 TYPE_TRIANGLE = 3
 TYPE_PULSE = 4
 
+METRONOME_BPM = 30  # Beats Per Minute
+
+highlighted_zones_rlock = threading.RLock()
+highlighted_zones = {Tag.STAR.value: False,
+                     Tag.CIRCLE.value: False,
+                     Tag.SQUARE.value: False,
+                     Tag.TRIANGLE.value: False}
+
 
 def sine_factor(d, time, dist_per_cycle, time_per_cycle):
     """
@@ -306,6 +314,8 @@ class Zone(Control):
         Arguments:
             controller -- the app controller this control runs from
         """
+        global highlighted_zones_rlock
+        global highlighted_zones
         objects = None
         (w, h) = controller.get_screen_size()
         if self.is_global:
@@ -325,10 +335,11 @@ class Zone(Control):
                 self.h = h * self.scaled_h + self.addsize_h
             objects = controller.get_cam_objects_in_bounds(self.get_bounds())
             if self.type == ZTYPE_OBJ_WAVEGEN:
-                if controller.has_object_in_bounds(
-                    PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
-                ):
-                    self.time_since_playback_existed = datetime.datetime.now()
+                with highlighted_zones_rlock:
+                    if controller.has_object_in_bounds(
+                        PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
+                    ) or highlighted_zones[self.wave_gen_tag]:
+                        self.time_since_playback_existed = datetime.datetime.now()
                 
                 if controller.playback_checkmark_required:
                     time_passed = (
@@ -345,7 +356,6 @@ class Zone(Control):
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
             if self.arrange_thread is None:
-                pass
                 self.arrange_thread = threading.Thread(
                     target=self.metre_count, args=[controller]
                 )
@@ -384,8 +394,14 @@ class Zone(Control):
                 )
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
-            # You may implement your arrangement code here if you wish.
-            pass
+            with highlighted_zones_rlock:
+                highlighted_zones = dict.fromkeys(highlighted_zones, False)
+            (x, y, w, h) = self.get_bounds()
+            highlighted_objects = controller.get_cam_objects_in_bounds((x + self.metre * w/8, y, w/8, h))
+            for object in highlighted_objects:
+                if object is not None:
+                    with highlighted_zones_rlock:
+                        highlighted_zones[object.tag] = True
 
         return
 
@@ -451,7 +467,7 @@ class Zone(Control):
 
     def metre_count(self, controller):
         while controller.is_running():
-            time.sleep(1)
+            time.sleep(60/METRONOME_BPM)
             self.metre = 0 if self.metre == 7 else self.metre + 1  # loop from 0 to 7
 
     def prerender(self, controller: AppController):
