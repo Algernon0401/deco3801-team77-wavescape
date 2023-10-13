@@ -26,7 +26,7 @@ ZTYPE_OBJ_ARRANGEMENT = 1  # Generate a tune arrangement from objects
 PLAYBACK_MARKER_TAG = (
     Tag.PLUS.value
 )  # Object to indicate playback is checked in playback box.
-PLAYBACK_COOLDOWN = 2  # seconds
+PLAYBACK_COOLDOWN = 0.1  # seconds
 
 HIGH_AMP = 4000
 
@@ -48,7 +48,7 @@ TYPE_SAWTOOTH = 2
 TYPE_TRIANGLE = 3
 TYPE_PULSE = 4
 
-METRONOME_BPM = 30  # Beats Per Minute
+METRONOME_BPM = 60  # Beats Per Minute
 
 highlighted_zones_rlock = threading.RLock()
 highlighted_zones = {Tag.STAR.value: False,
