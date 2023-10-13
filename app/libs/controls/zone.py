@@ -562,6 +562,11 @@ class Zone(Control):
                     ),
                 )    
 
+        if self.type == ZTYPE_OBJ_ARRANGEMENT:
+            zone_metre_indicator = pygame.Surface((self.w/8, self.h), pygame.SRCALPHA)
+            zone_metre_indicator.fill((255,255,255,96))
+            screen.blit(zone_metre_indicator, (self.x + self.metre * self.w/8, self.y))
+
         if self.is_global and not controller.use_global_zone:
             return  # No effects as global zone not in use
 
