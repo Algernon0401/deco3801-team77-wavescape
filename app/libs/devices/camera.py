@@ -130,12 +130,12 @@ class Camera:
             self.model_results = None
             self.object_results = []
             self.camera_no = 0
-            
+
             # X and Y offsets for center object (as perc of screen)
-            self.offset_x = 0 
+            self.offset_x = 0
             self.offset_y = 0
             # X and Y resizing for every object (perc of object)
-            self.scale_x = 1 
+            self.scale_x = 1
             self.scale_y = 1
             # X and Y skewing (perc of half-screen)
             # e.g. a Y top skew of 1, means that the difference from the
@@ -144,7 +144,7 @@ class Camera:
             self.skew_bottom = 0
             self.skew_left = 0
             self.skew_right = 0
-            
+
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             self.last_time_updated = datetime.datetime.now()
             self.current_update = 0  # Alternates between 0 and 1
@@ -216,7 +216,7 @@ class Camera:
     def open_camera(self):
         try:
             print("Camera initializing...")
-            self.video = cv.VideoCapture(self.camera_no)
+            self.video = cv.VideoCapture(self.camera_no, cv.CAP_DSHOW)
             # Ensure video camera is opened.
             self.valid = self.video is None or self.video.isOpened()
             print("Camera initialized.")
@@ -258,7 +258,7 @@ class Camera:
                 self.open_camera()
         except:
             print("Error swapping camera")
-            self.camera_no = 0  # Reset to first camera
+            self.camera_no = 2  # Reset to first camera
             self.loading = False
             self.valid = False
             # Open initial camera
@@ -388,7 +388,6 @@ class Camera:
                         screen_xmax *= scale_x
                         screen_ymin *= scale_y
                         screen_ymax *= scale_y
-                        
 
                         # Create Camera Object
                         old_object_found = False
@@ -503,7 +502,6 @@ class Camera:
                         ymin *= scale_y
                         ymax *= scale_y
 
-                        
                         # Apply calibration settings (center offset)
                         adj_x = screen_x * self.offset_x
                         adj_y = screen_y * self.offset_y
@@ -511,21 +509,21 @@ class Camera:
                         ymin += adj_y
                         xmax += adj_x
                         ymax += adj_y
-                        
+
                         # Apply calibration settings (resize)
                         obj_w = xmax - xmin
                         obj_h = ymax - ymin
-                        
+
                         new_w = obj_w * self.scale_x
                         new_h = obj_h * self.scale_y
-                        
+
                         diff_w = new_w - obj_w
                         diff_h = new_h - obj_h
                         xmin -= diff_w / 2
                         ymin -= diff_h / 2
                         xmax += diff_w / 2
                         ymax += diff_h / 2
-                        
+
                         # Apply calibration settings (skew)
                         center_x = (xmin + xmax) / 2
                         center_y = (ymin + ymax) / 2
