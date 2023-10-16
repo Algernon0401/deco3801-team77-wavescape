@@ -160,6 +160,8 @@ def load_yolo_model(path):
                         results = model_results.boxes.data.tolist()
 
                         for data in results:
+                            if len(data) < 7:
+                                continue
                             confidence = data[5]
                             # filter out weak detections by ensuring the
                             # confidence is greater than the minimum confidence
