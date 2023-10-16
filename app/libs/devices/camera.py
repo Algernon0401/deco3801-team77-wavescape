@@ -23,7 +23,16 @@ MAX_ITEMS_IN_MP_QUEUE = (
 
 MP_MSG_YOLO_ERROR = 0
 MP_MSG_YOLO_MODEL_LOADED = 1
-
+MP_MSG_SIZEX = 2
+MP_MSG_SIZEY = 3
+MP_MSG_CALIBRATION_OFFSET_X = 4
+MP_MSG_CALIBRATION_OFFSET_Y = 5
+MP_MSG_CALIBRATION_SCALE_X = 6
+MP_MSG_CALIBRATION_SCALE_Y = 7
+MP_MSG_CALIBRATION_SKEW_TOP = 8
+MP_MSG_CALIBRATION_SKEW_BOTTOM = 9
+MP_MSG_CALIBRATION_SKEW_LEFT = 10
+MP_MSG_CALIBRATION_SKEW_RIGHT = 11
 MP_MSG_QUIT = 100
 
 
@@ -74,6 +83,27 @@ def load_yolo_model(path):
         queues.message_yolo_queue.put(Message(MP_MSG_YOLO_MODEL_LOADED))
 
         camera_feed = None
+        
+        # Initialize the dictionaries
+        track_histories = defaultdict(list)
+        track_averages = defaultdict(list)
+        registered_results = {}
+        
+        screen_x = 1920
+        screen_y = 1080
+        # X and Y offsets for center object (as perc of screen)
+        offset_x = 0
+        offset_y = 0
+        # X and Y resizing for every object (perc of object)
+        scale_x = 1
+        scale_y = 1
+        # X and Y skewing (perc of half-screen)
+        # e.g. a Y top skew of 1, means that the difference from the
+        # center to the top is doubled in offset.
+        skew_top = 0
+        skew_bottom = 0
+        skew_left = 0
+        skew_right = 0
         # Repeatedly get object detection results in this thread
         while True:
             # Process messages from main thread
@@ -81,6 +111,26 @@ def load_yolo_model(path):
                 msg = queues.message_camera_queue.get()
                 if msg.type == MP_MSG_QUIT:
                     return
+                elif msg.type == MP_MSG_SIZEX:
+                    screen_x = msg.data
+                elif msg.type == MP_MSG_SIZEY:
+                    screen_y = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_OFFSET_X:
+                    offset_x = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_OFFSET_Y:
+                    offset_y = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_SCALE_X:
+                    scale_x = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_SCALE_Y:
+                    scale_y = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_SKEW_LEFT:
+                    skew_left = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_SKEW_RIGHT:
+                    skew_right = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_SKEW_TOP:
+                    skew_top = msg.data
+                elif msg.type == MP_MSG_CALIBRATION_SKEW_BOTTOM:
+                    skew_bottom = msg.data
 
             # Get feed from main thread
             if queues.camera_feed_queue.qsize() > 0:
@@ -92,9 +142,176 @@ def load_yolo_model(path):
                     queues.object_detection_queue.get()
 
                 # Send new model results to queue
-                queues.object_detection_queue.put(
-                    model.track(camera_feed, verbose=False, persist=True)[0]
-                )
+                #queues.object_detection_queue.put(
+                model_results = model.track(camera_feed, verbose=False, persist=True)[0]
+                #)
+                
+                camera_y, camera_x = camera_feed.shape[:2]
+                objects = []
+                
+                if camera_x <= 0 and camera_y <= 0:
+                    continue
+            
+                # Get scale of camera to screen
+                (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
+                
+                if model_results is not None:
+                    try:
+                        results = model_results.boxes.data.tolist()
+
+                        for data in results:
+                            confidence = data[5]
+                            # filter out weak detections by ensuring the
+                            # confidence is greater than the minimum confidence
+                            if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
+                                continue
+
+                            # if the confidence is greater than the minimum confidence,
+                            # assign track_id
+                            track_id = int(data[4])
+
+                            # draw the bounding box on the frame
+                            xmin = int(data[0])
+                            ymin = int(data[1])
+                            xmax = int(data[2])
+                            ymax = int(data[3])
+                            tag = model_results.names[int(data[6])]
+
+                            # Adjust for scale
+                            xmin *= scale_x
+                            xmax *= scale_x
+                            ymin *= scale_y
+                            ymax *= scale_y
+
+                            # Apply calibration settings (center offset)
+                            adj_x = screen_x * offset_x
+                            adj_y = screen_y * offset_y
+                            xmin += adj_x
+                            ymin += adj_y
+                            xmax += adj_x
+                            ymax += adj_y
+
+                            # Apply calibration settings (resize)
+                            obj_w = xmax - xmin
+                            obj_h = ymax - ymin
+
+                            new_w = obj_w * scale_x
+                            new_h = obj_h * scale_y
+
+                            diff_w = new_w - obj_w
+                            diff_h = new_h - obj_h
+                            xmin -= diff_w / 2
+                            ymin -= diff_h / 2
+                            xmax += diff_w / 2
+                            ymax += diff_h / 2
+
+                            # Apply calibration settings (skew)
+                            center_x = (xmin + xmax) / 2
+                            center_y = (ymin + ymax) / 2
+                            offset_x = 0
+                            offset_y = 0
+                            if center_x + 8 < screen_x / 2:
+                                offset_x -= skew_left * (center_x - screen_x / 2)
+                            if center_x - 8 > screen_x / 2:
+                                offset_x += skew_right * -(center_x - screen_x / 2)
+                            if center_y + 8 < screen_y / 2:
+                                offset_y -= skew_top * (center_y - screen_y / 2)
+                            if center_y - 8 > screen_y / 2:
+                                offset_y += skew_bottom * -(center_y - screen_y / 2)
+                            xmin += offset_x
+                            xmax += offset_x
+                            ymin += offset_y
+                            ymax += offset_y
+
+                            width = xmax - xmin
+                            height = ymax - ymin
+
+                            # create key with track_id in track_histories,
+                            # to store bottom left(BL) coords associated with the track_id
+                            track_hist = track_histories[track_id]
+                            track_hist.append(
+                                (float(xmin), float(ymin), float(width), float(height))
+                            )
+
+                            # stores the latest 30 coords, removes earliest entry
+                            if len(track_hist) > 5:
+                                track_hist.pop(0)
+
+                            # Create Camera Object
+                            old_object_found = False
+                            if track_id in list(registered_results.keys()):
+                                # Keep old object with new object
+                                old_object_found = True
+                                obj = registered_results[track_id]
+                                latest_average = track_averages[track_id][-1]
+                                obj.x = latest_average[0]
+                                obj.y = latest_average[1]
+                                obj.w = latest_average[
+                                    2
+                                ]  # not sure what to assign, average it as well?
+                                obj.h = latest_average[
+                                    3
+                                ]  # not sure what to assign, average it as well?
+                                obj.date_last_included = datetime.datetime.now()
+                                objects.append(obj)
+                                continue
+
+                            if not old_object_found:
+                                # Create new object with track_id
+                                new_object = CamObject(
+                                    tag,
+                                    (
+                                        xmin,
+                                        ymin,
+                                        xmax - xmin,
+                                        ymax - ymin,
+                                    ),
+                                    track_id,
+                                )
+
+                                registered_results[track_id] = new_object
+
+                                objects.append(new_object)
+
+                            # loop over all store bottom left(BL) coords for track_id
+                            for track_id, track in track_histories.items():
+                                total_x = sum(coord[0] for coord in track)
+                                total_y = sum(coord[1] for coord in track)
+                                total_width = sum(coord[2] for coord in track)
+                                total_height = sum(coord[3] for coord in track)
+
+                                avg_x = total_x / len(track_histories[track_id])
+                                avg_y = total_y / len(track_histories[track_id])
+                                avg_width = total_width / len(track_histories[track_id])
+                                avg_height = total_height / len(track_histories[track_id])
+
+                                # create key with track_id in track_average, to store
+                                # the average bottom left(BL) coord associated with the track_id
+                                track_avg = track_averages[track_id]
+                                track_avg.append(
+                                    (
+                                        float(avg_x),
+                                        float(avg_y),
+                                        float(avg_width),
+                                        float(avg_height),
+                                    )
+                                )
+
+                                # stores the latest 10 average coord
+                                # removes earliest entry
+                                if len(track_avg) > 10:
+                                    track_avg.pop(0)
+
+                                # to be implemented:
+                                # comparison of current track_avg to newest entry
+                                # if  difference is +-10% then swap to new average
+                                # to combat jitteryness
+                    
+                        queues.object_detection_queue.put(objects)
+                    except Exception as e:
+                        print("Error with YOLO Conversion: " + str(e))
+                
+                
             time.sleep(0.05)  # Ensure model attempts to run less than 20x a second
     except Exception as e:
         print("Error with YOLOv8 Model: " + str(e))
@@ -130,6 +347,8 @@ class Camera:
             self.model_results = None
             self.object_results = []
             self.camera_no = 0
+            self.last_w = 0
+            self.last_h = 0
 
             # X and Y offsets for center object (as perc of screen)
             self.offset_x = 0
@@ -161,7 +380,7 @@ class Camera:
             threading.Thread(target=self.feed_camera_to_yolo, args=[]).start()
 
             # Create thread for object conversion from yolo results
-            threading.Thread(target=self.object_conversion, args=[]).start()
+            # threading.Thread(target=self.object_conversion, args=[]).start()
 
         except:
             print("Error creating thread (camera thread and/or YOLO thread)")
@@ -431,10 +650,7 @@ class Camera:
         nigel test object_conversion
         """
         global queues
-        # Initialize the dictionaries
-        track_histories = defaultdict(list)
-        track_averages = defaultdict(list)
-        registered_results = {}
+        
 
         while self.active:
             time.sleep(0.1)  # Only update 50ms or so to prevent computer lag
@@ -468,166 +684,12 @@ class Camera:
                 self.object_results = []
                 continue
 
-            # Extract model results from queue
-            if queues.object_detection_queue.qsize() > 0:
-                self.model_results = queues.object_detection_queue.get()
+            
 
             # Convert Object Detection results from model
             if self.model_results is not None:
                 # loop over the detections
-                try:
-                    results = self.model_results.boxes.data.tolist()
-
-                    for data in results:
-                        confidence = data[5]
-                        # filter out weak detections by ensuring the
-                        # confidence is greater than the minimum confidence
-                        if float(confidence) < MODEL_CONFIDENCE_THRESHOLD:
-                            continue
-
-                        # if the confidence is greater than the minimum confidence,
-                        # assign track_id
-                        track_id = int(data[4])
-
-                        # draw the bounding box on the frame
-                        xmin = int(data[0])
-                        ymin = int(data[1])
-                        xmax = int(data[2])
-                        ymax = int(data[3])
-                        tag = self.model_results.names[int(data[6])]
-
-                        # Adjust for scale
-                        xmin *= scale_x
-                        xmax *= scale_x
-                        ymin *= scale_y
-                        ymax *= scale_y
-
-                        # Apply calibration settings (center offset)
-                        adj_x = screen_x * self.offset_x
-                        adj_y = screen_y * self.offset_y
-                        xmin += adj_x
-                        ymin += adj_y
-                        xmax += adj_x
-                        ymax += adj_y
-
-                        # Apply calibration settings (resize)
-                        obj_w = xmax - xmin
-                        obj_h = ymax - ymin
-
-                        new_w = obj_w * self.scale_x
-                        new_h = obj_h * self.scale_y
-
-                        diff_w = new_w - obj_w
-                        diff_h = new_h - obj_h
-                        xmin -= diff_w / 2
-                        ymin -= diff_h / 2
-                        xmax += diff_w / 2
-                        ymax += diff_h / 2
-
-                        # Apply calibration settings (skew)
-                        center_x = (xmin + xmax) / 2
-                        center_y = (ymin + ymax) / 2
-                        offset_x = 0
-                        offset_y = 0
-                        if center_x + 8 < screen_x / 2:
-                            offset_x -= self.skew_left * (center_x - screen_x / 2)
-                        if center_x - 8 > screen_x / 2:
-                            offset_x += self.skew_right * -(center_x - screen_x / 2)
-                        if center_y + 8 < screen_y / 2:
-                            offset_y -= self.skew_top * (center_y - screen_y / 2)
-                        if center_y - 8 > screen_y / 2:
-                            offset_y += self.skew_bottom * -(center_y - screen_y / 2)
-                        xmin += offset_x
-                        xmax += offset_x
-                        ymin += offset_y
-                        ymax += offset_y
-
-                        width = xmax - xmin
-                        height = ymax - ymin
-
-                        # create key with track_id in track_histories,
-                        # to store bottom left(BL) coords associated with the track_id
-                        track_hist = track_histories[track_id]
-                        track_hist.append(
-                            (float(xmin), float(ymin), float(width), float(height))
-                        )
-
-                        # stores the latest 30 coords, removes earliest entry
-                        if len(track_hist) > 5:
-                            track_hist.pop(0)
-
-                        # Create Camera Object
-                        old_object_found = False
-                        if track_id in list(registered_results.keys()):
-                            # Keep old object with new object
-                            old_object_found = True
-                            obj = registered_results[track_id]
-                            latest_average = track_averages[track_id][-1]
-                            obj.x = latest_average[0]
-                            obj.y = latest_average[1]
-                            obj.w = latest_average[
-                                2
-                            ]  # not sure what to assign, average it as well?
-                            obj.h = latest_average[
-                                3
-                            ]  # not sure what to assign, average it as well?
-                            obj.date_last_included = datetime.datetime.now()
-                            objects.append(obj)
-                            continue
-
-                        if not old_object_found:
-                            # Create new object with track_id
-                            new_object = CamObject(
-                                tag,
-                                (
-                                    xmin,
-                                    ymin,
-                                    xmax - xmin,
-                                    ymax - ymin,
-                                ),
-                                track_id,
-                            )
-
-                            registered_results[track_id] = new_object
-
-                            objects.append(new_object)
-
-                        # loop over all store bottom left(BL) coords for track_id
-                    for track_id, track in track_histories.items():
-                        total_x = sum(coord[0] for coord in track)
-                        total_y = sum(coord[1] for coord in track)
-                        total_width = sum(coord[2] for coord in track)
-                        total_height = sum(coord[3] for coord in track)
-
-                        avg_x = total_x / len(track_histories[track_id])
-                        avg_y = total_y / len(track_histories[track_id])
-                        avg_width = total_width / len(track_histories[track_id])
-                        avg_height = total_height / len(track_histories[track_id])
-
-                        # create key with track_id in track_average, to store
-                        # the average bottom left(BL) coord associated with the track_id
-                        track_avg = track_averages[track_id]
-                        track_avg.append(
-                            (
-                                float(avg_x),
-                                float(avg_y),
-                                float(avg_width),
-                                float(avg_height),
-                            )
-                        )
-
-                        # stores the latest 10 average coord
-                        # removes earliest entry
-                        if len(track_avg) > 10:
-                            track_avg.pop(0)
-
-                        # to be implemented:
-                        # comparison of current track_avg to newest entry
-                        # if  difference is +-10% then swap to new average
-                        # to combat jitteryness
-                except:
-                    print("Error;303 camera.py")
-
+                pass #moved to load yolo model
             self.object_results = objects
             self.refresh_ready = True
 
@@ -641,6 +703,25 @@ class Camera:
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
         (self.w, self.h) = controller.get_screen_size()
 
+        try: 
+            if self.w != self.last_w:
+                self.last_w = self.w
+                queues.message_camera_queue.put(Message(MP_MSG_SIZEX, self.w), block=False)
+                
+            if self.h != self.last_h:
+                self.last_h = self.h
+                queues.message_camera_queue.put(Message(MP_MSG_SIZEY, self.h), block=False)
+
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_OFFSET_X, self.offset_x), block=False)
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_OFFSET_Y, self.offset_y), block=False)
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SCALE_X, self.scale_x), block=False)
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SCALE_Y, self.scale_y), block=False)
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_TOP, self.skew_top), block=False)
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_BOTTOM, self.skew_bottom), block=False)
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_LEFT, self.skew_left), block=False)
+            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_RIGHT, self.skew_right), block=False)
+        except:
+            pass # Process is still catching up
         # Process YOLO message events
         while queues.message_yolo_queue.qsize() > 0:
             msg = queues.message_yolo_queue.get()
@@ -651,20 +732,15 @@ class Camera:
                 self.model = msg.data
                 self.model_loading = False
 
-        if (
-            not self.refresh_ready or time_passed < CAMERA_UPDATE_DELAY
-        ):  # Only update every 100ms
-            # Ensure that we do not continuously lag the python app
-            # when the video feed has not updated.
-            if self.object_results is not None:
-                controller.set_cam_objects(self.object_results.copy())
-            return
 
-        self.last_time_updated = datetime.datetime.now()
-        self.refresh_ready = False
-        self.current_update = 1 - self.current_update
+        # Extract model results from queue
+        if queues.object_detection_queue.qsize() > 0:
+            self.object_results = queues.object_detection_queue.get()
 
-        self.feed_camera_to_yolo()
+        if (datetime.datetime.now() - self.last_time_updated).total_seconds() >= 0.05:
+            self.last_time_updated = datetime.datetime.now()
+            self.current_update = 1 - self.current_update
+            self.feed_camera_to_yolo()
 
         # Update camera objects to given results from conversion thread.
         if self.object_results is not None:
