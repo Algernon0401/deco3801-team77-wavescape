@@ -24,6 +24,7 @@ ASSET_CALIBRATION_STEP_FOUR_ALT = 'assets/images/calibration.s4.alt.png'
 ASSET_CALIBRATION_STEP_FIVE = 'assets/images/calibration.s5.png'
 ASSET_CALIBRATION_STEP_FIVE_ALT = 'assets/images/calibration.s5.alt.png'
 ASSET_CALIBRATION_CIRCLE = 'assets/images/calibration_circle.png'
+ASSET_CALIBRATION_CIRCLE_OBJ = 'assets/images/calibration_circle_obj.png'
 
 ASSET_APP_BORDER = 'assets/images/zone_border_l.png'
 ASSET_APP_BORDER_CORNER = 'assets/images/zone_border_c.png'
@@ -72,6 +73,7 @@ asset_calibration_step_five = pygame.image.load(ASSET_CALIBRATION_STEP_FIVE)
 asset_calibration_step_five_alt = pygame.image.load(ASSET_CALIBRATION_STEP_FIVE_ALT)
 
 asset_calibration_circle = pygame.image.load(ASSET_CALIBRATION_CIRCLE)
+asset_calibration_circle_obj = pygame.image.load(ASSET_CALIBRATION_CIRCLE_OBJ)
 
 asset_app_border_l = pygame.image.load(ASSET_APP_BORDER)
 asset_app_border_t = pygame.transform.rotate(asset_app_border_l, 90)

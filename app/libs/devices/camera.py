@@ -25,14 +25,6 @@ MP_MSG_YOLO_ERROR = 0
 MP_MSG_YOLO_MODEL_LOADED = 1
 MP_MSG_SIZEX = 2
 MP_MSG_SIZEY = 3
-MP_MSG_CALIBRATION_OFFSET_X = 4
-MP_MSG_CALIBRATION_OFFSET_Y = 5
-MP_MSG_CALIBRATION_SCALE_X = 6
-MP_MSG_CALIBRATION_SCALE_Y = 7
-MP_MSG_CALIBRATION_SKEW_TOP = 8
-MP_MSG_CALIBRATION_SKEW_BOTTOM = 9
-MP_MSG_CALIBRATION_SKEW_LEFT = 10
-MP_MSG_CALIBRATION_SKEW_RIGHT = 11
 MP_MSG_QUIT = 100
 
 
@@ -91,19 +83,6 @@ def load_yolo_model(path):
         
         screen_x = 1920
         screen_y = 1080
-        # X and Y offsets for center object (as perc of screen)
-        offset_x = 0
-        offset_y = 0
-        # X and Y resizing for every object (perc of object)
-        scale_x = 1
-        scale_y = 1
-        # X and Y skewing (perc of half-screen)
-        # e.g. a Y top skew of 1, means that the difference from the
-        # center to the top is doubled in offset.
-        skew_top = 0
-        skew_bottom = 0
-        skew_left = 0
-        skew_right = 0
         # Repeatedly get object detection results in this thread
         while True:
             # Process messages from main thread
@@ -115,23 +94,7 @@ def load_yolo_model(path):
                     screen_x = msg.data
                 elif msg.type == MP_MSG_SIZEY:
                     screen_y = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_OFFSET_X:
-                    offset_x = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_OFFSET_Y:
-                    offset_y = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_SCALE_X:
-                    scale_x = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_SCALE_Y:
-                    scale_y = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_SKEW_LEFT:
-                    skew_left = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_SKEW_RIGHT:
-                    skew_right = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_SKEW_TOP:
-                    skew_top = msg.data
-                elif msg.type == MP_MSG_CALIBRATION_SKEW_BOTTOM:
-                    skew_bottom = msg.data
-
+                    
             # Get feed from main thread
             if queues.camera_feed_queue.qsize() > 0:
                 camera_feed = queues.camera_feed_queue.get()
@@ -184,46 +147,6 @@ def load_yolo_model(path):
                             xmax *= scale_x
                             ymin *= scale_y
                             ymax *= scale_y
-
-                            # Apply calibration settings (center offset)
-                            adj_x = screen_x * offset_x
-                            adj_y = screen_y * offset_y
-                            xmin += adj_x
-                            ymin += adj_y
-                            xmax += adj_x
-                            ymax += adj_y
-
-                            # Apply calibration settings (resize)
-                            obj_w = xmax - xmin
-                            obj_h = ymax - ymin
-
-                            new_w = obj_w * scale_x
-                            new_h = obj_h * scale_y
-
-                            diff_w = new_w - obj_w
-                            diff_h = new_h - obj_h
-                            xmin -= diff_w / 2
-                            ymin -= diff_h / 2
-                            xmax += diff_w / 2
-                            ymax += diff_h / 2
-
-                            # Apply calibration settings (skew)
-                            center_x = (xmin + xmax) / 2
-                            center_y = (ymin + ymax) / 2
-                            offset_x = 0
-                            offset_y = 0
-                            if center_x + 8 < screen_x / 2:
-                                offset_x -= skew_left * (center_x - screen_x / 2)
-                            if center_x - 8 > screen_x / 2:
-                                offset_x += skew_right * -(center_x - screen_x / 2)
-                            if center_y + 8 < screen_y / 2:
-                                offset_y -= skew_top * (center_y - screen_y / 2)
-                            if center_y - 8 > screen_y / 2:
-                                offset_y += skew_bottom * -(center_y - screen_y / 2)
-                            xmin += offset_x
-                            xmax += offset_x
-                            ymin += offset_y
-                            ymax += offset_y
 
                             width = xmax - xmin
                             height = ymax - ymin
@@ -704,7 +627,7 @@ class Camera:
         # Check to make sure camera and model is initialized.
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
         (self.w, self.h) = controller.get_screen_size()
-
+        
         try: 
             if self.w != self.last_w:
                 self.last_w = self.w
@@ -714,14 +637,6 @@ class Camera:
                 self.last_h = self.h
                 queues.message_camera_queue.put(Message(MP_MSG_SIZEY, self.h), block=False)
 
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_OFFSET_X, self.offset_x), block=False)
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_OFFSET_Y, self.offset_y), block=False)
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SCALE_X, self.scale_x), block=False)
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SCALE_Y, self.scale_y), block=False)
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_TOP, self.skew_top), block=False)
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_BOTTOM, self.skew_bottom), block=False)
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_LEFT, self.skew_left), block=False)
-            queues.message_camera_queue.put(Message(MP_MSG_CALIBRATION_SKEW_RIGHT, self.skew_right), block=False)
         except:
             pass # Process is still catching up
         # Process YOLO message events
@@ -746,7 +661,60 @@ class Camera:
 
         # Update camera objects to given results from conversion thread.
         if self.object_results is not None:
-            controller.set_cam_objects(self.object_results.copy())
+            objects = self.object_results.copy()
+            for object in objects:
+                xmin = object.base_x
+                xmax = xmin + object.base_w
+                ymin = object.base_y
+                ymax = ymin + object.base_h
+                
+                # Apply calibration settings (center offset)
+                adj_x = self.w * self.offset_x
+                adj_y = self.h * self.offset_y
+                xmin += adj_x
+                ymin += adj_y
+                xmax += adj_x
+                ymax += adj_y
+
+                # Apply calibration settings (resize)
+                obj_w = xmax - xmin
+                obj_h = ymax - ymin
+
+                new_w = obj_w * self.scale_x
+                new_h = obj_h * self.scale_y
+
+                diff_w = new_w - obj_w
+                diff_h = new_h - obj_h
+                xmin -= diff_w / 2
+                ymin -= diff_h / 2
+                xmax += diff_w / 2
+                ymax += diff_h / 2
+
+                # Apply calibration settings (skew)
+                center_x = (xmin + xmax) / 2
+                center_y = (ymin + ymax) / 2
+                offset_x = 0
+                offset_y = 0
+                if center_x + 8 < self.w / 2:
+                    offset_x -= self.skew_left * (center_x - self.w / 2)
+                if center_x - 8 > self.w / 2:
+                    offset_x += self.skew_right * -(center_x - self.w / 2)
+                if center_y + 8 < self.h / 2:
+                    offset_y -= self.skew_top * (center_y - self.h / 2)
+                if center_y - 8 > self.h / 2:
+                    offset_y += self.skew_bottom * -(center_y - self.h / 2)
+                xmin += offset_x
+                xmax += offset_x
+                ymin += offset_y
+                ymax += offset_y
+                
+                # Update bounds on object
+                object.x = xmin
+                object.y = ymin
+                object.w = xmax - xmin
+                object.h = ymax - ymin
+                
+            controller.set_cam_objects(objects)
 
     def destroy(self):
         """

@@ -50,6 +50,7 @@ class CamObject:
 
         self.tag = tag
         (self.x, self.y, self.w, self.h) = bounds
+        (self.base_x, self.base_y, self.base_w, self.base_h) = bounds # For recalibrating
         self.track_id = track_id
         self.attributes = {}  # Attribute list for controls
         self.date_created = datetime.datetime.now()

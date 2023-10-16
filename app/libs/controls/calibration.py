@@ -82,7 +82,7 @@ class Calibration(Control):
         # Display circles shapes
         for obj in controller.get_cam_objects():
             if obj.tag == Tag.CIRCLE.value:     
-                screen.blit(pygame.transform.scale(asset_objimg_circle, (obj.w, obj.h)), (obj.x, obj.y))
+                screen.blit(pygame.transform.scale(asset_calibration_circle_obj, (obj.w, obj.h)), (obj.x, obj.y))
         
         # Ensure step images are placed in center of screen.
         placement_x = screen_w / 2 - asset_calibration_step_one.get_width() / 2 
