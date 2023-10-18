@@ -1,6 +1,8 @@
 import serial
+from serial import Serial
 import time
 from serial.tools import list_ports
+
 
 class ControlBoard:
     """
@@ -8,8 +10,8 @@ class ControlBoard:
     The control board has support for 3 analog inputs and 3 digital inputs currently.
     """
 
-    def __init__(self, baudrate = 115200) -> None:
-        self.ser = None # serial connection
+    def __init__(self, baudrate=115200) -> None:
+        self.ser = None  # serial connection
         self.baudrate = baudrate
         # dictionary to store the readings
         self.readings = {
@@ -21,7 +23,7 @@ class ControlBoard:
             "D5": 1023,
         }
         self.connect()
-    
+
     def connect(self) -> bool:
         """
         Connects or reconnects to the control board.
@@ -32,17 +34,20 @@ class ControlBoard:
                 return True
             else:
                 self.ser.close()
-        
+
         # find the port
         ports = list_ports.comports()
         for port in ports:
-            if "Arduino" in port.description:
+            if (
+                "Arduino" in port.description
+                or port.serial_number == "75630313936351803252"
+            ):
                 # Connect
-                self.ser = serial.Serial(port.device, self.baudrate)
+                self.ser = Serial(port.device, self.baudrate)
                 return True
-            
+
         return False
-    
+
     def is_connected(self) -> bool:
         """
         Returns whether the control board is connected or not.
@@ -58,32 +63,33 @@ class ControlBoard:
         if self.ser is None or not self.ser.isOpen():
             return
         self.ser.flushInput()
-        line = self.ser.readline().decode('utf-8').split(";")[:-1]
+        line = self.ser.readline().decode("utf-8").split(";")[:-1]
         for entry in line:
             entry = entry.split(":")
-            if len(entry) == 2 and entry[0] != '' and entry[0] in self.readings:
+            if len(entry) == 2 and entry[0] != "" and entry[0] in self.readings:
                 self.readings[entry[0]] = int(entry[1])
-    
+
     def get_reading(self, pin: str) -> int:
         """
         Returns the value of the pin.
         """
         self.read_from_port()
         return self.readings[pin]
-    
+
     def get_readings(self) -> dict:
         """
         Returns the values of all the pins.
         """
         self.read_from_port()
         return self.readings
-    
+
     def close(self):
         """
         Closes the serial connection to the control board
         """
         self.ser.close()
         print("Serial connection closed")
+
 
 # Test code
 if __name__ == "__main__":
@@ -92,8 +98,8 @@ if __name__ == "__main__":
     while True:
         try:
             val = board.get_reading("A0")
-            print("                      ", end = "\r")
-            print(f"A0: {val}", end = "\r")
+            print("                      ", end="\r")
+            print(f"A0: {val}", end="\r")
             time.sleep(0.1)
         except KeyboardInterrupt:
             board.close()
