@@ -24,6 +24,7 @@ CHORD_STEPS = {
     "minor 7th": [3, 4, 3]
 }
 
+
 pitch_list = []
 octave_list = []
 for note in frequency_map.keys():

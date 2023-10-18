@@ -2,6 +2,7 @@
     zone.py - contains zone controls and functions
 """
 import pygame
+from ..geometry import *
 from datetime import *
 from random import randint
 from mpmath import cot
@@ -180,6 +181,7 @@ class Zone(Control):
             controller -- the app controller this control runs from
         """
         super().__init__(controller)
+        self.chord = "major"
         self.is_global = False
         self.is_zone = True
         self.w = 128
@@ -597,6 +599,33 @@ class Zone(Control):
                     )
                 )    
 
+            
+            # Draw octave circles 
+            max_dist = self.get_max_dist()
+            for i in range(2):
+                dist = (i + 1) * max_dist / 3
+                pygame.draw.circle(screen, pygame.Color(255,255,255), self.get_center(), 
+                                dist, 2)
+                
+            lines = 3 if self.chord == "major" or self.chord == "minor" else 4
+            rot_per_line = math.pi * 2 / lines
+            rot = 0
+            for i in range(lines):
+                (cx,cy) = self.get_center()
+                max_length = math.sqrt((self.x - cx)**2 + (self.y - cy)**2)
+                line = ((cx,cy), ((max_length*math.cos(rot) + cx, max_length*math.sin(rot) + cy)))
+                # Get intersection point of box to line
+                intersection = line_intersection_box(line, (self.x, self.y, self.w, self.h))
+                length = max_length
+                if intersection is not None:
+                    (px,py) = intersection
+                    # Calculate length according to distance to intersection
+                    length = math.sqrt((px - cx)**2 + (py - cy)**2)
+                length -= 2 # Reduce length so that it doesn't draw over the border
+                pygame.draw.line(screen, pygame.Color(255,255,255), (cx,cy),
+                                 (length * math.cos(rot) + cx, length * math.sin(rot) + cy), 2)
+                rot += rot_per_line
+
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
             zone_metre_indicator = pygame.Surface((self.w/8, self.h), pygame.SRCALPHA)
             zone_metre_indicator.fill((255,255,255,96))
@@ -608,6 +637,7 @@ class Zone(Control):
         # Draw animations between objects and on objects
         if self.graph is not None:
             self.graph.render(controller, screen, self)
+
 
         # NOTE generate_ripples usage moved to ObjectNode.render
 
