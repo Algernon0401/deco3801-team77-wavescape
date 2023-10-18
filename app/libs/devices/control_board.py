@@ -40,6 +40,7 @@ class ControlBoard:
         for port in ports:
             if (
                 "Arduino" in port.description
+                or port.pid == 67
                 or port.serial_number == "75630313936351803252"
             ):
                 # Connect
