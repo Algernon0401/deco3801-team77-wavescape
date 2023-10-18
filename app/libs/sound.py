@@ -308,12 +308,15 @@ def main():
     maj_seventh_ratios = [10, 12, 15, 18]
     min_seventh_ratios = [8, 10, 12, 15]
 
-    for r in major_ratios:
-        w = Sine(100, r*base_f, 1)
-        waves.append(w)
-        s.play(w)
-        time.sleep(1)
-        break
+    w = Sine(100, 4*base_f, 1)
+    s.generate_buffer(w)
+
+    # for r in major_ratios:
+    #     w = Sine(100, r*base_f, 1)
+    #     waves.append(w)
+    #     s.play(w)
+    #     time.sleep(1)
+    #     break
         # s.play(w)
 
     # for r in seventh_ratios:

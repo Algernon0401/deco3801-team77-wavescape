@@ -15,7 +15,7 @@ MAX_ANGLE = 360
 VOLUME_SCALAR = 0.75                # think it as the volume knob
 SHARP_VOLUME_SCALAR = 0.65                # for sharp sounds
 MAX_ELC = max(elc_map.values())
-CHORD_RATIOS = {
+CHORD_STEPS = {
     "major": [4, 3],
     "minor": [3, 4],
     "diminished": [3, 3],
@@ -122,7 +122,7 @@ def shorten_lookup(lookup: list, start_pct: int, end_pct: int):
 
 
 def get_chord_notes(note_list, root_note="C", chord="major"):
-    ratio = CHORD_RATIOS[chord]
+    ratio = CHORD_STEPS[chord]
     chord_notes = [root_note]
     for r in ratio:
         prev_note_idx = note_list.index(chord_notes[-1])
