@@ -207,6 +207,7 @@ class Zone(Control):
         self.metre = 0
         self.sound_enabled = True  # True if sound playback occurs
         self.time_since_playback_existed = datetime.datetime.min
+        # self.time_since_playback_placed = datetime.datetime.min
         self.sound_thread = None
         self.arrange_thread = None
 
@@ -335,17 +336,25 @@ class Zone(Control):
                 self.h = h * self.scaled_h + self.addsize_h
             objects = controller.get_cam_objects_in_bounds(self.get_bounds())
             if self.type == ZTYPE_OBJ_WAVEGEN:
+                highlighted = False
                 with highlighted_zones_rlock:
-                    if controller.has_object_in_bounds(
-                        PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
-                    ) or highlighted_zones[self.wave_gen_tag]:
-                        self.time_since_playback_existed = datetime.datetime.now()
+                    if highlighted_zones[self.wave_gen_tag]:
+                        highlighted = True
+                if controller.has_object_in_bounds(
+                    PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
+                ) or highlighted:
+                    self.time_since_playback_existed = datetime.datetime.now()
+                    # if (self.time_since_playback_placed - datetime.datetime.now()).total_seconds() >= 1:
+                    #     self.time_since_playback_placed = datetime.datetime.now()
                 
                 if controller.playback_checkmark_required:
                     time_passed = (
                         datetime.datetime.now() - self.time_since_playback_existed
                     ).total_seconds()
-                    self.sound_enabled = time_passed < PLAYBACK_COOLDOWN
+                    #time_passed_since_placed = (
+                    #    self.time_since_playback_existed - self.time_since_playback_placed
+                    #).total_seconds()
+                    self.sound_enabled = time_passed < PLAYBACK_COOLDOWN # and time_passed_since_placed > 0.25
 
         if self.type == ZTYPE_OBJ_WAVEGEN:
             if self.sound_thread is None:
@@ -461,7 +470,8 @@ class Zone(Control):
                         self.get_max_dist(),
                         obj.tag,
                     )
-                waves.append(obj_wave)
+                if obj_wave is not None:
+                    waves.append(obj_wave)
                 controller.sound_player.play(self, obj_wave)
             controller.sound_player.cleanup(self, waves)
 
@@ -576,6 +586,15 @@ class Zone(Control):
                         self.x + self.w / 2 - objimg.get_width() / 2,
                         self.y + self.h / 2 - objimg.get_height() / 2,
                     ),
+                )
+
+            if self.sound_enabled:
+                screen.blit(
+                    asset_playback,
+                    (
+                        px + pw / 2 - asset_playback.get_width() / 2,
+                        py + ph * 2.5 + 10 - asset_playback.get_height() / 2,
+                    )
                 )    
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
