@@ -157,6 +157,7 @@ class Sound:
         self.bit_rate = bit_rate
         self.speaker = speaker
         # self.playing = {}
+        self.wave_cache = []
 
         self.LEFT = 0
         self.RIGHT = 1
@@ -229,7 +230,13 @@ class Sound:
         zone.playing[channel] = wave
         
         if wave.buffer is None:
+           for w in self.wave_cache:
+               if wave == w:
+                   wave.buffer == w.buffer
+                    # print("Found in cache")
+                   break
            wave.buffer = self.generate_buffer(wave)
+           self.wave_cache.append(wave)
 
         # # pygame_sound = pygame.sndarray.make_sound(wave.buffer)
         # pygame_sound = pygame.mixer.Sound(wave.buffer)
