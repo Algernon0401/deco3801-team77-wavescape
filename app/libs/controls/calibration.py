@@ -158,6 +158,9 @@ class Calibration(Control):
             elif event.button == MOUSE_RIGHT:
                 # Change between adjusting x/y
                 self.adjust_mode = 1 - self.adjust_mode
+                if self.current_step == 0:
+                    # Reset threshold
+                    controller.camera.dark_threshold = 20
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 self.next_step(controller)
