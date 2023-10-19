@@ -1,36 +1,51 @@
-# DECO3801 - Team "{{7*7}}"
-## 042 - Friction in Design AR
-    (Copied from statement of work)
-    The brief we have selected is 42: Friction in Design - AR Analogue Interfaces. The brief specifies that the project is “to create an analogue interface that is mapped 100% to an AR overlay, with the overall goal of injecting friction and boundaries into AR interactions”. 
+# DECO3801 - The WaveScape
+Design & Developed by Students at UQ (DECO3801):
+Samuel Sticklen, Chia (Nigel) Yunhan, Luke Pierce, Yiqing (Samson) Zhang, Miles Gardiner, William Redmond
 
-    In response to the brief, we have elected to design an interactive musical instrument and digital audio workspace (DAW) with novel analogue controls. The AR overlay will be supported by an overhead camera and projector, and the analogue interaction will be enabled primarily through the arrangement of small objects on a flat surface (e.g., a table or desk). 
+## How to Run the Software
+### Via App-Launcher
+For your convencience, an AppLauncher.exe has been provided. 
+This launcher is coded with the .NET framework, in which you may be prompted to install it.
+Afterwards, the app should run, otherwise attempt a manual (python) launch.
 
-    The shape or arrangement of the objects - specifically the vector (angle & distance) from a central object or point - will determine characteristics of the generated sound. The objects themselves will be specially designed (or selected), potentially with variance in shape, size and colour as means of distinction enabling further functionality. 
+### Requirements
+Run all of the following commands to install the requirements IN ORDER
+```
+python -m pip install opencv-python==4.8.0.76
+python -m pip install pygame
+python -m pip install pygame-ce --upgrade
+python -m pip install -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt
+python -m pip install numpy numba scipy 
+python -m pip install pyserial
+```
 
-    This style of interface provides tangibility and an intuitive, natural method of control for the user. Additionally, a separate control board with physical controls, as well as zone features and object touch recognition will allow for advanced control of the sounds generated, and general control over the software. The combination of all these features will allow users to remain hands-free from any computer peripheral (excl. control board), whilst maintaining seamless control over the software.
+In order for all functionality, you must 
+- Have a working webcam
+- Have the original board developed with the app (Board Error might occur otherwise)
+- Have a suitable surface to project on, and a suitable mount for both projector and camera
+You may require a camera setting app, such as Logitech Camera Settings to adjust settings for the camera to make
+the detection more compatible.
 
-    The AR overlay will enhance the experience further, by providing visual features, such as animations and flair, minimalistic GUI, boundaries and zones to separate functionality and structure DAW capabilities (e.g., recording, playback and looping).
-
-## Folder Structure
-    All project code and assets should belong in the "app" folder and all project related documents (i.e. supporting code documents, team documents) should belong in the "docs" folder.
-
-## VSCODE Configurations
-    A vscode configuration has been added for each member in the team (e.g. Samson) - this is visible within the run and debug window in vscode - ctrl+shift+d. This is so edits to launch.json will have minimal effect on team members, so that people can test their code and change their launch options easily       in vscode without having to run or modify other python scripts if they wish. 
-
-## Style Guide
-    All code written in python should adhere closely to the style guide found here: https://peps.python.org/pep-0008/   
-
-    The bare minimum should that code is properly commented/documented, so that team members can understand the code a little. For example,
-
-    ```
-    def do_something(self, arg1: int) -> int:
-        """
-            This function does something.
-
-            Args: 
-                arg1 -- An argument that alters something
-            
-            Returns:
-                The result of doing something 
-        """
-    ```
+### App Options
+```
+Flag            | Description
+-np               Removes the need for a plus object to be placed on the checkbox next to a zone.
+-feed             Displays a semi-transparent view of what the model sees (non-toggleable).
+-nodark           Removes the black and white filter, which may work better for some environments.
+-nocameraerror    Removes the status display for the camera error
+-nomodelerror     Removes the status display for the model error
+-noboarderror     Removes the status display for the board error
+```
+# Issues that may occur
+If you an error like the following: 
+```
+Cannot find serial.Serial
+```
+Uninstall pyserial and serial, and reinstall pyserial on the correct python.
+Other issues and fixes include:
+```
+- Board Status Error - reconnect board and check you are using the correct board (only one exists with our group)
+- Camera Status Error - reconnect camera and either restart the app or attempt the swap camera button in the menu
+- Model Status Error - ensure model.pt exists in the assets folder and that it is the correct model
+- Cannot find 'assets/...' - you must run app.py using the app folder as the current working directory.
+```
