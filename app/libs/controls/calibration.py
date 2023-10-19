@@ -160,24 +160,24 @@ class Calibration(Control):
             if self.current_step == 2:
                 # Center offset
                 if self.adjust_mode == 0:
-                    controller.camera.offset_x += event.y / 200
+                    controller.camera.offset_x += event.y / 500
                 else:
-                    controller.camera.offset_y += event.y / 200
+                    controller.camera.offset_y += event.y / 500
             elif self.current_step == 3:
                 # Object sizing
                 if self.adjust_mode == 0:
-                    controller.camera.scale_x += event.y / 100
+                    controller.camera.scale_x += event.y / 50
                 else:
-                    controller.camera.scale_y += event.y / 100
+                    controller.camera.scale_y += event.y / 50
             elif self.current_step == 4:
                 if self.adjust_mode == 0:
-                    controller.camera.skew_top += event.y / 100
+                    controller.camera.skew_top += event.y / 500
                 else:
-                    controller.camera.skew_left += event.y / 100
+                    controller.camera.skew_left += event.y / 500
             elif self.current_step == 5:
                 if self.adjust_mode == 0:
-                    controller.camera.skew_bottom += event.y / 100
+                    controller.camera.skew_bottom += event.y / 500
                 else:
-                    controller.camera.skew_right += event.y / 100
+                    controller.camera.skew_right += event.y / 500
                 
         pass

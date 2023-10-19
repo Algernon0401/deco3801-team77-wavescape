@@ -288,6 +288,9 @@ class Camera:
             self.skew_bottom = 0
             self.skew_left = 0
             self.skew_right = 0
+            
+            # Load last calibration settings
+            self.load_calibration()
 
             self.has_model = os.path.isfile(ASSET_TRAINED_MODEL)
             self.last_time_updated = datetime.datetime.now()
@@ -311,7 +314,39 @@ class Camera:
             print("Error creating thread (camera thread and/or YOLO thread)")
             self.valid = False
             self.loading = False
-
+    def load_calibration(self):
+        """
+        Loads calibration settings from calibration.map
+        """
+        try:
+            map = open('calibration.map', "r")
+            settings = map.read().split(';')
+            self.offset_x = float(settings[0])
+            self.offset_y = float(settings[1])
+            self.scale_x = float(settings[2])
+            self.scale_y = float(settings[3])
+            self.skew_left = float(settings[4])
+            self.skew_right = float(settings[5])
+            self.skew_top = float(settings[6])
+            self.skew_bottom = float(settings[7])
+            map.close()
+        except:
+            print("Failed to load calibration settings (may not exist or corrupted)")
+    
+    def save_calibration(self):
+        """
+        Saves calibration settings to calibration.map
+        """
+        try:
+            map = open("calibration.map", "w")
+            map.write(str(self.offset_x)+";"+str(self.offset_y)+";"+
+                      str(self.scale_x)+";"+str(self.scale_y)+";"+
+                      str(self.skew_left)+";"+str(self.skew_right)+";"+
+                      str(self.skew_top)+";"+str(self.skew_bottom))
+            map.close()
+        except:
+            print("Failed to save calibration settings")
+        
     def feed_camera_to_yolo(self):
         """
         Feeds the camera data to the YOLO sub-process.

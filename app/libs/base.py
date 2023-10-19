@@ -100,6 +100,7 @@ class AppController:
         """
         self.reinstate_controls()
         self.calibrating = False
+        self.camera.save_calibration()
         
     def reinstate_controls(self):
         """
@@ -116,7 +117,7 @@ class AppController:
         # Import main control
         from libs.controls.ddcam import DDCamVisual
 
-        # Add main control
+        # Add main control (test control)
         self.add_control(DDCamVisual(self))
         
         # Re-add zones
