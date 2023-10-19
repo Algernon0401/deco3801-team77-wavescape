@@ -1,4 +1,5 @@
 {
+    "board": "arduino:avr:uno",
     "port": "COM5",
-    "board": "arduino:avr:uno"
+    "sketch": "app\\libs\\devices\\controlBoard\\ControlBoard.ino"
 }
