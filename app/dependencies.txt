@@ -6,5 +6,4 @@ Ultralytics: -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/r
 Numpy: numpy
 Pyserial: pyserial
 Numba: numba
-ScreenInfo: screeninfo
-Serial: serial
+Scipy: scipy

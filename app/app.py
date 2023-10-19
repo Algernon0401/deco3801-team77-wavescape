@@ -44,14 +44,18 @@ def app_init():
     # Read command line arguments
     try:
         for arg in sys.argv[1:]:
-            if arg == "-mo":
-                controller.add_mouse_object = False  # No longer valid
-            elif arg == "-np":
+            if arg == "-np":
                 controller.playback_checkmark_required = False
             elif arg == "-feed":
                 controller.display_feed = True
             elif arg == "-nodark":
-                controller.camera.filter_enabled = False  
+                controller.camera.filter_enabled = False
+            elif arg == "-nocameraerror":
+                controller.show_camera_error = False
+            elif arg == "-noboarderror":
+                controller.show_board_error = False
+            elif arg == "-nomodelerror":
+                controller.show_model_error = False
     except:
         print("Invalid command-line arguments")
 

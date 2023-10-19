@@ -58,6 +58,9 @@ class AppController:
         self.single_update = False
         self.screen = screen
         self.sound_player = Sound()
+        self.show_camera_error = True
+        self.show_model_error = True
+        self.show_board_error = True
 
         self.objects = []
         # from .controls.zone import Zone

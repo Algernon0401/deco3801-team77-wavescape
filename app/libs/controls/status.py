@@ -55,7 +55,7 @@ class Status(Control):
         if controller.camera.loading:
             screen.blit(asset_loading_camera_overlay, (5,overlay_y))
             overlay_y += 20
-        else:    
+        elif controller.show_camera_error:    
             # Capture frame, and if none then display invalid camera image.
             frame = True
             if not self.camera_verified:
@@ -70,15 +70,15 @@ class Status(Control):
         if controller.camera.model_loading:
             screen.blit(asset_loading_model_overlay, (5,overlay_y))
             overlay_y += 20
-        elif controller.camera.model is None:
+        elif controller.show_model_error and controller.camera.model is None:
             screen.blit(asset_invalid_model_overlay, (5,overlay_y))
             overlay_y += 20
             
         # Check if board is invalid (since board loads quickly, no need for loading overlay).
-        if not controller.board_connected():
+        if controller.show_board_error and not controller.board_connected():
             screen.blit(asset_invalid_board_overlay, (5,overlay_y))
             overlay_y += 20
-            
+        
         pass
     
     def event(self, controller: AppController, event: pygame.event.Event):
