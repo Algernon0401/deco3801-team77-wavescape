@@ -196,6 +196,7 @@ class AppController:
                 break
 
         self.set_volume()
+        self.check_next_chord()
 
     def create_zone(self, position):
         """
@@ -407,6 +408,15 @@ class AppController:
         for i in range(channels):
             channel = pygame.mixer.Channel(i)
             channel.set_volume(volume)
+
+    def check_next_chord(self):
+        """
+        Sets the chords of the currently selected zones.
+        """
+        if self.board.get_button() == 1:
+            for zone in self.zones:
+                if zone.selected:
+                    zone.next_chord()
 
     def board_connected(self):
         """

@@ -18,7 +18,7 @@ from ..base import AppController
 from ..devices.camera import *
 from ..object import *
 from ..sound import *
-from ..tone_generator import ToneGenerator
+from ..tone_generator import ToneGenerator, CHORDS
 from ..assets import *
 
 ZTYPE_OBJ_WAVEGEN = 0  # Generate waves for an object
@@ -52,10 +52,12 @@ TYPE_PULSE = 4
 METRONOME_BPM = 60  # Beats Per Minute
 
 highlighted_zones_rlock = threading.RLock()
-highlighted_zones = {Tag.STAR.value: False,
-                     Tag.CIRCLE.value: False,
-                     Tag.SQUARE.value: False,
-                     Tag.TRIANGLE.value: False}
+highlighted_zones = {
+    Tag.STAR.value: False,
+    Tag.CIRCLE.value: False,
+    Tag.SQUARE.value: False,
+    Tag.TRIANGLE.value: False,
+}
 
 
 def sine_factor(d, time, dist_per_cycle, time_per_cycle):
@@ -165,8 +167,6 @@ def wave_rotation(factor, d, dist, amp_dist, origin_x, origin_y, rot):
     return (origin_x + d * rot_cos - y * rot_sin, origin_y + y * rot_cos + d * rot_sin)
 
 
-
-
 class Zone(Control):
     """
     Represents a zone, which can be modified using particular
@@ -211,6 +211,7 @@ class Zone(Control):
         self.time_since_playback_existed = datetime.datetime.min
         # self.time_since_playback_placed = datetime.datetime.min
         self.arrange_thread = None
+        self.selected = True
 
     def get_max_dist(self):
         # return math.sqrt((self.w/2)**2 + (self.h/2)**2)
@@ -250,11 +251,18 @@ class Zone(Control):
         the zone.
         """
         return ObjectNode(
-            object, center, 
+            object,
+            center,
             [
-                ObjectNode(o, o.get_center(), []) for o in objects
-                if (o.tag == "circle" or o.tag == "square" or o.tag == "triangle" or o.tag == "star")
-            ]
+                ObjectNode(o, o.get_center(), [])
+                for o in objects
+                if (
+                    o.tag == "circle"
+                    or o.tag == "square"
+                    or o.tag == "triangle"
+                    or o.tag == "star"
+                )
+            ],
         )
 
         # Depreciated / obsolete workings below
@@ -309,6 +317,17 @@ class Zone(Control):
         """
         return (self.x - 40, self.y, 30, 30)
 
+    def next_chord(self):
+        """
+        Sets the next chord.
+        """
+        # Get the chord that is next in the list
+
+        for i, chord in enumerate(CHORDS):
+            if chord == self.chord:
+                self.chord = CHORDS[(i + 1) % len(CHORDS)]
+                break
+
     def update(self, controller: AppController):
         """
         Updates the control on every loop iteration.
@@ -341,21 +360,26 @@ class Zone(Control):
                 with highlighted_zones_rlock:
                     if highlighted_zones[self.wave_gen_tag]:
                         highlighted = True
-                if controller.has_object_in_bounds(
-                    PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
-                ) or highlighted:
+                if (
+                    controller.has_object_in_bounds(
+                        PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
+                    )
+                    or highlighted
+                ):
                     self.time_since_playback_existed = datetime.datetime.now()
                     # if (self.time_since_playback_placed - datetime.datetime.now()).total_seconds() >= 1:
                     #     self.time_since_playback_placed = datetime.datetime.now()
-                
+
                 if controller.playback_checkmark_required:
                     time_passed = (
                         datetime.datetime.now() - self.time_since_playback_existed
                     ).total_seconds()
-                    #time_passed_since_placed = (
+                    # time_passed_since_placed = (
                     #    self.time_since_playback_existed - self.time_since_playback_placed
-                    #).total_seconds()
-                    self.sound_enabled = time_passed < PLAYBACK_COOLDOWN # and time_passed_since_placed > 0.25
+                    # ).total_seconds()
+                    self.sound_enabled = (
+                        time_passed < PLAYBACK_COOLDOWN
+                    )  # and time_passed_since_placed > 0.25
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
             if self.arrange_thread is None:
@@ -387,7 +411,7 @@ class Zone(Control):
 
         for object in objects:
             if object.get_object_attribute("ripple_count") is None:
-                object.set_object_attribute("ripple_count", randint(1, 5))
+                object.set_object_attribute("ripple_count", randint(2, 5))
             if object.get_object_attribute("ripple_colour") is None:
                 object.set_object_attribute(
                     "ripple_colour",
@@ -400,7 +424,9 @@ class Zone(Control):
             with highlighted_zones_rlock:
                 highlighted_zones = dict.fromkeys(highlighted_zones, False)
             (x, y, w, h) = self.get_bounds()
-            highlighted_objects = controller.get_cam_objects_in_bounds((x + self.metre * w/8, y, w/8, h))
+            highlighted_objects = controller.get_cam_objects_in_bounds(
+                (x + self.metre * w / 8, y, w / 8, h)
+            )
             for object in highlighted_objects:
                 if object is not None:
                     with highlighted_zones_rlock:
@@ -471,7 +497,7 @@ class Zone(Control):
 
     def metre_count(self, controller):
         while controller.is_running():
-            time.sleep(60/METRONOME_BPM)
+            time.sleep(60 / METRONOME_BPM)
             self.metre = 0 if self.metre == 7 else self.metre + 1  # loop from 0 to 7
 
     def prerender(self, controller: AppController):
@@ -533,12 +559,16 @@ class Zone(Control):
 
         # Horizontal lines
         screen.blit(
-            pygame.transform.scale(asset_zone_border_t, (w - corner_width * 2, border_width)),
+            pygame.transform.scale(
+                asset_zone_border_t, (w - corner_width * 2, border_width)
+            ),
             (x + corner_width, y),
         )
 
         screen.blit(
-            pygame.transform.scale(asset_zone_border_t, (w - corner_width * 2, border_width)),
+            pygame.transform.scale(
+                asset_zone_border_t, (w - corner_width * 2, border_width)
+            ),
             (x + corner_width, y + h - border_width),
         )
 
@@ -588,40 +618,57 @@ class Zone(Control):
                     (
                         px + pw / 2 - asset_playback.get_width() / 2,
                         py + ph * 2.5 + 10 - asset_playback.get_height() / 2,
-                    )
-                )    
+                    ),
+                )
 
-            
-            # Draw octave circles 
+            # Draw octave circles
             max_dist = self.get_max_dist()
             for i in range(2):
                 dist = (i + 1) * max_dist / 3
-                pygame.draw.circle(screen, pygame.Color(255,255,255), self.get_center(), 
-                                dist, 2)
-                
+                pygame.draw.circle(
+                    screen, pygame.Color(255, 255, 255), self.get_center(), dist, 2
+                )
+
             lines = 3 if self.chord == "major" or self.chord == "minor" else 4
             rot_per_line = math.pi * 2 / lines
             rot = 0
             for i in range(lines):
-                (cx,cy) = self.get_center()
-                max_length = math.sqrt((self.x - cx)**2 + (self.y - cy)**2)
-                line = ((cx,cy), ((max_length*math.cos(rot) + cx, max_length*math.sin(rot) + cy)))
+                (cx, cy) = self.get_center()
+                max_length = math.sqrt((self.x - cx) ** 2 + (self.y - cy) ** 2)
+                line = (
+                    (cx, cy),
+                    (
+                        (
+                            max_length * math.cos(rot) + cx,
+                            max_length * math.sin(rot) + cy,
+                        )
+                    ),
+                )
                 # Get intersection point of box to line
-                intersection = line_intersection_box(line, (self.x, self.y, self.w, self.h))
+                intersection = line_intersection_box(
+                    line, (self.x, self.y, self.w, self.h)
+                )
                 length = max_length
                 if intersection is not None:
-                    (px,py) = intersection
+                    (px, py) = intersection
                     # Calculate length according to distance to intersection
-                    length = math.sqrt((px - cx)**2 + (py - cy)**2)
-                length -= 2 # Reduce length so that it doesn't draw over the border
-                pygame.draw.line(screen, pygame.Color(255,255,255), (cx,cy),
-                                 (length * math.cos(rot) + cx, length * math.sin(rot) + cy), 2)
+                    length = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
+                length -= 2  # Reduce length so that it doesn't draw over the border
+                pygame.draw.line(
+                    screen,
+                    pygame.Color(255, 255, 255),
+                    (cx, cy),
+                    (length * math.cos(rot) + cx, length * math.sin(rot) + cy),
+                    2,
+                )
                 rot += rot_per_line
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
-            zone_metre_indicator = pygame.Surface((self.w/8, self.h), pygame.SRCALPHA)
-            zone_metre_indicator.fill((255,255,255,96))
-            screen.blit(zone_metre_indicator, (self.x + self.metre * self.w/8, self.y))
+            zone_metre_indicator = pygame.Surface((self.w / 8, self.h), pygame.SRCALPHA)
+            zone_metre_indicator.fill((255, 255, 255, 96))
+            screen.blit(
+                zone_metre_indicator, (self.x + self.metre * self.w / 8, self.y)
+            )
 
         if self.is_global and not controller.use_global_zone:
             return  # No effects as global zone not in use
@@ -629,7 +676,6 @@ class Zone(Control):
         # Draw animations between objects and on objects
         if self.graph is not None:
             self.graph.render(controller, screen, self)
-
 
         # NOTE generate_ripples usage moved to ObjectNode.render
 
@@ -670,6 +716,7 @@ class Zone(Control):
         Destroys all resources of a zone
         """
         self.sounds_active = False  # Dispose of extra threads
+
 
 class ObjectNode:
     """
@@ -937,9 +984,9 @@ class ObjectNode:
                 (center, color) = line
                 pygame.draw.aaline(screen, color, last_center, center)
                 last_center = center
-                
+
                 wave_img = None
-                
+
             zone.generate_ripples(screen, connection.object)
 
             type = connection.sound_type()
@@ -954,8 +1001,11 @@ class ObjectNode:
                 wave_img = asset_waveimg_sawtooth
 
             if wave_img is not None:
-                (cx,cy) = connection.center
-                screen.blit(wave_img, (cx - wave_img.get_width()/2, cy - wave_img.get_height()/2))
+                (cx, cy) = connection.center
+                screen.blit(
+                    wave_img,
+                    (cx - wave_img.get_width() / 2, cy - wave_img.get_height() / 2),
+                )
 
             # No underlying connections so don't render
             # connection.render(controller, screen)
