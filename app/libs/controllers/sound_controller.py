@@ -84,20 +84,20 @@ class SoundController(Controller):
                         obj.set_object_attribute("wave", obj_wave)
                     if obj_wave is not None:
                         waves.append(obj_wave)
-                    if obj_wave.buffer is None:
-                        try:
-                            obj_wave.buffer = self.buffer_dict.get(obj_wave)
-                            if obj_wave.buffer is None and not obj_wave.buffering:
-                                # Enqueue wave for immediate buffer generation
-                                if self.immediate_wave_lock.acquire(blocking=True, timeout=0.05):
-                                    self.immediate_waves.append(obj_wave)
-                                    obj_wave.buffering = True
-                                    self.immediate_wave_lock.release()
-                        except:
-                            pass
-                        
-                    if obj_wave.buffer is not None:
-                        controller.sound_player.play(obj_wave)
+                        if obj_wave.buffer is None:
+                            try:
+                                obj_wave.buffer = self.buffer_dict.get(obj_wave)
+                                if obj_wave.buffer is None and not obj_wave.buffering:
+                                    # Enqueue wave for immediate buffer generation
+                                    if self.immediate_wave_lock.acquire(blocking=True, timeout=0.05):
+                                        self.immediate_waves.append(obj_wave)
+                                        obj_wave.buffering = True
+                                        self.immediate_wave_lock.release()
+                            except:
+                                pass
+                            
+                        if obj_wave.buffer is not None:
+                            controller.sound_player.play(obj_wave)
         controller.sound_player.cleanup(waves)
 
  
