@@ -420,8 +420,6 @@ class Camera:
         try:
             print("Camera initializing...")
             self.video = cv.VideoCapture(self.camera_no, cv.CAP_DSHOW)
-            self.video.set(cv.CAP_PROP_FRAME_WIDTH, 720)
-            self.video.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
             # Ensure video camera is opened.
             self.valid = self.video is None or self.video.isOpened()
             print("Camera initialized.")

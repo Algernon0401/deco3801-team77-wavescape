@@ -9,10 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
-            "args": [
-                "-feed",
-                "-nodark"
-            ],
+            "args": [],
             "console": "integratedTerminal",
             "justMyCode": true
         },
