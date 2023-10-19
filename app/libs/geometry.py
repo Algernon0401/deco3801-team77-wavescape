@@ -6,7 +6,7 @@
 
 def line_intersection(line1, line2):
     """
-    Gets the intersection of two lines, if they intersect.
+    Gets the intersection of two non-flat (slope=0) lines, if they intersect.
 
     According to wikipedia.org/wiki/Line=line inersection
 
@@ -35,6 +35,8 @@ def line_intersection(line1, line2):
 def line_intersection_box(line, box):
     """
     Gets the intersection of a line and a box, if they intersect.
+    
+    This function does not account for lines where (slope=0)
 
     Arguments:
         line1 - a line ((p1x,p1y), (p2x,p2y))

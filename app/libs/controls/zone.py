@@ -664,16 +664,34 @@ class Zone(Control):
                         )
                     ),
                 )
-                # Get intersection point of box to line
-                intersection = line_intersection_box(
-                    line, (self.x, self.y, self.w, self.h)
-                )
-                length = max_length
-                if intersection is not None:
-                    (px, py) = intersection
-                    # Calculate length according to distance to intersection
-                    length = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
+                
+                
+                # Check zero slope lines and fix length
+                if rot == 0 or (lines == 4 and (i == 0 or i == 2)):
+                    length = self.w / 2
+                elif rot == math.pi / 2 or (lines == 4 and (i == 1 or i == 3)):
+                    length = self.h / 2
+                elif rot == math.pi:
+                    length = self.w / 2
+                elif rot == 3 * math.pi / 2:
+                    length = self.h / 2
+                    
+                if lines == 3:
+                    # Get intersection point of box to line
+                    intersection = line_intersection_box(
+                        line, (self.x, self.y, self.w, self.h)
+                    )
+                    length = max_length
+                    if intersection is not None:
+                        (px, py) = intersection
+                        # Calculate length according to distance to intersection
+                        length = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
+                
+                if length > max_length:
+                    length = max_length
+                    
                 length -= 2  # Reduce length so that it doesn't draw over the border
+                
                 pygame.draw.line(
                     screen,
                     pygame.Color(255, 255, 255),
