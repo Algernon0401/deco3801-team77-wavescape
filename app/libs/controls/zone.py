@@ -596,7 +596,7 @@ class Zone(Control):
             max_dist = self.get_max_dist()
             for i in range(2):
                 dist = (i + 1) * max_dist / 3
-                pygame.draw.circle(screen, pygame.Color(255,255,255), self.get_center(), 
+                pygame.draw.circle(screen, pygame.Color(222, 12, 12), self.get_center(), 
                                 dist, 2)
                 
             lines = 3 if self.chord == "major" or self.chord == "minor" else 4
@@ -614,7 +614,7 @@ class Zone(Control):
                     # Calculate length according to distance to intersection
                     length = math.sqrt((px - cx)**2 + (py - cy)**2)
                 length -= 2 # Reduce length so that it doesn't draw over the border
-                pygame.draw.line(screen, pygame.Color(255,255,255), (cx,cy),
+                pygame.draw.line(screen, pygame.Color(222, 12, 12), (cx,cy),
                                  (length * math.cos(rot) + cx, length * math.sin(rot) + cy), 2)
                 rot += rot_per_line
 
