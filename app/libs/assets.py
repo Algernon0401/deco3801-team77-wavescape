@@ -38,6 +38,8 @@ ASSET_BOARD_INVALID_OVERLAY = 'assets/images/board_invalid_overlay.png'
 
 ASSET_ZONE_BORDER = "assets/images/zone_border_l.png"
 ASSET_ZONE_BORDER_CORNER = "assets/images/zone_border_c.png"
+ASSET_ZONE_BORDER_SEL = "assets/images/zone_border_l_sel.png"
+ASSET_ZONE_BORDER_CORNER_SEL = "assets/images/zone_border_c_sel.png"
 
 ASSET_STAR = "assets/images/obj_star.png"
 ASSET_SQUARE = "assets/images/obj_square.png"
@@ -108,3 +110,10 @@ asset_zone_border_corner_tl = pygame.image.load(ASSET_ZONE_BORDER_CORNER)
 asset_zone_border_corner_tr = pygame.transform.rotate(asset_zone_border_corner_tl, -90)
 asset_zone_border_corner_br = pygame.transform.rotate(asset_zone_border_corner_tr, -90)
 asset_zone_border_corner_bl = pygame.transform.rotate(asset_zone_border_corner_br, -90)
+
+asset_zone_border_l_sel = pygame.image.load(ASSET_ZONE_BORDER_SEL)
+asset_zone_border_t_sel = pygame.transform.rotate(asset_zone_border_l_sel, 90)
+asset_zone_border_corner_tl_sel = pygame.image.load(ASSET_ZONE_BORDER_CORNER_SEL)
+asset_zone_border_corner_tr_sel = pygame.transform.rotate(asset_zone_border_corner_tl_sel, -90)
+asset_zone_border_corner_br_sel = pygame.transform.rotate(asset_zone_border_corner_tr_sel, -90)
+asset_zone_border_corner_bl_sel = pygame.transform.rotate(asset_zone_border_corner_br_sel, -90)

@@ -181,7 +181,7 @@ class Zone(Control):
             controller -- the app controller this control runs from
         """
         super().__init__(controller)
-        self.chord = "major"
+        self.chord = "minor"
         self.is_global = False
         self.is_zone = True
         self.w = 128
@@ -395,9 +395,12 @@ class Zone(Control):
 
         actual_objects = []
 
+        # Update WaveGen properties
+        # which allows the zone to be selected.
+        self.selected = False
         for object in objects:
-            # Check to see if it is a zone-border object
-            if object.tag == controller.zone_border_object:
+            if object.tag == Tag.ARROW.value:
+                self.selected = True
                 continue
             actual_objects.append(object)
 
@@ -408,6 +411,8 @@ class Zone(Control):
             # Object connectivity graph via distance, but only if the old graph was
             # completed or non-existing.
             self.graph = self.create_connectivity_tree(None, objects, center, center)
+        else: 
+            self.selected = False
 
         for object in objects:
             if object.get_object_attribute("ripple_count") is None:
@@ -521,14 +526,29 @@ class Zone(Control):
         corner_height = asset_zone_border_corner_tl.get_height()
         border_width = asset_zone_border_l.get_width()
 
+        tl = asset_zone_border_corner_tl
+        tr = asset_zone_border_corner_tr
+        bl = asset_zone_border_corner_bl
+        br = asset_zone_border_corner_br
+        l = asset_zone_border_l
+        t = asset_zone_border_t
+        
+        if self.selected:
+            tl = asset_zone_border_corner_tl_sel
+            tr = asset_zone_border_corner_tr_sel
+            bl = asset_zone_border_corner_bl_sel
+            br = asset_zone_border_corner_br_sel
+            l = asset_zone_border_l_sel
+            t = asset_zone_border_t_sel
+        
         # Draw corners
-        screen.blit(asset_zone_border_corner_tl, (x, y))
-        screen.blit(asset_zone_border_corner_tr, (x + w - corner_width, y))
+        screen.blit(tl, (x, y))
+        screen.blit(tr, (x + w - corner_width, y))
 
-        screen.blit(asset_zone_border_corner_bl, (x, y + h - corner_height))
+        screen.blit(bl, (x, y + h - corner_height))
         screen.blit(
-            asset_zone_border_corner_br,
-            (x + w - asset_zone_border_corner_tl.get_width(), y + h - corner_height),
+            br,
+            (x + w - tl.get_width(), y + h - corner_height),
         )
 
         # Draw spanning rectangle
@@ -536,14 +556,14 @@ class Zone(Control):
         # Vertical lines
         screen.blit(
             pygame.transform.scale(
-                asset_zone_border_l, (border_width, h - corner_height * 2)
+                l, (border_width, h - corner_height * 2)
             ),
             (x, y + corner_height),
         )
 
         screen.blit(
             pygame.transform.scale(
-                asset_zone_border_l, (border_width, h - corner_height * 2)
+                l, (border_width, h - corner_height * 2)
             ),
             (x + w - border_width, y + corner_height),
         )
@@ -552,7 +572,7 @@ class Zone(Control):
             for i in range(7):
                 screen.blit(
                     pygame.transform.scale(
-                        asset_zone_border_l, (border_width, h - corner_height * 2)
+                        l, (border_width, h - corner_height * 2)
                     ),
                     (x + (i + 1) * w / 8 - border_width, y + corner_height),
                 )
@@ -560,14 +580,14 @@ class Zone(Control):
         # Horizontal lines
         screen.blit(
             pygame.transform.scale(
-                asset_zone_border_t, (w - corner_width * 2, border_width)
+                t, (w - corner_width * 2, border_width)
             ),
             (x + corner_width, y),
         )
 
         screen.blit(
             pygame.transform.scale(
-                asset_zone_border_t, (w - corner_width * 2, border_width)
+                t, (w - corner_width * 2, border_width)
             ),
             (x + corner_width, y + h - border_width),
         )
