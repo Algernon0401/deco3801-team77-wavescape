@@ -210,7 +210,6 @@ class Zone(Control):
         self.sound_enabled = True  # True if sound playback occurs
         self.time_since_playback_existed = datetime.datetime.min
         # self.time_since_playback_placed = datetime.datetime.min
-        self.sound_thread = None
         self.arrange_thread = None
 
     def get_max_dist(self):
@@ -357,13 +356,6 @@ class Zone(Control):
                     #    self.time_since_playback_existed - self.time_since_playback_placed
                     #).total_seconds()
                     self.sound_enabled = time_passed < PLAYBACK_COOLDOWN # and time_passed_since_placed > 0.25
-
-        if self.type == ZTYPE_OBJ_WAVEGEN:
-            if self.sound_thread is None:
-                self.sound_thread = threading.Thread(
-                    target=self.handle_sound, args=[controller]
-                )
-                self.sound_thread.start()
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
             if self.arrange_thread is None:

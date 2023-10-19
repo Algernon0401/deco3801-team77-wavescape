@@ -11,7 +11,6 @@ import pygame
 from .devices.camera import Camera
 
 # Import audio system
-from .devices.audio import AudioSystem
 from .sound import *
 
 # Import control board

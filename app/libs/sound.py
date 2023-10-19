@@ -7,6 +7,7 @@ import math
 import time
 import pygame
 import numpy as np
+from scipy import signal
 import threading
 # from numba import jit, cuda 
 import functools
@@ -17,7 +18,8 @@ class Wave:
         self.amplitude = amplitude
         self.frequency = frequency
         self.volume = volume
-        self.buffer = None # cache the buffer
+        self.buffering = False
+        self.buffer = None
         # self.buffer = Sound.generate_buffer(Sine(100, 100, 0.5))
         # self.tsound = pygame.sndarray.make_sound(self.buffer)
         
@@ -156,14 +158,14 @@ class Sound:
         self.sample_rate = sample_rate
         self.bit_rate = bit_rate
         self.speaker = speaker
-        # self.playing = {}
+        self.playing = {}
         self.wave_cache = []
 
         self.LEFT = 0
         self.RIGHT = 1
 
         # init pygame
-        pygame.mixer.pre_init(self.sample_rate, self.bit_rate, 1, allowedchanges=0)
+        pygame.mixer.init(self.sample_rate, self.bit_rate, 6, allowedchanges=0)
         self.max_channels = pygame.mixer.get_num_channels()
 
     def get_next_channel(self):
@@ -214,7 +216,7 @@ class Sound:
         # for thread in threads:
         #     thread.join()
 
-    def play(self, zone, wave: Wave):
+    def play(self, wave: Wave):
         """Takes a wave object and plays its corresponding sound.
 
         Args:
@@ -223,20 +225,23 @@ class Sound:
         if wave is None:
             return
         
-        if wave in zone.playing.values():
+        if wave in self.playing.values():
             return
 
         channel = self.get_next_channel()
-        zone.playing[channel] = wave
+        self.playing[channel] = wave
         
         if wave.buffer is None:
-           for w in self.wave_cache:
-               if wave == w:
-                   wave.buffer == w.buffer
-                    # print("Found in cache")
-                   break
-           wave.buffer = self.generate_buffer(wave)
-           self.wave_cache.append(wave)
+             return # NOTE: Now using sound_controller's buffer generation
+             # do not halt any other sounds
+             
+        #    for w in self.wave_cache:
+        #        if wave == w:
+        #            wave.buffer == w.buffer
+        #             # print("Found in cache")
+        #            break
+        #    wave.buffer = self.generate_buffer(wave)
+        #    self.wave_cache.append(wave)
 
         # # pygame_sound = pygame.sndarray.make_sound(wave.buffer)
         # pygame_sound = pygame.mixer.Sound(wave.buffer)
@@ -250,14 +255,14 @@ class Sound:
         channel.play(pygame_sound, loops=-1)
         channel.queue(pygame_sound)
     
-    def cleanup(self, zone, waves: list):
+    def cleanup(self, waves: list):
         cull_list = []
-        for channel, wave in zone.playing.items():
+        for channel, wave in self.playing.items():
             if wave not in waves:
                 channel.stop()
                 cull_list.append(channel)
         for channel in cull_list:
-            zone.playing.pop(channel)
+            self.playing.pop(channel)
 
 
 
@@ -265,30 +270,45 @@ class Sound:
     @functools.cache
     def generate_buffer(self, wave: Wave):
         # print("Generated buffer")
-        num_samples = int(round(wave.volume * self.sample_rate))
+        # num_samples = int(round(wave.volume * self.sample_rate))
 
         # setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above
-        buffer = np.zeros((num_samples, 2), dtype = np.int32)
+        # buffer = np.zeros((self.sample_rate, 2), dtype = np.int32)
 
         # figure out which of the below is the correct method (prob not necessary)
         # amplitude = 2 ** (self.bits - 1) - 1
         # self.bit_rate = math.log2(wave.amplitude + 1) + 1
 
-        for s in range(num_samples):
-            # print(f"Iteration: {s}/{num_samples} ({float('%.2g' % (s/num_samples*100))}%)", end="\r", flush=True)
-            # time in seconds
-            t = float(s) / self.sample_rate
+        # Generate the buffer using numpy
+        
+        # 441 frequency
+        
+        time = np.linspace(0, 1, int(wave.frequency), endpoint=False)
+        if isinstance(wave, Sine):
+            return np.sin(2 * np.pi * np.arange(self.sample_rate / wave.frequency) * wave.frequency / self.sample_rate).astype(np.float16)
+        elif isinstance(wave, Square):
+            return (np.round((np.sin(2 * np.pi * np.arange(self.sample_rate / wave.frequency) * wave.frequency / self.sample_rate) + 1) / 2) * 2 - 1).astype(np.float16)
+        elif isinstance(wave, Sawtooth):
+            return (signal.sawtooth(time) + 1).astype(np.float16)
+        elif isinstance(wave, Triangle):
+            return (signal.sawtooth(time, width=0.5) + 1).astype(np.float16)
+        return None
 
-            output = wave.generate(t)
+        # for s in range(num_samples):
+        #     # print(f"Iteration: {s}/{num_samples} ({float('%.2g' % (s/num_samples*100))}%)", end="\r", flush=True)
+        #     # time in seconds
+        #     t = float(s) / self.sample_rate
 
-            # Control which speaker to play the sound from
-            if self.speaker == 'l':
-                buffer[s][self.LEFT] = output # left
-            elif self.speaker == 'r':
-                buffer[s][self.RIGHT] = output # right
-            else:
-                buffer[s][0] = output # left
-                buffer[s][1] = output # right
+        #     output = wave.generate(t)
+
+        #     # Control which speaker to play the sound from
+        #     if self.speaker == 'l':
+        #         buffer[s][self.LEFT] = output # left
+        #     elif self.speaker == 'r':
+        #         buffer[s][self.RIGHT] = output # right
+        #     else:
+        #         buffer[s][0] = output # left
+        #         buffer[s][1] = output # right
         
         return buffer
 

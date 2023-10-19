@@ -16,7 +16,8 @@ def app_init():
     import threading
 
     from libs.object import Tag
-
+    from libs.controllers.sound_controller import SoundController
+    
     # Import control base and app controller
     from libs.base import Control, AppController
 
@@ -117,6 +118,9 @@ def app_init():
     controller.add_control(z_circle)
     controller.add_control(z_star)
 
+    # Add sound controller
+    controller.add_controller(SoundController(controller))
+    
     # Create render thread
     threading.Thread(target=app_render, args=[controller, screen]).start()
 

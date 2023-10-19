@@ -242,6 +242,7 @@ def load_yolo_model(path):
         print("Error with YOLOv8 Model: " + str(e))
         queues.message_yolo_queue.put(Message(MP_MSG_YOLO_ERROR, None))
 
+process_created = False
 
 class Camera:
     """
@@ -261,6 +262,7 @@ class Camera:
         and loads the given YOLOv5 model.
         """
         global queues
+        global process_created
         try:
             queues = CameraQueueManager()
             self.active = True
@@ -302,7 +304,9 @@ class Camera:
             threading.Thread(target=self.open_camera, args=[]).start()
 
             # Create sub-process for processing camera via YOLO.
-            Process(target=self.load_default_model, args=(queues,)).start()
+            if not process_created:
+                process_created = True
+                Process(target=self.load_default_model, args=(queues,)).start()
 
             # Create thread for transferring camera feed to yolo model
             threading.Thread(target=self.feed_camera_to_yolo, args=[]).start()
