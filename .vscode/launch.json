@@ -34,8 +34,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/app/app.py",
             "args": [
-                "-mo",
-                "-tz"
+                "-feed",
+                "-nodark"
             ],
             "cwd": "app",
             "console": "integratedTerminal",
