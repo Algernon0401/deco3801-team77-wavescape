@@ -34,7 +34,7 @@ class Calibration(Control):
         self.x = 0
         self.y = 0
         (self.w, self.h) = controller.get_screen_size()
-        self.current_step = 1
+        self.current_step = 0
         self.adjust_mode = 0 # 0 for x, 1 for y.
         self.step_tip_offset = 0
         self.last_time_updated = datetime.datetime.now()
@@ -69,27 +69,34 @@ class Calibration(Control):
         
         (screen_w,screen_h) = controller.get_screen_size()
         
-        # Display calibration circles
-        cc_width = asset_calibration_circle.get_width()
-        cc_height = asset_calibration_circle.get_height()
+        if self.current_step == 0:
+            feed = controller.camera.capture_video_pygame()
+            if feed is not None:
+                screen.blit(pygame.transform.scale(feed, (screen_w, screen_h)), (0,0))
+        else:
+            # Display calibration circles
+            cc_width = asset_calibration_circle.get_width()
+            cc_height = asset_calibration_circle.get_height()
+            
+            screen.blit(asset_calibration_circle, (50-cc_width/2, 50-cc_height/2))
+            screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, 50-cc_height/2))
+            screen.blit(asset_calibration_circle, (50-cc_width/2, screen_h-50-cc_height/2))
+            screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, screen_h-50-cc_height/2))
+            screen.blit(asset_calibration_circle, (screen_w/2-cc_width/2, screen_h/2-cc_height/2))
         
-        screen.blit(asset_calibration_circle, (50-cc_width/2, 50-cc_height/2))
-        screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, 50-cc_height/2))
-        screen.blit(asset_calibration_circle, (50-cc_width/2, screen_h-50-cc_height/2))
-        screen.blit(asset_calibration_circle, (screen_w-50-cc_width/2, screen_h-50-cc_height/2))
-        screen.blit(asset_calibration_circle, (screen_w/2-cc_width/2, screen_h/2-cc_height/2))
-        
-        # Display circles shapes
-        for obj in controller.get_cam_objects():
-            if obj.tag == Tag.CIRCLE.value:     
-                screen.blit(pygame.transform.scale(asset_calibration_circle_obj, (obj.w, obj.h)), (obj.x, obj.y))
+            # Display circles shapes
+            for obj in controller.get_cam_objects():
+                if obj.tag == Tag.CIRCLE.value:     
+                    screen.blit(pygame.transform.scale(asset_calibration_circle_obj, (obj.w, obj.h)), (obj.x, obj.y))
         
         # Ensure step images are placed in center of screen.
         placement_x = screen_w / 2 - asset_calibration_step_one.get_width() / 2 
         
         # Display corresponding calibration step
         step_img = None
-        if self.current_step == 1:
+        if self.current_step == 0:
+            step_img = asset_calibration_step_zero
+        elif self.current_step == 1:
             step_img = asset_calibration_step_one
         elif self.current_step == 2:
             if self.adjust_mode == 0:
@@ -134,8 +141,8 @@ class Calibration(Control):
         """
         # Move onto next step
         self.current_step -= 1
-        if self.current_step <= 1:
-            self.current_step = 1        
+        if self.current_step <= 0:
+            self.current_step = 0        
         
     def event(self, controller: AppController, event: pygame.event.Event):
         """
@@ -157,7 +164,18 @@ class Calibration(Control):
             elif event.key == pygame.K_LEFT:
                 self.last_step(controller)
         elif event.type == pygame.MOUSEWHEEL:
-            if self.current_step == 2:
+            if self.current_step == 0:
+                # Darkness threshold
+                next_threshold = (
+                    controller.camera.dark_threshold 
+                    + (1 if event.y > 0 else -1)
+                )
+                if next_threshold < 0:
+                    next_threshold = 0
+                if next_threshold > 255:
+                    next_threshold = 255
+                controller.camera.dark_threshold = next_threshold
+            elif self.current_step == 2:
                 # Center offset
                 if self.adjust_mode == 0:
                     controller.camera.offset_x += event.y / 500

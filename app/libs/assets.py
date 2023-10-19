@@ -14,6 +14,7 @@ ASSET_MENU_BUTTON_SWAP_CAMERA = 'assets/images/menu/button_swap_camera.png'
 ASSET_MENU_BUTTON_TOGGLE_FULLSCREEN = 'assets/images/menu/button_toggle_fullscreen.png'
 ASSET_MENU_BUTTON_RECONNECT_BOARD = 'assets/images/menu/button_reconnect_board.png'
 
+ASSET_CALIBRATION_STEP_ZERO = 'assets/images/calibration.s0.png'
 ASSET_CALIBRATION_STEP_ONE = 'assets/images/calibration.s1.png'
 ASSET_CALIBRATION_STEP_TWO = 'assets/images/calibration.s2.png'
 ASSET_CALIBRATION_STEP_TWO_ALT = 'assets/images/calibration.s2.alt.png'
@@ -63,6 +64,7 @@ asset_menu_button_toggle_fullscreen = pygame.image.load(ASSET_MENU_BUTTON_TOGGLE
 asset_menu_button_swap_camera = pygame.image.load(ASSET_MENU_BUTTON_SWAP_CAMERA)
 asset_menu_button_reconnect_board = pygame.image.load(ASSET_MENU_BUTTON_RECONNECT_BOARD)
 
+asset_calibration_step_zero = pygame.image.load(ASSET_CALIBRATION_STEP_ZERO)
 asset_calibration_step_one = pygame.image.load(ASSET_CALIBRATION_STEP_ONE)
 asset_calibration_step_two = pygame.image.load(ASSET_CALIBRATION_STEP_TWO)
 asset_calibration_step_two_alt = pygame.image.load(ASSET_CALIBRATION_STEP_TWO_ALT)

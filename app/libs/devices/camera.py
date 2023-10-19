@@ -16,7 +16,9 @@ from ..mp import Message
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 MODEL_CONFIDENCE_THRESHOLD = 0.5
+OBJECT_PERSISTENCE = 3 # Objects that were not found should still persist for a few seconds
 CAMERA_UPDATE_DELAY = 0.1  # Number of seconds until camera is allowed to update again.
+CAMERA_BW_THRESHOLD = 20 # Threshold on darkness to consider black
 MAX_ITEMS_IN_MP_QUEUE = (
     3  # Number of items that can be queued until results are forcibly popped.
 )
@@ -104,6 +106,10 @@ def load_yolo_model(path):
                 if queues.object_detection_queue.qsize() >= MAX_ITEMS_IN_MP_QUEUE:
                     queues.object_detection_queue.get()
 
+                # Apply black and white filter to frame
+                
+                # (_, camera_feed) = cv.threshold(camera_feed, 15, 255, cv.THRESH_BINARY)
+                
                 # Send new model results to queue
                 #queues.object_detection_queue.put(
                 model_results = model.track(camera_feed, verbose=False, persist=True)[0]
@@ -231,6 +237,16 @@ def load_yolo_model(path):
                                 # comparison of current track_avg to newest entry
                                 # if  difference is +-10% then swap to new average
                                 # to combat jitteryness
+                                
+                        # Make objects persist for some time 
+                        for track_id in registered_results.keys():
+                            object = registered_results[track_id]
+                            if (
+                                object not in objects
+                                and (datetime.datetime.now() - object.date_last_included).total_seconds() < OBJECT_PERSISTENCE 
+                            ):
+                                # Object was not re-added so persist (re-add) until a few seconds pass
+                                objects.append(object)
                     
                         queues.object_detection_queue.put(objects)
                     except Exception as e:
@@ -277,6 +293,8 @@ class Camera:
             self.last_w = 0
             self.last_h = 0
 
+            self.filter_enabled = True
+            self.dark_threshold = 20
             # X and Y offsets for center object (as perc of screen)
             self.offset_x = 0
             self.offset_y = 0
@@ -333,6 +351,7 @@ class Camera:
             self.skew_right = float(settings[5])
             self.skew_top = float(settings[6])
             self.skew_bottom = float(settings[7])
+            self.dark_threshold = int(settings[8])
             map.close()
         except:
             print("Failed to load calibration settings (may not exist or corrupted)")
@@ -346,7 +365,8 @@ class Camera:
             map.write(str(self.offset_x)+";"+str(self.offset_y)+";"+
                       str(self.scale_x)+";"+str(self.scale_y)+";"+
                       str(self.skew_left)+";"+str(self.skew_right)+";"+
-                      str(self.skew_top)+";"+str(self.skew_bottom))
+                      str(self.skew_top)+";"+str(self.skew_bottom)+";"+
+                      str(self.dark_threshold))
             map.close()
         except:
             print("Failed to save calibration settings")
@@ -400,6 +420,8 @@ class Camera:
         try:
             print("Camera initializing...")
             self.video = cv.VideoCapture(self.camera_no, cv.CAP_DSHOW)
+            self.video.set(cv.CAP_PROP_FRAME_WIDTH, 720)
+            self.video.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
             # Ensure video camera is opened.
             self.valid = self.video is None or self.video.isOpened()
             print("Camera initialized.")
@@ -457,6 +479,12 @@ class Camera:
             if not ret:
                 self.destroy()  # Video cam error (or ended)
 
+            if self.filter_enabled:
+                # Perform black and white filter
+                frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+                (_, frame) = cv.threshold(frame, self.dark_threshold, 255, cv.THRESH_BINARY)
+                # Convert to format for YOLOv8
+                frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
             return frame
         return None
 
@@ -467,6 +495,7 @@ class Camera:
         """
         if self.valid:
             frame = self.capture_video()
+                
             if frame is not None:
                 # Convert to pygame image (current shape is (height,width))
                 #                         (required shape is (width,height))
