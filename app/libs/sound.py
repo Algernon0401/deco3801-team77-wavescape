@@ -9,11 +9,14 @@ import pygame
 import numpy as np
 from scipy import signal
 import threading
-# from numba import jit, cuda 
+
+# from numba import jit, cuda
 import functools
+
 
 class Wave:
     """Base class representing a sound wave."""
+
     def __init__(self, amplitude, frequency, volume):
         self.amplitude = amplitude
         self.frequency = frequency
@@ -22,7 +25,7 @@ class Wave:
         self.buffer = None
         # self.buffer = Sound.generate_buffer(Sine(100, 100, 0.5))
         # self.tsound = pygame.sndarray.make_sound(self.buffer)
-        
+
     def generate(self, time):
         """Generates the amplitude of the wave at given time step. Template function only.
 
@@ -33,23 +36,27 @@ class Wave:
             int: generated amplitude
         """
         return 0
-    
+
     def sign(self, x):
-        if x == 0: return 1
-        return x/abs(x)
-    
+        if x == 0:
+            return 1
+        return x / abs(x)
+
     def __eq__(self, other):
-        return self.amplitude == other.amplitude \
-              and self.frequency == other.frequency \
-              and self.volume == other.volume \
-              and type(self) == type(other)
-    
+        return (
+            self.amplitude == other.amplitude
+            and self.frequency == other.frequency
+            and self.volume == other.volume
+            and type(self) == type(other)
+        )
+
     def __hash__(self):
         return hash((self.amplitude, self.frequency, self.volume, type(self)))
-    
-    
+
+
 class Sine(Wave):
     """Represents a sine wave."""
+
     def __init__(self, amplitude, frequency, volume):
         super().__init__(amplitude, frequency, volume)
 
@@ -62,11 +69,14 @@ class Sine(Wave):
         Returns:
             int: generated amplitude
         """
-        return int(round(self.amplitude * math.sin(2 * math.pi * self.frequency * time)))
-    
+        return int(
+            round(self.amplitude * math.sin(2 * math.pi * self.frequency * time))
+        )
+
 
 class Square(Wave):
     """Represents a square wave."""
+
     def __init__(self, amplitude, frequency, volume):
         super().__init__(amplitude, frequency, volume)
 
@@ -79,11 +89,17 @@ class Square(Wave):
         Returns:
             int: generated amplitude
         """
-        return int(round(self.amplitude * self.sign(math.sin(2 * math.pi * self.frequency * time))))
-    
+        return int(
+            round(
+                self.amplitude
+                * self.sign(math.sin(2 * math.pi * self.frequency * time))
+            )
+        )
+
 
 class Triangle(Wave):
     """Represents a triangle wave."""
+
     def __init__(self, amplitude, frequency, volume):
         super().__init__(amplitude, frequency, volume)
 
@@ -96,12 +112,19 @@ class Triangle(Wave):
         Returns:
             int: generated amplitude
         """
-        return int(round(self.amplitude * 2 / math.pi * math.asin(
-                         math.sin(2 * math.pi * self.frequency * time))))
+        return int(
+            round(
+                self.amplitude
+                * 2
+                / math.pi
+                * math.asin(math.sin(2 * math.pi * self.frequency * time))
+            )
+        )
 
 
 class Sawtooth(Wave):
     """Represents a sawtooth wave."""
+
     def __init__(self, amplitude, frequency, volume):
         super().__init__(amplitude, frequency, volume)
 
@@ -114,12 +137,21 @@ class Sawtooth(Wave):
         Returns:
             int: generated amplitude
         """
-        return int(round(self.amplitude * 2 * (math.pi * self.frequency * time -
-                                               math.floor(math.pi * self.frequency * time + 1/2))))
+        return int(
+            round(
+                self.amplitude
+                * 2
+                * (
+                    math.pi * self.frequency * time
+                    - math.floor(math.pi * self.frequency * time + 1 / 2)
+                )
+            )
+        )
 
 
 class Pulse(Wave):
     """Represents a pulse wave."""
+
     def __init__(self, amplitude, frequency, volume, duty_cycle=0.175):
         super().__init__(amplitude, frequency, volume)
         self.duty_cycle = duty_cycle
@@ -133,7 +165,13 @@ class Pulse(Wave):
         Returns:
             int: sign of the wave at current time step.
         """
-        return int((math.pi * self.frequency * time - math.floor(math.pi * self.frequency * time)) < self.duty_cycle)
+        return int(
+            (
+                math.pi * self.frequency * time
+                - math.floor(math.pi * self.frequency * time)
+            )
+            < self.duty_cycle
+        )
 
     def generate(self, time):
         """Generates the amplitude of a pulse wave at given time step.
@@ -146,8 +184,10 @@ class Pulse(Wave):
         """
         return int(round(self.amplitude * self.pulse_sign(time)))
 
+
 class Sound:
     """Class for playing sounds, with one or more waves"""
+
     def __init__(self, sample_rate=44100, bit_rate=16, speaker="both"):
         """
         Args:
@@ -171,7 +211,7 @@ class Sound:
     def get_next_channel(self):
         c = pygame.mixer.find_channel()
         if c is None:
-            pygame.mixer.set_num_channels(self.max_channels*2)
+            pygame.mixer.set_num_channels(self.max_channels * 2)
         return pygame.mixer.find_channel()
 
     def chorus(self, waves: list):
@@ -190,11 +230,13 @@ class Sound:
             # wave_thread = threading.Thread(target=self.play, args=(wave,))
             # threads.append(wave_thread)
         for i, wave in enumerate(waves):
-            time.sleep(0.05*i)
+            time.sleep(0.05 * i)
             pygame_sound = pygame.mixer.Sound(wave.buffer)
             pygame_sound.set_volume(0.15)
-            one_sec = 1000 # Milliseconds
-            pygame.mixer.Channel(i).play(pygame_sound, loops=1)#, maxtime=int(wave.duration * one_sec * 5))
+            one_sec = 1000  # Milliseconds
+            pygame.mixer.Channel(i).play(
+                pygame_sound, loops=1
+            )  # , maxtime=int(wave.duration * one_sec * 5))
             pygame.mixer.Channel(i).queue(pygame_sound)
             # pygame.mixer.Channel(i).fadeout(10000)
 
@@ -206,8 +248,10 @@ class Sound:
                 wave.buffer = self.generate_buffer(wave)
                 pygame_sound = pygame.mixer.Sound(wave.buffer)
                 pygame_sound.set_volume(0.15)
-                one_sec = 1000 # Milliseconds
-                pygame.mixer.Channel(i).play(pygame_sound, loops=1)#, maxtime=int(wave.duration * one_sec * 5))
+                one_sec = 1000  # Milliseconds
+                pygame.mixer.Channel(i).play(
+                    pygame_sound, loops=1
+                )  # , maxtime=int(wave.duration * one_sec * 5))
                 pygame.mixer.Channel(i).queue(pygame_sound)
 
         # for thread in threads:
@@ -224,17 +268,17 @@ class Sound:
         """
         if wave is None:
             return
-        
+
         if wave in self.playing.values():
             return
 
         channel = self.get_next_channel()
         self.playing[channel] = wave
-        
+
         if wave.buffer is None:
-             return # NOTE: Now using sound_controller's buffer generation
-             # do not halt any other sounds
-             
+            return  # NOTE: Now using sound_controller's buffer generation
+            # do not halt any other sounds
+
         #    for w in self.wave_cache:
         #        if wave == w:
         #            wave.buffer == w.buffer
@@ -254,7 +298,7 @@ class Sound:
         pygame_sound.set_volume(wave.volume)
         channel.play(pygame_sound, loops=-1)
         channel.queue(pygame_sound)
-    
+
     def cleanup(self, waves: list):
         cull_list = []
         for channel, wave in self.playing.items():
@@ -263,8 +307,6 @@ class Sound:
                 cull_list.append(channel)
         for channel in cull_list:
             self.playing.pop(channel)
-
-
 
     # @jit(target_backend='CPU')
     @functools.cache
@@ -280,14 +322,36 @@ class Sound:
         # self.bit_rate = math.log2(wave.amplitude + 1) + 1
 
         # Generate the buffer using numpy
-        
+
         # 441 frequency
-        
+
         time = np.linspace(0, 1, int(wave.frequency), endpoint=False)
         if isinstance(wave, Sine):
-            return np.sin(2 * np.pi * np.arange(self.sample_rate / wave.frequency) * wave.frequency / self.sample_rate).astype(np.float16)
+            return np.sin(
+                2
+                * np.pi
+                * np.arange(self.sample_rate / wave.frequency)
+                * wave.frequency
+                / self.sample_rate
+            ).astype(np.float16)
         elif isinstance(wave, Square):
-            return (np.round((np.sin(2 * np.pi * np.arange(self.sample_rate / wave.frequency) * wave.frequency / self.sample_rate) + 1) / 2) * 2 - 1).astype(np.float16)
+            return (
+                np.round(
+                    (
+                        np.sin(
+                            2
+                            * np.pi
+                            * np.arange(self.sample_rate / wave.frequency)
+                            * wave.frequency
+                            / self.sample_rate
+                        )
+                        + 1
+                    )
+                    / 2
+                )
+                * 2
+                - 1
+            ).astype(np.float16)
         elif isinstance(wave, Sawtooth):
             return (signal.sawtooth(time) + 1).astype(np.float16)
         elif isinstance(wave, Triangle):
@@ -309,8 +373,9 @@ class Sound:
         #     else:
         #         buffer[s][0] = output # left
         #         buffer[s][1] = output # right
-        
+
         return buffer
+
 
 def main():
     """for testing"""
@@ -328,7 +393,7 @@ def main():
     maj_seventh_ratios = [10, 12, 15, 18]
     min_seventh_ratios = [8, 10, 12, 15]
 
-    w = Sine(100, 4*base_f, 1)
+    w = Sine(100, 4 * base_f, 1)
     s.generate_buffer(w)
 
     # for r in major_ratios:
@@ -337,7 +402,7 @@ def main():
     #     s.play(w)
     #     time.sleep(1)
     #     break
-        # s.play(w)
+    # s.play(w)
 
     # for r in seventh_ratios:
     #     w = Sine(100, r*base_f, 0.5)
@@ -348,6 +413,7 @@ def main():
     #     waves.append(w)
 
     # s.chorus(waves)
-    
+
+
 if __name__ == "__main__":
     main()

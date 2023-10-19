@@ -16,9 +16,11 @@ from ..mp import Message
 
 ASSET_TRAINED_MODEL = os.path.abspath("assets/model.pt")
 MODEL_CONFIDENCE_THRESHOLD = 0.5
-OBJECT_PERSISTENCE = 3 # Objects that were not found should still persist for a few seconds
+OBJECT_PERSISTENCE = (
+    3  # Objects that were not found should still persist for a few seconds
+)
 CAMERA_UPDATE_DELAY = 0.1  # Number of seconds until camera is allowed to update again.
-CAMERA_BW_THRESHOLD = 20 # Threshold on darkness to consider black
+CAMERA_BW_THRESHOLD = 20  # Threshold on darkness to consider black
 MAX_ITEMS_IN_MP_QUEUE = (
     3  # Number of items that can be queued until results are forcibly popped.
 )
@@ -77,12 +79,12 @@ def load_yolo_model(path):
         queues.message_yolo_queue.put(Message(MP_MSG_YOLO_MODEL_LOADED))
 
         camera_feed = None
-        
+
         # Initialize the dictionaries
         track_histories = defaultdict(list)
         track_averages = defaultdict(list)
         registered_results = {}
-        
+
         screen_x = 1920
         screen_y = 1080
         # Repeatedly get object detection results in this thread
@@ -96,7 +98,7 @@ def load_yolo_model(path):
                     screen_x = msg.data
                 elif msg.type == MP_MSG_SIZEY:
                     screen_y = msg.data
-                    
+
             # Get feed from main thread
             if queues.camera_feed_queue.qsize() > 0:
                 camera_feed = queues.camera_feed_queue.get()
@@ -107,23 +109,23 @@ def load_yolo_model(path):
                     queues.object_detection_queue.get()
 
                 # Apply black and white filter to frame
-                
+
                 # (_, camera_feed) = cv.threshold(camera_feed, 15, 255, cv.THRESH_BINARY)
-                
+
                 # Send new model results to queue
-                #queues.object_detection_queue.put(
+                # queues.object_detection_queue.put(
                 model_results = model.track(camera_feed, verbose=False, persist=True)[0]
-                #)
-                
+                # )
+
                 camera_y, camera_x = camera_feed.shape[:2]
                 objects = []
-                
+
                 if camera_x <= 0 and camera_y <= 0:
                     continue
-            
+
                 # Get scale of camera to screen
                 (scale_x, scale_y) = (screen_x / camera_x, screen_y / camera_y)
-                
+
                 if model_results is not None:
                     try:
                         results = model_results.boxes.data.tolist()
@@ -214,7 +216,9 @@ def load_yolo_model(path):
                                 avg_x = total_x / len(track_histories[track_id])
                                 avg_y = total_y / len(track_histories[track_id])
                                 avg_width = total_width / len(track_histories[track_id])
-                                avg_height = total_height / len(track_histories[track_id])
+                                avg_height = total_height / len(
+                                    track_histories[track_id]
+                                )
 
                                 # create key with track_id in track_average, to store
                                 # the average bottom left(BL) coord associated with the track_id
@@ -237,28 +241,32 @@ def load_yolo_model(path):
                                 # comparison of current track_avg to newest entry
                                 # if  difference is +-10% then swap to new average
                                 # to combat jitteryness
-                                
-                        # Make objects persist for some time 
+
+                        # Make objects persist for some time
                         for track_id in registered_results.keys():
                             object = registered_results[track_id]
                             if (
                                 object not in objects
-                                and (datetime.datetime.now() - object.date_last_included).total_seconds() < OBJECT_PERSISTENCE 
+                                and (
+                                    datetime.datetime.now() - object.date_last_included
+                                ).total_seconds()
+                                < OBJECT_PERSISTENCE
                             ):
                                 # Object was not re-added so persist (re-add) until a few seconds pass
                                 objects.append(object)
-                    
+
                         queues.object_detection_queue.put(objects)
                     except Exception as e:
                         print("Error with YOLO Conversion: " + str(e))
-                
-                
+
             time.sleep(0.05)  # Ensure model attempts to run less than 20x a second
     except Exception as e:
         print("Error with YOLOv8 Model: " + str(e))
         queues.message_yolo_queue.put(Message(MP_MSG_YOLO_ERROR, None))
 
+
 process_created = False
+
 
 class Camera:
     """
@@ -308,7 +316,7 @@ class Camera:
             self.skew_bottom = 0
             self.skew_left = 0
             self.skew_right = 0
-            
+
             # Load last calibration settings
             self.load_calibration()
 
@@ -336,13 +344,14 @@ class Camera:
             print("Error creating thread (camera thread and/or YOLO thread)")
             self.valid = False
             self.loading = False
+
     def load_calibration(self):
         """
         Loads calibration settings from calibration.map
         """
         try:
-            map = open('calibration.map', "r")
-            settings = map.read().split(';')
+            map = open("calibration.map", "r")
+            settings = map.read().split(";")
             self.offset_x = float(settings[0])
             self.offset_y = float(settings[1])
             self.scale_x = float(settings[2])
@@ -355,22 +364,36 @@ class Camera:
             map.close()
         except:
             print("Failed to load calibration settings (may not exist or corrupted)")
-    
+
     def save_calibration(self):
         """
         Saves calibration settings to calibration.map
         """
         try:
             map = open("calibration.map", "w")
-            map.write(str(self.offset_x)+";"+str(self.offset_y)+";"+
-                      str(self.scale_x)+";"+str(self.scale_y)+";"+
-                      str(self.skew_left)+";"+str(self.skew_right)+";"+
-                      str(self.skew_top)+";"+str(self.skew_bottom)+";"+
-                      str(self.dark_threshold))
+            map.write(
+                str(self.offset_x)
+                + ";"
+                + str(self.offset_y)
+                + ";"
+                + str(self.scale_x)
+                + ";"
+                + str(self.scale_y)
+                + ";"
+                + str(self.skew_left)
+                + ";"
+                + str(self.skew_right)
+                + ";"
+                + str(self.skew_top)
+                + ";"
+                + str(self.skew_bottom)
+                + ";"
+                + str(self.dark_threshold)
+            )
             map.close()
         except:
             print("Failed to save calibration settings")
-        
+
     def feed_camera_to_yolo(self):
         """
         Feeds the camera data to the YOLO sub-process.
@@ -480,7 +503,9 @@ class Camera:
             if self.filter_enabled:
                 # Perform black and white filter
                 frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-                (_, frame) = cv.threshold(frame, self.dark_threshold, 255, cv.THRESH_BINARY)
+                (_, frame) = cv.threshold(
+                    frame, self.dark_threshold, 255, cv.THRESH_BINARY
+                )
                 # Convert to format for YOLOv8
                 frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
             return frame
@@ -493,7 +518,7 @@ class Camera:
         """
         if self.valid:
             frame = self.capture_video()
-                
+
             if frame is not None:
                 # Convert to pygame image (current shape is (height,width))
                 #                         (required shape is (width,height))
@@ -641,7 +666,6 @@ class Camera:
         nigel test object_conversion
         """
         global queues
-        
 
         while self.active:
             time.sleep(0.1)  # Only update 50ms or so to prevent computer lag
@@ -675,12 +699,10 @@ class Camera:
                 self.object_results = []
                 continue
 
-            
-
             # Convert Object Detection results from model
             if self.model_results is not None:
                 # loop over the detections
-                pass #moved to load yolo model
+                pass  # moved to load yolo model
             self.object_results = objects
             self.refresh_ready = True
 
@@ -693,18 +715,22 @@ class Camera:
         # Check to make sure camera and model is initialized.
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
         (self.w, self.h) = controller.get_screen_size()
-        
-        try: 
+
+        try:
             if self.w != self.last_w:
                 self.last_w = self.w
-                queues.message_camera_queue.put(Message(MP_MSG_SIZEX, self.w), block=False)
-                
+                queues.message_camera_queue.put(
+                    Message(MP_MSG_SIZEX, self.w), block=False
+                )
+
             if self.h != self.last_h:
                 self.last_h = self.h
-                queues.message_camera_queue.put(Message(MP_MSG_SIZEY, self.h), block=False)
+                queues.message_camera_queue.put(
+                    Message(MP_MSG_SIZEY, self.h), block=False
+                )
 
         except:
-            pass # Process is still catching up
+            pass  # Process is still catching up
         # Process YOLO message events
         while queues.message_yolo_queue.qsize() > 0:
             msg = queues.message_yolo_queue.get()
@@ -714,7 +740,6 @@ class Camera:
             elif msg.type == MP_MSG_YOLO_MODEL_LOADED:
                 self.model = msg.data
                 self.model_loading = False
-
 
         # Extract model results from queue
         if queues.object_detection_queue.qsize() > 0:
@@ -733,7 +758,7 @@ class Camera:
                 xmax = xmin + object.base_w
                 ymin = object.base_y
                 ymax = ymin + object.base_h
-                
+
                 # Apply calibration settings (center offset)
                 adj_x = self.w * self.offset_x
                 adj_y = self.h * self.offset_y
@@ -773,13 +798,13 @@ class Camera:
                 xmax += offset_x
                 ymin += offset_y
                 ymax += offset_y
-                
+
                 # Update bounds on object
                 object.x = xmin
                 object.y = ymin
                 object.w = xmax - xmin
                 object.h = ymax - ymin
-                
+
             controller.set_cam_objects(objects)
 
     def destroy(self):

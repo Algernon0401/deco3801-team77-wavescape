@@ -5,7 +5,7 @@
     expanded to activate certain modes for setting up the workspace.
 """
 import pygame
-from datetime import *
+import datetime
 
 # Import app controller, control base class, camera and sound class
 from ..base import *
@@ -14,66 +14,78 @@ from ..object import *
 from ..sound import *
 from ..assets import *
 
+
 class MenuItem:
-        """
-        Depicts an item on the main menu.
-        """
+    """
+    Depicts an item on the main menu.
+    """
 
-        def __init__(self, descriptor, function):
-            """
-            Creates a menu item with the given image descriptor and function.
+    def __init__(self, descriptor, function):
+        """
+        Creates a menu item with the given image descriptor and function.
 
-            Arguments:
-                descriptor -- an image that will be drawn onto the UI
-                function -- the function that will be activated when this is clicked.
-            """
-            self.descriptor = descriptor
-            self.function = function
+        Arguments:
+            descriptor -- an image that will be drawn onto the UI
+            function -- the function that will be activated when this is clicked.
+        """
+        self.descriptor = descriptor
+        self.function = function
+
 
 # Initialise menu options
 items = [
-    MenuItem(asset_menu_button_toggle_fullscreen, lambda controller: controller.toggle_fullscreen()),
-    MenuItem(asset_menu_button_swap_camera, lambda controller: controller.swap_camera()),
-    MenuItem(asset_menu_button_calibrate, lambda controller: controller.setup_calibration()),
-    MenuItem(asset_menu_button_reconnect_board, lambda controller: controller.connect_board()),
+    MenuItem(
+        asset_menu_button_toggle_fullscreen,
+        lambda controller: controller.toggle_fullscreen(),
+    ),
+    MenuItem(
+        asset_menu_button_swap_camera, lambda controller: controller.swap_camera()
+    ),
+    MenuItem(
+        asset_menu_button_calibrate, lambda controller: controller.setup_calibration()
+    ),
+    MenuItem(
+        asset_menu_button_reconnect_board, lambda controller: controller.connect_board()
+    ),
     MenuItem(asset_menu_button_quit, lambda controller: controller.exit()),
-    MenuItem(asset_menu_button_hide, lambda controller: None)
+    MenuItem(asset_menu_button_hide, lambda controller: None),
 ]
+
 
 class Menu(Control):
     """
-        Controls for the main menu.
+    Controls for the main menu.
     """
 
     def __init__(self, controller: AppController):
         """
-            Initializes the control
-            
-            Arguments:
-                controller -- the app controller this control runs from
+        Initializes the control
+
+        Arguments:
+            controller -- the app controller this control runs from
         """
         super().__init__(controller)
         self.interactive = True
-        self.mouse_down = False 
+        self.mouse_down = False
         self.expanded = False
-        self.menu_offset = 0 # Offset from bottom
+        self.menu_offset = 0  # Offset from bottom
         self.w = asset_menu_bar.get_width()
-        self.h = asset_menu_bar.get_height() 
+        self.h = asset_menu_bar.get_height()
         self.last_time_updated = datetime.datetime.now()
 
     def update(self, controller: AppController):
         """
-            Updates the control on every loop iteration.
-            
-            Arguments:
-                controller -- the app controller this control runs from
+        Updates the control on every loop iteration.
+
+        Arguments:
+            controller -- the app controller this control runs from
         """
 
         time_passed = (datetime.datetime.now() - self.last_time_updated).total_seconds()
         (screen_w, screen_h) = controller.get_screen_size()
         self.x = screen_w - self.w
         self.y = screen_h - self.h
-        
+
         menu_x = screen_w - asset_menu_popup_container.get_width()
         menu_height = asset_menu_popup_container.get_height()
         # Expand and collapse popup
@@ -90,7 +102,7 @@ class Menu(Control):
                 self.menu_offset -= time_passed * self.menu_offset
                 if self.menu_offset > 0:
                     self.menu_offset = 0
-        
+
         self.last_time_updated = datetime.datetime.now()
         pass
 
@@ -100,7 +112,9 @@ class Menu(Control):
         """
         self.expanded = not self.expanded
 
-    def select_state(self, controller: AppController, bounds, state_normal, state_hover, state_down):
+    def select_state(
+        self, controller: AppController, bounds, state_normal, state_hover, state_down
+    ):
         """
         Selects either the normal, hover, or down state depending on the
         current mouse position and state in the bounds
@@ -108,23 +122,22 @@ class Menu(Control):
 
         if not controller.is_mouse_over(bounds):
             return state_normal
-        
+
         if self.mouse_down:
             return state_down
-        
+
         return state_hover
 
-    
     def render(self, controller: AppController, screen: pygame.Surface):
         """
-            Renders the control on every loop iteration.
-            
-            Arguments:
-                controller -- the app controller this control runs from
-                screen -- the surface this control is drawn on.
+        Renders the control on every loop iteration.
+
+        Arguments:
+            controller -- the app controller this control runs from
+            screen -- the surface this control is drawn on.
         """
         (screen_w, screen_h) = controller.get_screen_size()
-        
+
         # Draw main container for overlay if somewhat expanded
         if self.menu_offset < 0:
             menu_x = screen_w - asset_menu_popup_container.get_width()
@@ -135,47 +148,53 @@ class Menu(Control):
             button_width = asset_menu_popup_item_mouse.get_width()
             # Draw all menu items
             for button in items:
-                bg_state = self.select_state(controller, 
-                                             (menu_x, menu_y, button_width, button_height), None,
-                                             asset_menu_popup_item_hover, asset_menu_popup_item_mouse)
+                bg_state = self.select_state(
+                    controller,
+                    (menu_x, menu_y, button_width, button_height),
+                    None,
+                    asset_menu_popup_item_hover,
+                    asset_menu_popup_item_mouse,
+                )
                 if bg_state is not None:
                     screen.blit(bg_state, (menu_x, menu_y))
 
-                screen.blit(button.descriptor, (menu_x, menu_y))    
-                
+                screen.blit(button.descriptor, (menu_x, menu_y))
+
                 menu_y += button_height
 
         # Determine bar state and draw bar respectively
-        bar_state = self.select_state(controller, (self.x, self.y, self.w, self.h+1), 
-                                      asset_menu_bar, asset_menu_bar_hover, asset_menu_bar_mouse)
+        bar_state = self.select_state(
+            controller,
+            (self.x, self.y, self.w, self.h + 1),
+            asset_menu_bar,
+            asset_menu_bar_hover,
+            asset_menu_bar_mouse,
+        )
 
         screen.blit(bar_state, (self.x, self.y))
 
-        
-        
-    
     def event(self, controller: AppController, event: pygame.event.Event):
         """
-            Receives an event from the pygame interface.
-            
-            Arguments:
-                controller -- the app controller this control runs from
-                event -- the pygame event that happened
+        Receives an event from the pygame interface.
+
+        Arguments:
+            controller -- the app controller this control runs from
+            event -- the pygame event that happened
         """
-        
+
         # Check to make sure the app isn't calibrating (deny access to menu)
         if controller.calibrating:
             return
-        
+
         (screen_w, screen_h) = controller.get_screen_size()
-        
-        # Activate corresponding mouse event 
+
+        # Activate corresponding mouse event
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_down = event.button == MOUSE_LEFT
         elif event.type == pygame.MOUSEBUTTONUP:
             if self.mouse_down:
                 # Activate whatever control the mouse is over
-                if controller.is_mouse_over((self.x, self.y, self.w, self.h+1)):
+                if controller.is_mouse_over((self.x, self.y, self.w, self.h + 1)):
                     self.toggle()
                 else:
                     # Check all menu items for clicked button
@@ -184,14 +203,15 @@ class Menu(Control):
                     button_width = asset_menu_popup_item_mouse.get_width()
                     button_height = asset_menu_popup_item_mouse.get_height()
                     for button in items:
-                        if controller.is_mouse_over((menu_x, menu_y, button_width, button_height)):
-                            self.expanded = False # Hide menu
+                        if controller.is_mouse_over(
+                            (menu_x, menu_y, button_width, button_height)
+                        ):
+                            self.expanded = False  # Hide menu
                             button.function(controller)
                             break
-                
+
                         menu_y += button_height
 
-                
             self.mouse_down = False
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.toggle()

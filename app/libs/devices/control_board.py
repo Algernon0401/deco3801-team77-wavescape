@@ -21,7 +21,7 @@ class ControlBoard:
             POT_PIN: 1023,
             BUTTON_PIN: 0,
         }
-        self.overide = False
+        self.overide = 0
         self.connect()
 
     def connect(self) -> bool:
@@ -81,8 +81,8 @@ class ControlBoard:
         """
         Returns the reading of the button.
         """
-        if self.overide:
-            self.overide = False
+        if self.overide > 0:
+            self.overide -= 1
             return 1
         self.read_from_port()
         return self.readings[BUTTON_PIN]
@@ -91,7 +91,7 @@ class ControlBoard:
         """
         Sets the reading of the button to 1.
         """
-        self.overide = True
+        self.overide = 2
 
         return self.readings[BUTTON_PIN]
 

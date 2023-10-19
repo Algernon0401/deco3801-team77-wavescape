@@ -411,7 +411,7 @@ class Zone(Control):
             # Object connectivity graph via distance, but only if the old graph was
             # completed or non-existing.
             self.graph = self.create_connectivity_tree(None, objects, center, center)
-        else: 
+        else:
             self.selected = False
 
         for object in objects:
@@ -532,7 +532,7 @@ class Zone(Control):
         br = asset_zone_border_corner_br
         l = asset_zone_border_l
         t = asset_zone_border_t
-        
+
         if self.selected:
             tl = asset_zone_border_corner_tl_sel
             tr = asset_zone_border_corner_tr_sel
@@ -540,7 +540,7 @@ class Zone(Control):
             br = asset_zone_border_corner_br_sel
             l = asset_zone_border_l_sel
             t = asset_zone_border_t_sel
-        
+
         # Draw corners
         screen.blit(tl, (x, y))
         screen.blit(tr, (x + w - corner_width, y))
@@ -555,40 +555,30 @@ class Zone(Control):
 
         # Vertical lines
         screen.blit(
-            pygame.transform.scale(
-                l, (border_width, h - corner_height * 2)
-            ),
+            pygame.transform.scale(l, (border_width, h - corner_height * 2)),
             (x, y + corner_height),
         )
 
         screen.blit(
-            pygame.transform.scale(
-                l, (border_width, h - corner_height * 2)
-            ),
+            pygame.transform.scale(l, (border_width, h - corner_height * 2)),
             (x + w - border_width, y + corner_height),
         )
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
             for i in range(7):
                 screen.blit(
-                    pygame.transform.scale(
-                        l, (border_width, h - corner_height * 2)
-                    ),
+                    pygame.transform.scale(l, (border_width, h - corner_height * 2)),
                     (x + (i + 1) * w / 8 - border_width, y + corner_height),
                 )
 
         # Horizontal lines
         screen.blit(
-            pygame.transform.scale(
-                t, (w - corner_width * 2, border_width)
-            ),
+            pygame.transform.scale(t, (w - corner_width * 2, border_width)),
             (x + corner_width, y),
         )
 
         screen.blit(
-            pygame.transform.scale(
-                t, (w - corner_width * 2, border_width)
-            ),
+            pygame.transform.scale(t, (w - corner_width * 2, border_width)),
             (x + corner_width, y + h - border_width),
         )
 
@@ -664,8 +654,7 @@ class Zone(Control):
                         )
                     ),
                 )
-                
-                
+
                 # Check zero slope lines and fix length
                 if rot == 0 or (lines == 4 and (i == 0 or i == 2)):
                     length = self.w / 2
@@ -675,7 +664,7 @@ class Zone(Control):
                     length = self.w / 2
                 elif rot == 3 * math.pi / 2:
                     length = self.h / 2
-                    
+
                 if lines == 3:
                     # Get intersection point of box to line
                     intersection = line_intersection_box(
@@ -686,12 +675,12 @@ class Zone(Control):
                         (px, py) = intersection
                         # Calculate length according to distance to intersection
                         length = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
-                
+
                 if length > max_length:
                     length = max_length
-                    
+
                 length -= 2  # Reduce length so that it doesn't draw over the border
-                
+
                 pygame.draw.line(
                     screen,
                     pygame.Color(255, 255, 255),

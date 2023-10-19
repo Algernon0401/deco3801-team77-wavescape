@@ -180,7 +180,9 @@ class AppController:
         Updates the app controller (updates camera), and checks for mouse hovers
         controls
         """
+
         self.camera.update(self)
+        self.check_next_chord()
 
         # Add persistent objects for testing
         for persistent_object in self.persistent_objects:
@@ -199,7 +201,6 @@ class AppController:
                 break
 
         self.set_volume()
-        self.check_next_chord()
 
     def create_zone(self, position):
         """

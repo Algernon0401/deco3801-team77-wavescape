@@ -35,7 +35,6 @@
             "program": "${workspaceFolder}/app/app.py",
             "args": [
                 "-feed",
-                "-nodark"
             ],
             "cwd": "app",
             "console": "integratedTerminal",
