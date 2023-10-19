@@ -5,6 +5,7 @@
 
 # Import pygame for window rendering
 import pygame
+
 # import screeninfo
 
 # Import camera
@@ -21,14 +22,17 @@ from .object import *
 
 # Create partial implementation of zone control
 
-MOUSE_LEFT = 1 # Left pygame mouse button
-MOUSE_RIGHT = 3 # Right pygame mouse button
+MOUSE_LEFT = 1  # Left pygame mouse button
+MOUSE_RIGHT = 3  # Right pygame mouse button
+
 
 class Control:
     pass
 
+
 class Controller:
     pass
+
 
 class AppController:
     """
@@ -42,8 +46,8 @@ class AppController:
         Creates the controller
         """
         self.controls = []  # Control list
-        self.static_controls = [] # Static control list
-        self.controllers = [] # Controller list (for app logic)
+        self.static_controls = []  # Static control list
+        self.controllers = []  # Controller list (for app logic)
         self.added_controls = []  # Next control list (controls added)
         self.removed_controls = []  # Next control list (controls removed)
         self.running = True
@@ -54,44 +58,43 @@ class AppController:
         self.single_update = False
         self.screen = screen
         self.sound_player = Sound()
-        
+
         self.objects = []
         # from .controls.zone import Zone
         # self.global_zone = Zone(self)
         # self.global_zone.is_global = True
         # self.use_global_zone = False
-        self.zones = [] # A list of zones (derived from controls)
+        self.zones = []  # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
         self.display_feed = False
         self.object_attributes = {}
-        self.persistent_objects = [] # Testing objects
+        self.persistent_objects = []  # Testing objects
         self.zone_border_object = Tag.ARROW.value
         self.current_screen = 0
         self.is_fullscreen = True
         self.board_valid = False
-        
-        
+
     def setup_calibration(self):
         """
         Setups the app to calibrate the camera.
-        
-        It achieves this by removing all standard controls, and 
+
+        It achieves this by removing all standard controls, and
         then adding the calibration control.
         """
         # Import calibration control
         from libs.controls.calibration import Calibration
-        
+
         # 'stash' controls so that they can be reinstated later
         self.stashed_controls = self.controls
         self.controls = []
-            
+
         # Add new instance of calibration control
         self.add_control(Calibration(self))
         self.calibrating = True
-        
+
         pass
-    
+
     def finish_calibration(self):
         """
         Finishes the calibration by reinstating the controls
@@ -100,17 +103,17 @@ class AppController:
         self.reinstate_controls()
         self.calibrating = False
         self.camera.save_calibration()
-        
+
     def reinstate_controls(self):
         """
         Reinstates the previous controls that were 'stashed'
         """
         self.controls = self.stashed_controls
-    
+
     def setup_main_control(self):
         """
         Reinstates or adds a new instance of the main control.
-        
+
         If any zones exist, then they are re-added afterwards.
         """
         # Import main control
@@ -118,7 +121,7 @@ class AppController:
 
         # Add main control (test control)
         self.add_control(DDCamVisual(self))
-        
+
         # Re-add zones
         for zone in self.zones:
             self.add_control(zone, False)
@@ -128,7 +131,7 @@ class AppController:
         Swaps the current camera with another camera.
         """
         self.camera.init_next_camera()
-        
+
     def toggle_fullscreen(self):
         """
         Allows the user to reposition the window
@@ -136,39 +139,39 @@ class AppController:
         if self.is_fullscreen:
             pygame.display.set_mode((600, 400), pygame.RESIZABLE)
         else:
-            pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-            
+            pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
         self.is_fullscreen = not self.is_fullscreen
         pass
-    
+
     def get_object_attributes(self, object):
         """
-            Gets the attributes for a
-            specific object.
+        Gets the attributes for a
+        specific object.
         """
         if not object.tag in self.object_attributes:
             return {}
-        return  self.object_attributes[object.tag]
-    
+        return self.object_attributes[object.tag]
+
     def get_object_attribute(self, object, attribute_name):
         """
-            Gets a single attribute for a specific
-            object 
+        Gets a single attribute for a specific
+        object
         """
         attributes = self.get_object_attributes(object)
         if attribute_name in attributes:
             return attributes[attribute_name]
         return None
-    
+
     def set_object_attribute(self, object, attribute_name, attribute_value):
         """
         Sets the given attribute on the object.
         """
         if not object.tag in self.object_attributes:
             self.object_attributes[object.tag] = {}
-        
+
         self.object_attributes[object.tag][attribute_name] = attribute_value
-    
+
     def update(self):
         """
         Updates the app controller (updates camera), and checks for mouse hovers
@@ -176,36 +179,37 @@ class AppController:
         """
         self.camera.update(self)
 
-        # Add persistent objects for testing 
+        # Add persistent objects for testing
         for persistent_object in self.persistent_objects:
             self.objects.append(persistent_object)
 
         # Add mouse object for testing
         if self.add_mouse_object:
-            (mx,my) = pygame.mouse.get_pos()
-            self.objects.append(CamObject("mouse", (mx,my, 12, 20), 1))
-                
+            (mx, my) = pygame.mouse.get_pos()
+            self.objects.append(CamObject("mouse", (mx, my, 12, 20), 1))
+
         # Update currently (mouse) hovered control
         self.hover_control = None
         for control in self.controls:
             if control.interactive and control.is_mouse_over():
                 self.hover_control = control
                 break
-        
+
         self.set_volume()
-            
+
     def create_zone(self, position):
         """
         Creates a new zone at the given position.
         """
         from .controls.zone import Zone
+
         zone = Zone(self)
-        
+
         # Set zone initial position
         (zone.x, zone.y) = position
-        (w,h) = self.get_screen_size()
-        zone.bound((0,0,w,h))
-        
+        (w, h) = self.get_screen_size()
+        zone.bound((0, 0, w, h))
+
         self.add_control(zone)
         return zone
 
@@ -220,7 +224,7 @@ class AppController:
         Gets the app's currently recognized objects.
         """
         return self.objects
-    
+
     def get_cam_objects_in_bounds(self, bounds):
         """
         Gets the app's currently recognized objects within
@@ -230,14 +234,14 @@ class AppController:
         for object in self.objects:
             if object.within(bounds):
                 object_list.append(object)
-                
+
         return object_list
-    
+
     def has_object_in_bounds(self, tag, bounds):
         """
         Returns true if an object with the given tag
         exists within the bounds given.
-        
+
         Arguments:
             tag - the tag of objects to check
             bounds - the bounds to check for
@@ -246,26 +250,26 @@ class AppController:
             if object.tag == tag and object.within(bounds):
                 return True
         return False
-    
+
     def get_cam_objects_in_global(self):
         """
         Gets the list of camera objects that are in the 'global zone'.
         i.e. all objects that are not contained within a zone.
         """
         object_list = []
-        
+
         # Add objects that do not belong in any zone.
         for object in self.objects:
             zone_object = False
             # Detect whether object belongs in zone
             for zone in self.zones:
                 if object.within((zone.x, zone.y, zone.w, zone.h)):
-                   zone_object = True
-                   break     
-               
+                    zone_object = True
+                    break
+
             if not zone_object:
                 object_list.append(object)
-        
+
         return object_list
 
     def get_screen_size(self):
@@ -297,7 +301,7 @@ class AppController:
         currently active on the window.
         """
         return self.static_controls
-    
+
     def get_controllers(self):
         """
         Gets the list containing all logic controllers
@@ -325,19 +329,18 @@ class AppController:
         """
         Adds a persistent object to the controller.
         """
-        (x,y) = pos
-        (w,h) = size
-        self.persistent_objects.append(CamObject(
-            tag,
-            (x,y,w,h)
-        ))
+        (x, y) = pos
+        (w, h) = size
+        self.persistent_objects.append(CamObject(tag, (x, y, w, h)))
 
     def remove_persistent_object(self):
         """
         Removes the last persistent object.
         """
         if len(self.persistent_objects) > 0:
-            self.persistent_objects = self.persistent_objects[0:len(self.persistent_objects)-1]
+            self.persistent_objects = self.persistent_objects[
+                0 : len(self.persistent_objects) - 1
+            ]
 
     def remove_control(self, control: Control):
         """
@@ -355,11 +358,11 @@ class AppController:
         for control in self.controls:
             control.destroy()
         self.controls = []
-            
+
     def add_controller(self, controller: Controller):
         """
         Adds a controller to the list of controllers.
-        
+
         NOTE: the controller cannot be removed, and is supposed
         to remove in effect for the lifetime of the app.
         """
@@ -384,11 +387,11 @@ class AppController:
         """
         Returns true if the mouse is over a certain bounds
         """
-        (mx,my) = pygame.mouse.get_pos()
-        (bx,by,bw,bh) = bounds
+        (mx, my) = pygame.mouse.get_pos()
+        (bx, by, bw, bh) = bounds
 
         return mx >= bx and my >= by and mx < bx + bw and my < by + bh
-    
+
     def connect_board(self):
         """
         Initializes the control board.
@@ -399,12 +402,12 @@ class AppController:
         """
         Sets the volume of the audio system.
         """
-        volume = self.board.get_reading("A0") / 1023
+        volume = self.board.get_volume()
         channels = pygame.mixer.get_num_channels()
         for i in range(channels):
             channel = pygame.mixer.Channel(i)
             channel.set_volume(volume)
-    
+
     def board_connected(self):
         """
         Returns true if the control board is connected.
@@ -430,61 +433,65 @@ class Control:
         self.w = 0
         self.h = 0
         self.is_zone = False
-        self.interactive = False # Set to True if this control interacts in any way
+        self.interactive = False  # Set to True if this control interacts in any way
         pass
-    
+
     def get_center(self):
         """
         Returns the center of the control
         """
-        return (self.x+self.w/2, self.y+self.h/2)
-    
+        return (self.x + self.w / 2, self.y + self.h / 2)
+
     def get_bounds(self):
         """
         Returns the location and size of the control as a tuple
         """
         return (self.x, self.y, self.w, self.h)
-    
+
     def is_mouse_over(self):
         """
         Returns true if the mouse is currently over this position
         """
         (mx, my) = pygame.mouse.get_pos()
-        
+
         # Check if control can be hovered over
         if self.w <= 0 or self.h <= 0:
             return False
-        
+
         # Check if mouse is within control bounds.
-        return mx >= self.x and my >= self.y and mx < self.x + self.w and my < self.y + self.h
-    
+        return (
+            mx >= self.x
+            and my >= self.y
+            and mx < self.x + self.w
+            and my < self.y + self.h
+        )
+
     def bound(self, bounds):
         """
         Ensures the control is fully displayed within the bounds,
         assuming that the control can fit inside the bounds.
         """
-        (x,y,w,h) = bounds
-        
+        (x, y, w, h) = bounds
+
         if self.x < x:
             self.x = x
-            
+
         if self.y < y:
             self.y = y
-            
+
         if self.x + self.w >= x + w:
             self.x = x + w - self.w
-            
+
         if self.y + self.h >= y + h:
             self.y = y + h - self.h
-            
+
     def within(self, bounds):
         """
-            Returns True if the rectangle is contained within the control
+        Returns True if the rectangle is contained within the control
         """
-        (xf,yf,wf,hf) = bounds
-        (x,y,w,h) = (self.x, self.y, self.w, self.h)
+        (xf, yf, wf, hf) = bounds
+        (x, y, w, h) = (self.x, self.y, self.w, self.h)
         return x + w >= xf and y + h >= yf and x < xf + wf and y < yf + hf
-
 
     def update(self, controller: AppController):
         """
@@ -520,7 +527,8 @@ class Control:
         Destroys all resources associated with the control.
         """
         pass
-    
+
+
 class Controller:
     """
     This represents a controller (excluding AppController) for the logic
@@ -535,7 +543,7 @@ class Controller:
             controller -- the app controller this controller runs from
         """
         pass
-    
+
     def update(self, controller: AppController):
         """
         Updates the controller on every loop iteration.
@@ -544,7 +552,7 @@ class Controller:
             controller -- the app controller this controller runs from
         """
         pass
-    
+
     def event(self, controller: AppController, event: pygame.event.Event):
         """
         Receives an event from the pygame interface.

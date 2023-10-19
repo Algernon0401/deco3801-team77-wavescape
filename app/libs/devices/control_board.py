@@ -3,6 +3,9 @@ from serial import Serial
 import time
 from serial.tools import list_ports
 
+POT_PIN = "A0"
+BUTTON_PIN = "D13"
+
 
 class ControlBoard:
     """
@@ -15,12 +18,8 @@ class ControlBoard:
         self.baudrate = baudrate
         # dictionary to store the readings
         self.readings = {
-            "A0": 1023,
-            "A1": 1023,
-            "A2": 1023,
-            "D3": 1023,
-            "D4": 1023,
-            "D5": 1023,
+            POT_PIN: 1023,
+            BUTTON_PIN: 0,
         }
         self.connect()
 
@@ -70,12 +69,20 @@ class ControlBoard:
             if len(entry) == 2 and entry[0] != "" and entry[0] in self.readings:
                 self.readings[entry[0]] = int(entry[1])
 
-    def get_reading(self, pin: str) -> int:
+    def get_volume(self) -> int:
         """
-        Returns the value of the pin.
+        Returns the reading of the potentiometer.
         """
         self.read_from_port()
-        return self.readings[pin]
+        return self.readings[POT_PIN] / 1023
+
+    def get_button(self) -> int:
+        """
+        Returns the reading of the button.
+        """
+        self.read_from_port()
+
+        return self.readings[BUTTON_PIN]
 
     def get_readings(self) -> dict:
         """
@@ -98,9 +105,9 @@ if __name__ == "__main__":
     board.connect()
     while True:
         try:
-            val = board.get_reading("A0")
-            print("                      ", end="\r")
-            print(f"A0: {val}", end="\r")
+            readings = board.get_readings()
+            print("                                 ", end="\r")
+            print(f"A0: {readings[POT_PIN]}, D13: {readings[BUTTON_PIN]}", end="\r")
             time.sleep(0.1)
         except KeyboardInterrupt:
             board.close()
