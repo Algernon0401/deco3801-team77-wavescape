@@ -705,11 +705,19 @@ class Zone(Control):
         if self.is_global and not controller.use_global_zone:
             return  # No effects as global zone not in use
 
+
         # Draw animations between objects and on objects
         if self.graph is not None:
             self.graph.render(controller, screen, self)
 
-        # NOTE generate_ripples usage moved to ObjectNode.render
+    
+        # Draw chord text
+        text = asset_tiny_font.render(
+                self.chord, True, pygame.Color(192,192,192)
+            )
+        text_rect = text.get_rect()
+        text_rect.center = (self.x + 5 + text_rect.width / 2, +  self.y + 7)
+        screen.blit(text, text_rect)
 
     def generate_ripples(self, screen: pygame.Surface, obj: CamObject):
         """

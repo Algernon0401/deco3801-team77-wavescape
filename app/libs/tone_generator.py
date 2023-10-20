@@ -24,7 +24,7 @@ CHORD_STEPS = {
     "minor 7th": [3, 4, 3],
 }
 
-CHORDS = ["major", "minor", "diminished", "7th", "major 7th", "minor 7th"]
+CHORDS = ["major", "major 7th", "minor", "minor 7th"]
 
 pitch_list = []
 octave_list = []

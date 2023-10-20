@@ -52,6 +52,10 @@ ASSET_SQUARE_WAVE = "assets/images/wave_square.png"
 ASSET_SINE_WAVE = "assets/images/wave_sine.png"
 ASSET_TRIANGLE_WAVE = "assets/images/wave_triangle.png"
 
+pygame.font.init()
+
+asset_small_font = pygame.font.Font("assets/fonts/arial.ttf", 16)
+asset_tiny_font = pygame.font.Font("assets/fonts/arial.ttf", 9)
 
 asset_menu_bar = pygame.image.load(ASSET_MENU_BAR)
 asset_menu_bar_hover = pygame.image.load(ASSET_MENU_BAR_STATE_HOVER)
