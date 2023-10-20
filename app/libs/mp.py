@@ -1,3 +1,7 @@
+"""
+    mp.py - Hosts the Message class.
+"""
+
 class Message:
     """
     Provides a simple message structure between processes

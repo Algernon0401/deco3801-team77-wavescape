@@ -1,10 +1,13 @@
-# Import OpenCV, Pygame, Numpy and Pytorch
+"""
+    camera.py - hosts the camera and object detection classes.
+"""
+
+# Import OpenCV, Pygame and Numpy
 import datetime
 import cv2 as cv
 import pygame
 import numpy as np
 
-# import torch
 import threading
 import os
 from ..object import *
@@ -416,30 +419,11 @@ class Camera:
             model_path = None
         load_yolo_model(model_path)
         return
-        try:
-            print("YOLOv8 Model Initialising...")
-            if self.has_model:
-                # self.model = YOLO(ASSET_TRAINED_MODEL)
-                self.model = YOLO("yolov8n.pt")
-            else:
-                self.model = YOLO("yolov8n.pt")
-
-            print("YOLOv8 Model Initialised.")
-            self.model_loading = False
-            # Repeatedly get object detection results in this thread
-            while self.model is not None:
-                if self.valid:
-                    # Update model results
-                    self.model_results = self.model.track(
-                        self.capture_video(), verbose=0, persist=True
-                    )[0]
-                time.sleep(0.05)  # Ensure this does not clog up machine
-        except Exception as e:
-            print("Error with YOLOv5 Model.")
-            self.model = None
-            self.model_loading = False
 
     def open_camera(self):
+        """
+        Initialises video capture
+        """
         try:
             print("Camera initializing...")
             self.video = cv.VideoCapture(self.camera_no, cv.CAP_DSHOW)

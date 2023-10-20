@@ -1,3 +1,7 @@
+"""
+    sound_controller.py - hosts SoundController.
+"""
+
 import threading
 from ..base import *
 from ..controls.zone import *
@@ -5,7 +9,7 @@ from ..controls.zone import *
 class SoundController(Controller):
     """
     This represents a controller (excluding AppController) for the logic
-    of a particular function of the app.
+    of sound generation and playback.
     """
 
     def __init__(self, controller: AppController):

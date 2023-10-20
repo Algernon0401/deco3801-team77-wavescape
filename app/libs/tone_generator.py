@@ -1,4 +1,6 @@
-"""Functions to convert object id and position into sounds."""
+"""
+    tone_generator.py - Functions to convert object id and position into sounds.
+"""
 
 import math
 import numpy as np
@@ -12,7 +14,6 @@ frequency_list = list(json.load(open("assets/frequency_list.json")))
 elc_list = list(json.load(open("assets/elc_list.json")))
 NUM_NODES = len(frequency_list)  # based on piano
 MAX_ANGLE = 360
-VOLUME_SCALAR = 0.75  # think it as the volume knob
 SHARP_VOLUME_SCALAR = 0.65  # for sharp sounds
 MAX_ELC = max(elc_map.values())
 CHORD_STEPS = {
@@ -47,26 +48,33 @@ class ToneGenerator:
 
     @staticmethod
     def pos_to_wave(ctr_pos, obj_pos, max_dist, tag: Tag, chord="minor 7th") -> Wave:
-        """Generate a wave based on the position of a shape"""
+        """Generate a wave based on the position of a shape
+
+        Args:
+            ctr_pos (tuple): centre of the zone
+            obj_pos (tuple): centre of the object
+            max_dist (int): radius of the zone
+            tag (Tag): object type
+
+        Returns:
+                Wave: new wave
+        """
         cx, cy = ctr_pos  # position of the [c]enter of zone
         ox, oy = obj_pos  # position of the [o]bject
-        # print(cx, cy)
-        # print(ox, oy)
 
-        distance = math.sqrt((cx - ox) ** 2 + (cy - oy) ** 2)  # Euclidean distance
+        # Euclidean distance
+        distance = math.sqrt((cx - ox) ** 2 + (cy - oy) ** 2)
+        # angle from right horizontal, going ccw (i.e. unit circle)
         angle = (math.atan2((cy - oy), (cx - ox)) * 180 / math.pi) + 180
-        # print("Angle:", angle)
 
         # Slice lists
         start_pct, end_pct = 0.4, 0.65
-        # short_f_list, f_nodes = shorten_lookup(frequency_list, start_pct, end_pct)
-        # short_elc_list, _ = shorten_lookup(elc_list, start_pct, end_pct)
 
         short_o_list, o_nodes = shorten_lookup(octave_list, start_pct, end_pct)
         short_p_list = get_chord_notes(pitch_list, root_note="C", chord=chord)
         p_nodes = len(short_p_list)
 
-        num_nodes = p_nodes  # f_nodes # NUM_NODES
+        num_nodes = p_nodes
         idx = None
         # fix the pitch to nearest
         idx = num_nodes - 1
@@ -74,9 +82,9 @@ class ToneGenerator:
             if angle < (i + 1) * MAX_ANGLE / num_nodes:
                 idx = i
                 break
-
         p = short_p_list[idx]
-        num_nodes = o_nodes  # f_nodes # NUM_NODES
+
+        num_nodes = o_nodes
         idx = None
         # fix the octave to nearest
         idx = num_nodes - 1
@@ -89,19 +97,13 @@ class ToneGenerator:
         note = p + o
 
         # bijecting radian to each discrete frequency
-        # frequency = short_f_list[idx]
         frequency = frequency_map[note]
         amplitude = (
-            2 ** (16 - 1) - 1
-        )  # distance * elc_list[idx] #* VOLUME_SCALAR    # amplitude = distance * elc
+            2 ** (DEFAULT_BIT_RATE - 1) - 1
+        ) # DEFAULT_BIT_RATE is 16
         elc_scalar = elc_map[note]
-        # print("ELC scalar:", elc_scalar)
-        # print("Dist scalar:", distance / max_dist)
-        # volume = distance / max_dist * elc_scalar
         volume = 1 * elc_scalar
-        # print("Volume:", volume)
-        # print(f"Amplitude: {amplitude}, Frequency: {frequency}")
-        # print(f"Created {tag}")
+
         match tag:
             case Tag.TRIANGLE.value:
                 return Triangle(amplitude, frequency, volume)
@@ -114,12 +116,22 @@ class ToneGenerator:
             case Tag.ARROW.value:
                 return Pulse(amplitude, frequency, volume)
             case _:
-                # raise Exception(f"Wave Undefined with tag: {tag}")
                 print(f"Wave Undefined with tag: {tag}")
                 return None
 
 
 def shorten_lookup(lookup: list, start_pct: int, end_pct: int):
+    """Create a subset of a lookup.
+
+    Args:
+        lookup (list): original lookup
+        start_pct (int): start (percentage through lookup)
+        end_pct (int): end (percentage through lookup)
+
+    Returns:
+        list: shortened lookup
+        int: length of shortened lookup
+    """
     start_idx = math.floor(len(lookup) * start_pct)
     end_idx = math.ceil(len(lookup) * end_pct)
     shortened = lookup[start_idx:end_idx]
@@ -127,24 +139,19 @@ def shorten_lookup(lookup: list, start_pct: int, end_pct: int):
 
 
 def get_chord_notes(note_list, root_note="C", chord="major"):
+    """Gets the notes that make up a chord.
+
+    Args:
+        note_list (_type_): list of all notes
+        root_note (str, optional): root note of the chord. Defaults to "C".
+        chord (str, optional): chord name. Defaults to "major".
+
+    Returns:
+        list: notes of the chord
+    """
     ratio = CHORD_STEPS[chord]
     chord_notes = [root_note]
     for r in ratio:
         prev_note_idx = note_list.index(chord_notes[-1])
         chord_notes.append(note_list[prev_note_idx + r])
     return chord_notes
-
-
-def main():
-    """for testing"""
-    print("Test start")
-    sound = Sound()  # 22050, 8)
-    wave = ToneGenerator.pos_to_wave((0, 0), (10, 100), 1000, Tag.CIRCLE.value)
-    # wave = Sawtooth(2000, 500, 1)
-    sound.play(wave)
-    time.sleep(1)
-    print("Played")
-
-
-if __name__ == "__main__":
-    main()

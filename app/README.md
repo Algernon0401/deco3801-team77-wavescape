@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # DECO3801 - The WaveScape
 Design & Developed by Students at UQ (DECO3801):
 Samuel Sticklen, Chia (Nigel) Yunhan, Luke Pierce, Yiqing (Samson) Zhang, Miles Gardiner, William Redmond
@@ -52,5 +51,3 @@ Other issues and fixes include:
 - Model Status Error - ensure model.pt exists in the assets folder and that it is the correct model
 - Cannot find 'assets/...' - you must run app.py using the app folder as the current working directory.
 ```
-=======
->>>>>>> Stashed changes

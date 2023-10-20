@@ -1,3 +1,7 @@
+"""
+    object.py - stores the CamObject class, and Tag Enum.
+"""
+
 import math
 import pygame
 import datetime

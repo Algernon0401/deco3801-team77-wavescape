@@ -221,6 +221,7 @@ class Zone(Control):
         self.selected = False
 
     def get_max_dist(self):
+        """Returns min distance from centre to edge (max for tone generator to use)."""
         # return math.sqrt((self.w/2)**2 + (self.h/2)**2)
         return min(self.w, self.h) / 2
 
@@ -272,51 +273,6 @@ class Zone(Control):
             ],
         )
 
-        # Depreciated / obsolete workings below
-
-        uncreated_objects = objects.copy()
-        connections = []  # Connections for this node
-
-        while len(uncreated_objects) > 0:
-            if object is None:
-                pass
-            min_dist_obj = None
-            min_dist = 99999
-
-            # Start by selecting object with smallest distance to current center
-            # Avoid base_center as much as possible (if object is not None)
-            for i in range(len(uncreated_objects)):
-                test_obj = uncreated_objects[i]
-                dist = test_obj.distance(center)
-
-                if dist < min_dist:
-                    if object is not None:
-                        # Test whether we should avoid creating a subtree from this object
-                        # Currently not implemented, so objects will connect a single tree from
-                        # closest to closest.
-                        pass
-                    min_dist = dist
-                    min_dist_obj = test_obj
-
-            if min_dist_obj is None:
-                break
-
-            if object is None:
-                pass
-
-            # We must form a new connectivity tree/subtree with this object.
-            uncreated_objects.remove(min_dist_obj)
-            subtree = self.create_connectivity_tree(
-                min_dist_obj, uncreated_objects, min_dist_obj.get_center(), base_center
-            )
-            subtree.destroy_children_in_list(
-                uncreated_objects
-            )  # Remove created objects from list
-
-            connections.append(subtree)
-
-        return ObjectNode(object, center, connections)
-
     def get_playback_box_bounds(self, controller: AppController):
         """
         Returns the bounds of a fixed playback checkbox,
@@ -347,8 +303,6 @@ class Zone(Control):
                     self.arrangement_bpm = BPM_AMOUNTS[(i + 1) % len(BPM_AMOUNTS)]
                     break
                     
-            
-
     def update(self, controller: AppController):
         """
         Updates the control on every loop iteration.
@@ -409,8 +363,6 @@ class Zone(Control):
                     time_passed < PLAYBACK_COOLDOWN
                 ) 
                 
-                
-
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
             # Create thread for playing arranged sounds
             if self.arrange_thread is None:
@@ -479,32 +431,8 @@ class Zone(Control):
 
         return
 
-    def handle_sound(self, controller):
-        while self.sounds_active and controller.is_running():
-            time.sleep(0.1)
-            if not self.sound_enabled:
-                controller.sound_player.cleanup(self, [])
-                continue
-            # self.play_sounds(controller, self.current_objects, controller.sound_player)
-            waves = []
-            for obj in self.current_objects:
-                # Check whether the object already has a wave
-                obj_wave = obj.get_object_attribute("wave")
-                if obj_wave is None:
-                    # Create a wave object based on object type and relative position
-                    obj_wave = self.tone_gen.pos_to_wave(
-                        (self.center_x, self.center_y),
-                        obj.get_center(),
-                        self.get_max_dist(),
-                        obj.tag,
-                        self.chord
-                    )
-                if obj_wave is not None:
-                    waves.append(obj_wave)
-                controller.sound_player.play(self, obj_wave)
-            controller.sound_player.cleanup(self, waves)
-
     def metre_count(self, controller):
+        """Cycles the arrangement zone highlight."""
         while controller.is_running():
             time.sleep(60 / self.arrangement_bpm)
             if self.sound_enabled:
@@ -1044,6 +972,3 @@ class ObjectNode:
                     wave_img,
                     (cx - wave_img.get_width() / 2, cy - wave_img.get_height() / 2),
                 )
-
-            # No underlying connections so don't render
-            # connection.render(controller, screen)

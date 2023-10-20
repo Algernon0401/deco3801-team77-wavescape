@@ -1,3 +1,8 @@
+"""
+    assets.py - Hosts all of the assets (images) used in the app.
+"""
+
+
 import pygame
 
 ASSET_MENU_BAR = "assets/images/menu/bar.png"

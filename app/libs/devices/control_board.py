@@ -1,3 +1,7 @@
+"""
+    control_board.py - hosts ControlBoard class.
+"""
+
 import serial
 from serial import Serial
 import time
