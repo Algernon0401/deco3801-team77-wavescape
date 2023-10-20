@@ -64,7 +64,6 @@ highlighted_zones = {
     Tag.TRIANGLE.value: False,
 }
 
-
 def sine_factor(d, time, dist_per_cycle, time_per_cycle):
     """
     Gets the sine wave factor for the given distance d.
@@ -211,6 +210,7 @@ class Zone(Control):
         self.addsize_h = 0
         self.offset_x = 0
         self.offset_y = 0
+        self.invalidate_waves = False
         self.metre = 0
         self.sound_enabled = False  # True if sound playback occurs
         self.sound_forced = False # True if the playback box is checked
@@ -331,19 +331,20 @@ class Zone(Control):
         If the type is wavegen, then switches the chords.
         Else if the type is arrangement, then speeds up the arrangement.
         """
-        
         if self.type == ZTYPE_OBJ_WAVEGEN:
             # Get the chord that is next in the list
             for i, chord in enumerate(CHORDS):
                 if chord == self.chord:
                     self.chord = CHORDS[(i + 1) % len(CHORDS)]
                     break
+            
+            self.invalidate_waves = True
+                
         elif self.type == ZTYPE_OBJ_ARRANGEMENT:
             # Get the time that is next in the list
             for i, time in enumerate(BPM_AMOUNTS):
                 if self.arrangement_bpm == time:
                     self.arrangement_bpm = BPM_AMOUNTS[(i + 1) % len(BPM_AMOUNTS)]
-                    changed = True
                     break
                     
             
@@ -478,43 +479,6 @@ class Zone(Control):
 
         return
 
-    def play_sounds(self, controller, objects, sound_player):
-        # DEPRECATED
-        # Play sound for each object
-        waves = []
-        for obj in objects:
-            can_play = True
-
-            # Check whether we must play the sound
-            last_played = obj.get_object_attribute("last_played")
-            if last_played is not None:
-                can_play = False
-                if datetime.datetime.now() > last_played + timedelta(seconds=1):
-                    can_play = True
-
-            if can_play:
-                # Check whether the object already has a wave
-                obj_wave = obj.get_object_attribute("wave")
-                if obj_wave is None:
-                    # Create a wave object based on object type and relative position
-                    obj_wave = self.tone_gen.pos_to_wave(
-                        (self.center_x, self.center_y), obj.get_center(), obj.tag, 1
-                    )
-                if obj_wave is not None:
-                    waves.append(obj_wave)
-
-                obj.set_object_attribute("last_played", datetime.datetime.now())
-                obj.set_object_attribute("wave", obj_wave)
-
-        # Store waves list according to object tag
-        controller.set_object_attribute(obj, "waves", waves)
-
-        if len(waves) > 0:
-            # print(f"Playing {len(waves)} waves...")
-            # for wave in waves:
-            # print(f"Wave: F:({wave.frequency})")
-            controller.audio_system.play_waves(waves)
-
     def handle_sound(self, controller):
         while self.sounds_active and controller.is_running():
             time.sleep(0.1)
@@ -533,6 +497,7 @@ class Zone(Control):
                         obj.get_center(),
                         self.get_max_dist(),
                         obj.tag,
+                        self.chord
                     )
                 if obj_wave is not None:
                     waves.append(obj_wave)

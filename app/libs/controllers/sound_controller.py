@@ -73,18 +73,20 @@ class SoundController(Controller):
                 for obj in zone.current_objects:
                     # Check whether the object already has a wave
                     obj_wave = obj.get_object_attribute("wave")
-                    if obj_wave is None:
+                    if obj_wave is None or zone.invalidate_waves:
                         # Create a wave object based on object type and relative position
                         obj_wave = zone.tone_gen.pos_to_wave(
                             (zone.center_x, zone.center_y),
                             obj.get_center(),
                             zone.get_max_dist(),
                             obj.tag,
+                            zone.chord
                         )
+                        
                         obj.set_object_attribute("wave", obj_wave)
                     if obj_wave is not None:
                         waves.append(obj_wave)
-                        if obj_wave.buffer is None:
+                        if obj_wave.buffer is None or zone.invalidate_waves:
                             try:
                                 obj_wave.buffer = self.buffer_dict.get(obj_wave)
                                 if obj_wave.buffer is None and not obj_wave.buffering:
@@ -98,6 +100,10 @@ class SoundController(Controller):
                             
                         if obj_wave.buffer is not None:
                             controller.sound_player.play(obj_wave)
+                            
+                # Make sure waves are kept in cache until invalidated again
+                if zone.invalidate_waves:
+                    zone.invalidate_waves = False
         controller.sound_player.cleanup(waves)
 
  

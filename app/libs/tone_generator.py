@@ -46,7 +46,7 @@ class ToneGenerator:
         pass
 
     @staticmethod
-    def pos_to_wave(ctr_pos, obj_pos, max_dist, tag: Tag) -> Wave:
+    def pos_to_wave(ctr_pos, obj_pos, max_dist, tag: Tag, chord="minor 7th") -> Wave:
         """Generate a wave based on the position of a shape"""
         cx, cy = ctr_pos  # position of the [c]enter of zone
         ox, oy = obj_pos  # position of the [o]bject
@@ -63,7 +63,7 @@ class ToneGenerator:
         # short_elc_list, _ = shorten_lookup(elc_list, start_pct, end_pct)
 
         short_o_list, o_nodes = shorten_lookup(octave_list, start_pct, end_pct)
-        short_p_list = get_chord_notes(pitch_list, root_note="C", chord="major 7th")
+        short_p_list = get_chord_notes(pitch_list, root_note="C", chord=chord)
         p_nodes = len(short_p_list)
 
         num_nodes = p_nodes  # f_nodes # NUM_NODES
