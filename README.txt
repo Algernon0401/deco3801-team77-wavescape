@@ -5,6 +5,8 @@ How to Run the Software
 Via App-Launcher
 For your convencience, an AppLauncher.exe has been provided. This launcher is coded with the .NET framework, in which you may be prompted to install it. Afterwards, the app should run, otherwise attempt a manual (python) launch.
 
+After starting the app, use Escape or the Bottom-Right button to open up the menu, and calibration the system.
+
 Requirements
 Run all of the following commands to install the requirements IN ORDER
 
