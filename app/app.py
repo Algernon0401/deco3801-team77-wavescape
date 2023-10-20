@@ -47,7 +47,9 @@ def app_init():
             if arg == "-np":
                 controller.playback_checkmark_required = False
             elif arg == "-feed":
-                controller.display_feed = True
+                controller.display_feed = True # Only applicable with -test
+            elif arg == "-test":
+                controller.use_test_control = True
             elif arg == "-nodark":
                 controller.camera.filter_enabled = False
             elif arg == "-nocameraerror":
@@ -56,6 +58,7 @@ def app_init():
                 controller.show_board_error = False
             elif arg == "-nomodelerror":
                 controller.show_model_error = False
+            
     except:
         print("Invalid command-line arguments")
 

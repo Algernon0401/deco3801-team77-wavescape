@@ -63,10 +63,7 @@ class AppController:
         self.show_board_error = True
 
         self.objects = []
-        # from .controls.zone import Zone
-        # self.global_zone = Zone(self)
-        # self.global_zone.is_global = True
-        # self.use_global_zone = False
+        self.use_test_control = False
         self.zones = []  # A list of zones (derived from controls)
         self.hover_control = None
         self.add_mouse_object = False
@@ -119,11 +116,13 @@ class AppController:
 
         If any zones exist, then they are re-added afterwards.
         """
-        # Import main control
-        from libs.controls.ddcam import DDCamVisual
+        
+        if self.use_test_control:
+            # Import main control
+            from libs.controls.ddcam import DDCamVisual
 
-        # Add main control (test control)
-        self.add_control(DDCamVisual(self))
+            # Add main control (test control)
+            self.add_control(DDCamVisual(self))
 
         # Re-add zones
         for zone in self.zones:

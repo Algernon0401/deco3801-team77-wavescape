@@ -32,6 +32,8 @@ the detection more compatible.
 Flag            | Description
 -np               Removes the need for a plus object to be placed on the checkbox next to a zone.
 -feed             Displays a semi-transparent view of what the model sees (non-toggleable).
+                  Only applicable with -test.
+-test             Adds the test control, which allows for placement of objects, keys z for undo, b for button.
 -nodark           Removes the black and white filter, which may work better for some environments.
 -nocameraerror    Removes the status display for the camera error
 -nomodelerror     Removes the status display for the model error

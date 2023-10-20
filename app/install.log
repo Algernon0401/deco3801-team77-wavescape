@@ -1,29 +1,31 @@
-Installing OpenCV Pygame Ultralytics Numpy Pyserial Numba...
+Installing OpenCV Pygame PygameCE Ultralytics Numpy Pyserial Numba Scipy...
 Defaulting to user installation because normal site-packages is not writeable
 Requirement already satisfied: opencv-python==4.8.0.76 in c:\users\samst\appdata\roaming\python\python311\site-packages (4.8.0.76)
-Collecting pygame-ce
-  Obtaining dependency information for pygame-ce from https://files.pythonhosted.org/packages/82/c5/cda7a4525f08bc1383d23d6406df556a80c5044658ce56a2a109bf4bd21b/pygame_ce-2.3.2-cp311-cp311-win_amd64.whl.metadata
-  Downloading pygame_ce-2.3.2-cp311-cp311-win_amd64.whl.metadata (10 kB)
-Requirement already satisfied: ultralytics in c:\users\samst\appdata\roaming\python\python311\site-packages (8.0.178)
+Requirement already satisfied: pygame in c:\users\samst\appdata\roaming\python\python311\site-packages (2.5.2)
+Requirement already satisfied: pygame-ce in c:\users\samst\appdata\roaming\python\python311\site-packages (2.3.2)
+Requirement already satisfied: ultralytics in c:\users\samst\appdata\roaming\python\python311\site-packages (8.0.182)
 Collecting ultralytics
-  Obtaining dependency information for ultralytics from https://files.pythonhosted.org/packages/ff/6c/3c24e1712c540fa78534c273e2f1a0be3700e41f6a78a0b6547aa7d730c2/ultralytics-8.0.182-py3-none-any.whl.metadata
-  Downloading ultralytics-8.0.182-py3-none-any.whl.metadata (28 kB)
-Requirement already satisfied: numpy in c:\users\samst\appdata\roaming\python\python311\site-packages (1.25.2)
+  Obtaining dependency information for ultralytics from https://files.pythonhosted.org/packages/7e/52/c7cc8180e6224828b7fc194136e0308fa65b67faac26de86a967966162e0/ultralytics-8.0.200-py3-none-any.whl.metadata
+  Downloading ultralytics-8.0.200-py3-none-any.whl.metadata (31 kB)
+Requirement already satisfied: numpy in c:\users\samst\appdata\roaming\python\python311\site-packages (1.24.4)
 Collecting numpy
-  Obtaining dependency information for numpy from https://files.pythonhosted.org/packages/93/fd/3f826c6d15d3bdcf65b8031e4835c52b7d9c45add25efa2314b53850e1a2/numpy-1.26.0-cp311-cp311-win_amd64.whl.metadata
-  Downloading numpy-1.26.0-cp311-cp311-win_amd64.whl.metadata (61 kB)
-     -------------------------------------- 61.1/61.1 kB 406.7 kB/s eta 0:00:00
-Collecting pyserial
-  Downloading pyserial-3.5-py2.py3-none-any.whl (90 kB)
-     ---------------------------------------- 90.6/90.6 kB 1.3 MB/s eta 0:00:00
+  Obtaining dependency information for numpy from https://files.pythonhosted.org/packages/82/0f/3f712cd84371636c5375d2dd70e7514d264cec6bdfc3d7997a4236e9f948/numpy-1.26.1-cp311-cp311-win_amd64.whl.metadata
+  Downloading numpy-1.26.1-cp311-cp311-win_amd64.whl.metadata (61 kB)
+     ---------------------------------------- 61.2/61.2 kB 3.4 MB/s eta 0:00:00
+Requirement already satisfied: pyserial in c:\users\samst\appdata\roaming\python\python311\site-packages (3.5)
+Requirement already satisfied: numba in c:\users\samst\appdata\roaming\python\python311\site-packages (0.57.1)
 Collecting numba
-  Obtaining dependency information for numba from https://files.pythonhosted.org/packages/40/db/3a08f2ec91e0d6b0c68d94a42e80af005a0378c83c63cbbc9ee63143f2ed/numba-0.57.1-cp311-cp311-win_amd64.whl.metadata
-  Downloading numba-0.57.1-cp311-cp311-win_amd64.whl.metadata (2.8 kB)
+  Obtaining dependency information for numba from https://files.pythonhosted.org/packages/cd/59/5dd8a3059997ec1daf6f9f7c9b1aef7f0a9e23e1334a5774eae65cae6fd0/numba-0.58.1-cp311-cp311-win_amd64.whl.metadata
+  Downloading numba-0.58.1-cp311-cp311-win_amd64.whl.metadata (2.8 kB)
+Requirement already satisfied: scipy in c:\users\samst\appdata\roaming\python\python311\site-packages (1.11.2)
+Collecting scipy
+  Obtaining dependency information for scipy from https://files.pythonhosted.org/packages/81/d7/d2537d51efb692d0c411e64267ba349e7668d40f5bc73cefe78ccd650dcd/scipy-1.11.3-cp311-cp311-win_amd64.whl.metadata
+  Downloading scipy-1.11.3-cp311-cp311-win_amd64.whl.metadata (60 kB)
+     ---------------------------------------- 60.4/60.4 kB 1.6 MB/s eta 0:00:00
 Requirement already satisfied: matplotlib>=3.3.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (3.7.2)
 Requirement already satisfied: pillow>=7.1.2 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (10.0.0)
 Requirement already satisfied: pyyaml>=5.3.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (6.0.1)
 Requirement already satisfied: requests>=2.23.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (2.31.0)
-Requirement already satisfied: scipy>=1.4.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (1.11.2)
 Requirement already satisfied: torch>=1.8.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (2.0.1)
 Requirement already satisfied: torchvision>=0.9.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (0.15.2)
 Requirement already satisfied: tqdm>=4.64.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (4.66.1)
@@ -31,12 +33,11 @@ Requirement already satisfied: pandas>=1.1.4 in c:\users\samst\appdata\roaming\p
 Requirement already satisfied: seaborn>=0.11.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (0.12.2)
 Requirement already satisfied: psutil in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (5.9.5)
 Requirement already satisfied: py-cpuinfo in c:\users\samst\appdata\roaming\python\python311\site-packages (from ultralytics) (9.0.0)
-Collecting llvmlite<0.41,>=0.40.0dev0 (from numba)
-  Obtaining dependency information for llvmlite<0.41,>=0.40.0dev0 from https://files.pythonhosted.org/packages/09/7a/3e0bec597ca9e3382ba87c139813ea0b05068d6d5358e05f4557a8c24d63/llvmlite-0.40.1-cp311-cp311-win_amd64.whl.metadata
-  Downloading llvmlite-0.40.1-cp311-cp311-win_amd64.whl.metadata (4.8 kB)
-Collecting numpy
-  Obtaining dependency information for numpy from https://files.pythonhosted.org/packages/d8/ec/ebef2f7d7c28503f958f0f8b992e7ce606fb74f9e891199329d5f5f87404/numpy-1.24.4-cp311-cp311-win_amd64.whl.metadata
-  Downloading numpy-1.24.4-cp311-cp311-win_amd64.whl.metadata (5.6 kB)
+Collecting thop>=0.1.1 (from ultralytics)
+  Using cached thop-0.1.1.post2209072238-py3-none-any.whl (15 kB)
+Collecting llvmlite<0.42,>=0.41.0dev0 (from numba)
+  Obtaining dependency information for llvmlite<0.42,>=0.41.0dev0 from https://files.pythonhosted.org/packages/14/fe/d3a9c921a2adad2e9f24693754983f290e0dac9410666e802b9dba4d0218/llvmlite-0.41.1-cp311-cp311-win_amd64.whl.metadata
+  Downloading llvmlite-0.41.1-cp311-cp311-win_amd64.whl.metadata (4.9 kB)
 Requirement already satisfied: contourpy>=1.0.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from matplotlib>=3.3.0->ultralytics) (1.1.0)
 Requirement already satisfied: cycler>=0.10 in c:\users\samst\appdata\roaming\python\python311\site-packages (from matplotlib>=3.3.0->ultralytics) (0.11.0)
 Requirement already satisfied: fonttools>=4.22.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from matplotlib>=3.3.0->ultralytics) (4.42.1)
@@ -59,37 +60,49 @@ Requirement already satisfied: colorama in c:\users\samst\appdata\roaming\python
 Requirement already satisfied: six>=1.5 in c:\users\samst\appdata\roaming\python\python311\site-packages (from python-dateutil>=2.7->matplotlib>=3.3.0->ultralytics) (1.16.0)
 Requirement already satisfied: MarkupSafe>=2.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from jinja2->torch>=1.8.0->ultralytics) (2.1.3)
 Requirement already satisfied: mpmath>=0.19 in c:\users\samst\appdata\roaming\python\python311\site-packages (from sympy->torch>=1.8.0->ultralytics) (1.3.0)
-Downloading pygame_ce-2.3.2-cp311-cp311-win_amd64.whl (11.6 MB)
-   ---------------------------------------- 11.6/11.6 MB 3.2 MB/s eta 0:00:00
-Downloading ultralytics-8.0.182-py3-none-any.whl (617 kB)
-   ---------------------------------------- 618.0/618.0 kB 4.3 MB/s eta 0:00:00
-Downloading numba-0.57.1-cp311-cp311-win_amd64.whl (2.6 MB)
-   ---------------------------------------- 2.6/2.6 MB 4.9 MB/s eta 0:00:00
-Downloading numpy-1.24.4-cp311-cp311-win_amd64.whl (14.8 MB)
-   ---------------------------------------- 14.8/14.8 MB 4.1 MB/s eta 0:00:00
-Downloading llvmlite-0.40.1-cp311-cp311-win_amd64.whl (27.7 MB)
-   ---------------------------------------- 27.7/27.7 MB 4.0 MB/s eta 0:00:00
-Installing collected packages: pyserial, pygame-ce, numpy, llvmlite, numba, ultralytics
+Downloading ultralytics-8.0.200-py3-none-any.whl (644 kB)
+   ---------------------------------------- 644.5/644.5 kB 3.7 MB/s eta 0:00:00
+Downloading numpy-1.26.1-cp311-cp311-win_amd64.whl (15.8 MB)
+   ---------------------------------------- 15.8/15.8 MB 5.0 MB/s eta 0:00:00
+Downloading numba-0.58.1-cp311-cp311-win_amd64.whl (2.6 MB)
+   ---------------------------------------- 2.6/2.6 MB 5.0 MB/s eta 0:00:00
+Downloading scipy-1.11.3-cp311-cp311-win_amd64.whl (44.1 MB)
+   ---------------------------------------- 44.1/44.1 MB 4.9 MB/s eta 0:00:00
+Downloading llvmlite-0.41.1-cp311-cp311-win_amd64.whl (28.1 MB)
+   ---------------------------------------- 28.1/28.1 MB 3.2 MB/s eta 0:00:00
+Installing collected packages: numpy, llvmlite, scipy, numba, thop, ultralytics
   Attempting uninstall: numpy
-    Found existing installation: numpy 1.25.2
-    Uninstalling numpy-1.25.2:
-      Successfully uninstalled numpy-1.25.2
+    Found existing installation: numpy 1.24.4
+    Uninstalling numpy-1.24.4:
+      Successfully uninstalled numpy-1.24.4
+  Attempting uninstall: llvmlite
+    Found existing installation: llvmlite 0.40.1
+    Uninstalling llvmlite-0.40.1:
+      Successfully uninstalled llvmlite-0.40.1
+  Attempting uninstall: scipy
+    Found existing installation: scipy 1.11.2
+    Uninstalling scipy-1.11.2:
+      Successfully uninstalled scipy-1.11.2
+  Attempting uninstall: numba
+    Found existing installation: numba 0.57.1
+    Uninstalling numba-0.57.1:
+      Successfully uninstalled numba-0.57.1
   Attempting uninstall: ultralytics
-    Found existing installation: ultralytics 8.0.178
-    Uninstalling ultralytics-8.0.178:
-      Successfully uninstalled ultralytics-8.0.178
-Successfully installed llvmlite-0.40.1 numba-0.57.1 numpy-1.24.4 pygame-ce-2.3.2 pyserial-3.5 ultralytics-8.0.182
+    Found existing installation: ultralytics 8.0.182
+    Uninstalling ultralytics-8.0.182:
+      Successfully uninstalled ultralytics-8.0.182
+Successfully installed llvmlite-0.41.1 numba-0.58.1 numpy-1.26.1 scipy-1.11.3 thop-0.1.1.post2209072238 ultralytics-8.0.200
 
 
 Installing Ultralytics...
 Defaulting to user installation because normal site-packages is not writeable
 Requirement already satisfied: matplotlib>=3.3.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 5)) (3.7.2)
-Requirement already satisfied: numpy>=1.22.2 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 6)) (1.24.4)
+Requirement already satisfied: numpy>=1.22.2 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 6)) (1.26.1)
 Requirement already satisfied: opencv-python>=4.6.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 7)) (4.8.0.76)
 Requirement already satisfied: pillow>=7.1.2 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 8)) (10.0.0)
 Requirement already satisfied: pyyaml>=5.3.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 9)) (6.0.1)
 Requirement already satisfied: requests>=2.23.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 10)) (2.31.0)
-Requirement already satisfied: scipy>=1.4.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 11)) (1.11.2)
+Requirement already satisfied: scipy>=1.4.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 11)) (1.11.3)
 Requirement already satisfied: torch>=1.8.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 12)) (2.0.1)
 Requirement already satisfied: torchvision>=0.9.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 13)) (0.15.2)
 Requirement already satisfied: tqdm>=4.64.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 14)) (4.66.1)
@@ -97,6 +110,7 @@ Requirement already satisfied: pandas>=1.1.4 in c:\users\samst\appdata\roaming\p
 Requirement already satisfied: seaborn>=0.11.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 24)) (0.12.2)
 Requirement already satisfied: psutil in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 39)) (5.9.5)
 Requirement already satisfied: py-cpuinfo in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 40)) (9.0.0)
+Requirement already satisfied: thop>=0.1.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 41)) (0.1.1.post2209072238)
 Requirement already satisfied: contourpy>=1.0.1 in c:\users\samst\appdata\roaming\python\python311\site-packages (from matplotlib>=3.3.0->-r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 5)) (1.1.0)
 Requirement already satisfied: cycler>=0.10 in c:\users\samst\appdata\roaming\python\python311\site-packages (from matplotlib>=3.3.0->-r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 5)) (0.11.0)
 Requirement already satisfied: fonttools>=4.22.0 in c:\users\samst\appdata\roaming\python\python311\site-packages (from matplotlib>=3.3.0->-r https://raw.githubusercontent.com/ultralytics/ultralytics/main/requirements.txt (line 5)) (4.42.1)
