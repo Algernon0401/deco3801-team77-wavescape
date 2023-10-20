@@ -55,7 +55,8 @@ class SoundController(Controller):
                     arr = buffer.tolist()
                     self.buffer_dict[next_wave] = buffer
                     next_wave.buffering = False
-                    self.unbuffered_waves.remove(next_wave)
+                    if next_wave in self.unbuffered_waves:
+                        self.unbuffered_waves.remove(next_wave)
                 except:
                     pass
                 
