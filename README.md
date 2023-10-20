@@ -29,7 +29,7 @@ the detection more compatible.
 ### App Options
 ```
 Flag            | Description
--np               Removes the need for a plus object to be placed on the checkbox next to a zone.
+-np               Removes the need for a plus object to be placed on the checkbox next to a zone (arrangement cannot be used)
 -feed             Displays a semi-transparent view of what the model sees (non-toggleable).
                   Only applicable with -test.
 -test             Adds the test control, which allows for placement of objects, keys z for undo, b for button.
