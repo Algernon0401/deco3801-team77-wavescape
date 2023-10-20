@@ -1,5 +1,5 @@
 """
-    ddcam.py - directly display camera
+    testcontrol.py - directly display camera
     
     Contains a simple control for demonstration purposes, which
     involves displaying the current input of the camera.

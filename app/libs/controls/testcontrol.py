@@ -1,5 +1,5 @@
 """
-    ddcam.py - directly display camera
+    testcontrol.py - directly display camera
     
     Contains a simple control for demonstration purposes, which
     involves displaying the current input of the camera.
@@ -14,7 +14,7 @@ from ..object import *
 font = pygame.font.Font("assets/fonts/arial.ttf", 16)
 
 
-class DDCamVisual(Control):
+class TestControl(Control):
     """
     Reads the camera directly.
     If display_feed is set to true, then the camera feed

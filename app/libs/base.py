@@ -119,10 +119,10 @@ class AppController:
         
         if self.use_test_control:
             # Import main control
-            from libs.controls.ddcam import DDCamVisual
+            from libs.controls.testcontrol import TestControl
 
             # Add main control (test control)
-            self.add_control(DDCamVisual(self))
+            self.add_control(TestControl(self))
 
         # Re-add zones
         for zone in self.zones:
