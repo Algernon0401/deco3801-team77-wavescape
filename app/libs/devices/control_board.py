@@ -21,6 +21,7 @@ class ControlBoard:
             POT_PIN: 1023,
             BUTTON_PIN: 0,
         }
+        self.last_button_reading = 0
         self.overide = 0
         self.connect()
 
@@ -69,6 +70,7 @@ class ControlBoard:
             entry = entry.split(":")
             if len(entry) == 2 and entry[0] != "" and entry[0] in self.readings:
                 self.readings[entry[0]] = int(entry[1])
+                
 
     def get_volume(self) -> int:
         """
@@ -84,14 +86,31 @@ class ControlBoard:
         if self.overide > 0:
             self.overide -= 1
             return 1
+        
         self.read_from_port()
         return self.readings[BUTTON_PIN]
+    
+    def get_button_down(self) -> bool:
+        """
+        Returns true if the button was just pressed down
+        """
+        reading = self.get_button()
+        
+        if self.last_button_reading == 0 and reading == 1:
+            self.last_button_reading = 1
+            return 1
+        
+        if self.last_button_reading == 1 and reading == 0:
+            self.last_button_reading = 0
+            return 0
+        
+        return reading
 
     def press_button(self):
         """
         Sets the reading of the button to 1.
         """
-        self.overide = 2
+        self.overide = 1
 
         return self.readings[BUTTON_PIN]
 

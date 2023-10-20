@@ -705,12 +705,10 @@ class Zone(Control):
         if self.is_global and not controller.use_global_zone:
             return  # No effects as global zone not in use
 
-
         # Draw animations between objects and on objects
         if self.graph is not None:
             self.graph.render(controller, screen, self)
 
-    
         # Draw chord text
         text = asset_tiny_font.render(
                 self.chord, True, pygame.Color(192,192,192)

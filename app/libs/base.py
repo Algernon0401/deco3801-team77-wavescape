@@ -420,7 +420,7 @@ class AppController:
         If the type of the zone is wavegen, then it switches the chords.
         If the type of the zone is arrangement, then it speeds up the arrangement.
         """
-        if self.board.get_button() == 1:
+        if self.board.get_button_down():
             for zone in self.zones:
                 if zone.selected:
                     zone.next_mode()
