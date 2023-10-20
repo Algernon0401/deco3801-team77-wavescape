@@ -629,6 +629,24 @@ class Zone(Control):
             screen.blit(
                 zone_metre_indicator, (self.x + self.metre * self.w / 8, self.y)
             )
+            
+            for object in self.current_objects:
+                obj_img = None
+                if object.tag == Tag.CIRCLE.value:
+                    obj_img = asset_objimg_circle_dark
+                elif object.tag == Tag.SQUARE.value:
+                    obj_img = asset_objimg_square_dark
+                elif object.tag == Tag.TRIANGLE.value:
+                    obj_img = asset_objimg_triangle_dark
+                elif object.tag == Tag.STAR.value:
+                    obj_img = asset_objimg_star_dark
+
+                if obj_img is not None:
+                    (cx, cy) = object.get_center()
+                    screen.blit(
+                        obj_img,
+                        (cx - object.w / 2, cy - object.h / 2),
+                    )
 
         if self.is_global and not controller.use_global_zone:
             return  # No effects as global zone not in use
@@ -637,13 +655,14 @@ class Zone(Control):
         if self.graph is not None:
             self.graph.render(controller, screen, self)
 
-        # Draw chord text
-        text = asset_tiny_font.render(
-                self.chord, True, pygame.Color(192,192,192)
-            )
-        text_rect = text.get_rect()
-        text_rect.center = (self.x + 5 + text_rect.width / 2, +  self.y + 7)
-        screen.blit(text, text_rect)
+        if self.type == ZTYPE_OBJ_WAVEGEN:
+            # Draw chord text
+            text = asset_tiny_font.render(
+                    self.chord, True, pygame.Color(192,192,192)
+                )
+            text_rect = text.get_rect()
+            text_rect.center = (self.x + 5 + text_rect.width / 2, +  self.y + 7)
+            screen.blit(text, text_rect)
 
     def generate_ripples(self, screen: pygame.Surface, obj: CamObject):
         """

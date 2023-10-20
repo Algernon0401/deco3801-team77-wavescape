@@ -50,6 +50,10 @@ ASSET_STAR = "assets/images/obj_star.png"
 ASSET_SQUARE = "assets/images/obj_square.png"
 ASSET_CIRCLE = "assets/images/obj_circle.png"
 ASSET_TRIANGLE = "assets/images/obj_triangle.png"
+ASSET_STAR_DARK = "assets/images/obj_star_dark.png"
+ASSET_SQUARE_DARK = "assets/images/obj_square_dark.png"
+ASSET_CIRCLE_DARK = "assets/images/obj_circle_dark.png"
+ASSET_TRIANGLE_DARK = "assets/images/obj_triangle_dark.png"
 ASSET_PLAYBACK = "assets/images/playback.png"
 
 ASSET_SAWTOOTH_WAVE = "assets/images/wave_sawtooth.png"
@@ -108,6 +112,11 @@ asset_objimg_star = pygame.image.load(ASSET_STAR)
 asset_objimg_square = pygame.image.load(ASSET_SQUARE)
 asset_objimg_circle = pygame.image.load(ASSET_CIRCLE)
 asset_objimg_triangle = pygame.image.load(ASSET_TRIANGLE)
+asset_objimg_star_dark = pygame.image.load(ASSET_STAR_DARK)
+asset_objimg_square_dark = pygame.image.load(ASSET_SQUARE_DARK)
+asset_objimg_circle_dark = pygame.image.load(ASSET_CIRCLE_DARK)
+asset_objimg_triangle_dark = pygame.image.load(ASSET_TRIANGLE_DARK)
+
 asset_playback = pygame.image.load(ASSET_PLAYBACK)
 
 asset_waveimg_sine = pygame.image.load(ASSET_SINE_WAVE)
