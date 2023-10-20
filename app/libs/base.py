@@ -182,7 +182,7 @@ class AppController:
         """
 
         self.camera.update(self)
-        self.check_next_chord()
+        self.check_next_zone_mode()
 
         # Add persistent objects for testing
         for persistent_object in self.persistent_objects:
@@ -413,14 +413,17 @@ class AppController:
             channel = pygame.mixer.Channel(i)
             channel.set_volume(volume)
 
-    def check_next_chord(self):
+    def check_next_zone_mode(self):
         """
-        Sets the chords of the currently selected zones.
+        Sets the modes of the currently selected zones.
+        
+        If the type of the zone is wavegen, then it switches the chords.
+        If the type of the zone is arrangement, then it speeds up the arrangement.
         """
         if self.board.get_button() == 1:
             for zone in self.zones:
                 if zone.selected:
-                    zone.next_chord()
+                    zone.next_mode()
 
     def board_connected(self):
         """

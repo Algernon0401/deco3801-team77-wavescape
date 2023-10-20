@@ -27,6 +27,10 @@ ZTYPE_OBJ_ARRANGEMENT = 1  # Generate a tune arrangement from objects
 PLAYBACK_MARKER_TAG = (
     Tag.PLUS.value
 )  # Object to indicate playback is checked in playback box.
+
+SELECTION_MARKER_TAG = (
+    Tag.ARROW.value
+) # Object to indicate zone is selected when placed inside it.
 PLAYBACK_COOLDOWN = 0.1  # seconds
 
 HIGH_AMP = 4000
@@ -50,6 +54,7 @@ TYPE_TRIANGLE = 3
 TYPE_PULSE = 4
 
 METRONOME_BPM = 60  # Beats Per Minute
+BPM_AMOUNTS = [30, METRONOME_BPM, 90, 120, 150, 180, 210, 240]
 
 highlighted_zones_rlock = threading.RLock()
 highlighted_zones = {
@@ -207,11 +212,13 @@ class Zone(Control):
         self.offset_x = 0
         self.offset_y = 0
         self.metre = 0
-        self.sound_enabled = True  # True if sound playback occurs
+        self.sound_enabled = False  # True if sound playback occurs
+        self.sound_forced = False # True if the playback box is checked
+        self.arrangement_bpm = METRONOME_BPM # 0.5 seconds per bar
         self.time_since_playback_existed = datetime.datetime.min
         # self.time_since_playback_placed = datetime.datetime.min
         self.arrange_thread = None
-        self.selected = True
+        self.selected = False
 
     def get_max_dist(self):
         # return math.sqrt((self.w/2)**2 + (self.h/2)**2)
@@ -317,16 +324,29 @@ class Zone(Control):
         """
         return (self.x - 40, self.y, 30, 30)
 
-    def next_chord(self):
+    def next_mode(self):
         """
-        Sets the next chord.
+        Sets the next mode of the zone.
+        
+        If the type is wavegen, then switches the chords.
+        Else if the type is arrangement, then speeds up the arrangement.
         """
-        # Get the chord that is next in the list
-
-        for i, chord in enumerate(CHORDS):
-            if chord == self.chord:
-                self.chord = CHORDS[(i + 1) % len(CHORDS)]
-                break
+        
+        if self.type == ZTYPE_OBJ_WAVEGEN:
+            # Get the chord that is next in the list
+            for i, chord in enumerate(CHORDS):
+                if chord == self.chord:
+                    self.chord = CHORDS[(i + 1) % len(CHORDS)]
+                    break
+        elif self.type == ZTYPE_OBJ_ARRANGEMENT:
+            # Get the time that is next in the list
+            for i, time in enumerate(BPM_AMOUNTS):
+                if self.arrangement_bpm == time:
+                    self.arrangement_bpm = BPM_AMOUNTS[(i + 1) % len(BPM_AMOUNTS)]
+                    changed = True
+                    break
+                    
+            
 
     def update(self, controller: AppController):
         """
@@ -360,33 +380,52 @@ class Zone(Control):
                 with highlighted_zones_rlock:
                     if highlighted_zones[self.wave_gen_tag]:
                         highlighted = True
+                
+                # Update time since the playback marker was in the checkbox
                 if (
                     controller.has_object_in_bounds(
                         PLAYBACK_MARKER_TAG, self.get_playback_box_bounds(controller)
                     )
-                    or highlighted
                 ):
                     self.time_since_playback_existed = datetime.datetime.now()
-                    # if (self.time_since_playback_placed - datetime.datetime.now()).total_seconds() >= 1:
-                    #     self.time_since_playback_placed = datetime.datetime.now()
-
-                if controller.playback_checkmark_required:
-                    time_passed = (
+                
+                time_passed = (
                         datetime.datetime.now() - self.time_since_playback_existed
-                    ).total_seconds()
-                    # time_passed_since_placed = (
-                    #    self.time_since_playback_existed - self.time_since_playback_placed
-                    # ).total_seconds()
+                ).total_seconds()
+                
+                # Update whether the sounds in the zone should play
+                if highlighted:
+                    self.sound_enabled = True
+                elif controller.playback_checkmark_required:
                     self.sound_enabled = (
                         time_passed < PLAYBACK_COOLDOWN
-                    )  # and time_passed_since_placed > 0.25
+                    ) 
+                else:
+                    self.sound_enabled = True
+
+                # Update whether the sound was forced to play (via marker)
+                self.sound_forced = (
+                    time_passed < PLAYBACK_COOLDOWN
+                ) 
+                
+                
 
         if self.type == ZTYPE_OBJ_ARRANGEMENT:
+            # Create thread for playing arranged sounds
             if self.arrange_thread is None:
                 self.arrange_thread = threading.Thread(
                     target=self.metre_count, args=[controller]
                 )
                 self.arrange_thread.start()
+            
+            # Detect whether this arrangement zone should stop
+            # based on whether a zone has been forced to play with a plus.
+            self.sound_enabled = True
+            for zone in controller.zones:
+                if zone.type == ZTYPE_OBJ_WAVEGEN:
+                    if zone.sound_forced:
+                        self.sound_enabled = False
+                        break
 
         center = self.get_center()
         (self.center_x, self.center_y) = center
@@ -395,11 +434,10 @@ class Zone(Control):
 
         actual_objects = []
 
-        # Update WaveGen properties
-        # which allows the zone to be selected.
+        # Update whether the zone is selected.
         self.selected = False
         for object in objects:
-            if object.tag == Tag.ARROW.value:
+            if object.tag == SELECTION_MARKER_TAG:
                 self.selected = True
                 continue
             actual_objects.append(object)
@@ -411,9 +449,7 @@ class Zone(Control):
             # Object connectivity graph via distance, but only if the old graph was
             # completed or non-existing.
             self.graph = self.create_connectivity_tree(None, objects, center, center)
-        else:
-            self.selected = False
-
+            
         for object in objects:
             if object.get_object_attribute("ripple_count") is None:
                 object.set_object_attribute("ripple_count", randint(2, 5))
@@ -429,13 +465,16 @@ class Zone(Control):
             with highlighted_zones_rlock:
                 highlighted_zones = dict.fromkeys(highlighted_zones, False)
             (x, y, w, h) = self.get_bounds()
+            
             highlighted_objects = controller.get_cam_objects_in_bounds(
                 (x + self.metre * w / 8, y, w / 8, h)
             )
+            
+            play_sounds = self.sound_enabled
             for object in highlighted_objects:
                 if object is not None:
                     with highlighted_zones_rlock:
-                        highlighted_zones[object.tag] = True
+                        highlighted_zones[object.tag] = play_sounds
 
         return
 
@@ -502,8 +541,9 @@ class Zone(Control):
 
     def metre_count(self, controller):
         while controller.is_running():
-            time.sleep(60 / METRONOME_BPM)
-            self.metre = 0 if self.metre == 7 else self.metre + 1  # loop from 0 to 7
+            time.sleep(60 / self.arrangement_bpm)
+            if self.sound_enabled:
+                self.metre = 0 if self.metre == 7 else self.metre + 1  # loop from 0 to 7
 
     def prerender(self, controller: AppController):
         """
