@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # DECO3801 - The WaveScape
 Design & Developed by Students at UQ (DECO3801):
 Samuel Sticklen, Chia (Nigel) Yunhan, Luke Pierce, Yiqing (Samson) Zhang, Miles Gardiner, William Redmond
@@ -30,7 +29,7 @@ the detection more compatible.
 ### App Options
 ```
 Flag            | Description
--np               Removes the need for a plus object to be placed on the checkbox next to a zone.
+-np               Removes the need for a plus object to be placed on the checkbox next to a zone (arrangement cannot be used)
 -feed             Displays a semi-transparent view of what the model sees (non-toggleable).
                   Only applicable with -test.
 -test             Adds the test control, which allows for placement of objects, keys z for undo, b for button.
@@ -53,4 +52,3 @@ Other issues and fixes include:
 - Cannot find 'assets/...' - you must run app.py using the app folder as the current working directory.
 ```
 =======
->>>>>>> Stashed changes
