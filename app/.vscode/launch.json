@@ -42,7 +42,7 @@
             "justMyCode": true
         },
         {
-            "name": "William",
+            "name": "W",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
